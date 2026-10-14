@@ -1,0 +1,12 @@
+{
+  "name": "Chouette TV",
+  "slug": "chouette-tv",
+  "packageId": "ChouetteTV",
+  "appSuffix": "iptv",
+  "widgetId": "https://example.org/chouette-tv",
+  "storageNamespace": "chouette-tv",
+  "legacyStorageNamespace": null,
+  "icon": "chouette/icon.png",
+  "icon117": "chouette/icon-117.png",
+  "icon512": "chouette/icon-512.png"
+}

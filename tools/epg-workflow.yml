@@ -1,0 +1,42 @@
+# Optional manual workflow for a separate repository containing public EPG inputs.
+# It uploads generated data for review; it does not commit or deploy them.
+name: Prepare guide artifact
+on:
+  workflow_dispatch:
+    inputs:
+      playlist_path:
+        description: Public playlist path in this data repository
+        required: true
+        default: data/playlist.m3u
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Obtain optional guide grabbers
+        run: git clone --depth=1 https://github.com/iptv-org/epg "$RUNNER_TEMP/grabbers"
+      - name: Install grabber dependencies
+        working-directory: ${{ runner.temp }}/grabbers
+        run: npm ci
+      - name: Select guide sources
+        env:
+          EPG_PLAYLIST_PATH: ${{ inputs.playlist_path }}
+        run: node tools/make-channels.js "$EPG_PLAYLIST_PATH" "$RUNNER_TEMP/grabbers/sites" > "$RUNNER_TEMP/selected.xml"
+      - name: Collect schedules
+        working-directory: ${{ runner.temp }}/grabbers
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
+        run: npm run grab -- --channels="$RUNNER_TEMP/selected.xml" --output="$RUNNER_TEMP/guide.xml" --days=2
+      - name: Convert schedules
+        run: node tools/xmltv-to-json.js "$RUNNER_TEMP/guide.xml" > "$RUNNER_TEMP/epg.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: guide-for-review
+          path: |
+            ${{ runner.temp }}/guide.xml
+            ${{ runner.temp }}/epg.json

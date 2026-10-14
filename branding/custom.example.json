@@ -1,0 +1,12 @@
+{
+  "name": "Mon lecteur TV",
+  "slug": "mon-lecteur-tv",
+  "packageId": "MyPlayer01",
+  "appSuffix": "iptv",
+  "widgetId": "https://example.org/my-player",
+  "storageNamespace": "my-player",
+  "legacyStorageNamespace": null,
+  "icon": "my-icon.png",
+  "icon117": "my-icon-117.png",
+  "icon512": "my-icon-512.png"
+}

@@ -1,0 +1,24 @@
+# Chouette's unsigned SDK project. Select a signing profile locally for distribution.
+profile: tv-samsung
+project_type: web_app
+api_version: "2.3"
+output_name: chouette-tv
+build_type: Debug
+signing_profile: ""
+opt: false
+output_path: ""
+files:
+  - index.html
+  - js/app.bundle.js
+  - css/style.css
+  - icon-117.png
+  - icon-512.png
+  - icon.png
+excludes:
+  - '^(Debug|Release|Build|Test|webUnitTest)/'
+  - '^\.(Build|buildResult|externalToolBuilders|obj|package|settings|sign|tizen-rds)(/|$)'
+  - '\.(wgt|csproj|gn|project|tproject)$'
+  - '^(Directory.Build.targets|tizen_web_project.yaml)$'
+  - '\.(DS_Store|rds_delta|sdk_delta.info|tizen-ui-builder-tool.xml)$'
+trust_anchor: []
+deps: []

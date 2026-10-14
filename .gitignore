@@ -1,0 +1,32 @@
+# SDK installers, provider playlists and generated SDK output stay local.
+/*.bin
+/*.m3u
+**/Debug/
+
+# Local account notes and Tizen deployment state
+creeds.ignore
+app/.tizen-rds/
+.DS_Store
+
+# Private branding, source accounts, reports, drafts and generated variants
+private/
+dist/
+*.local.json
+*.eml
+*.p12
+*.pfx
+*.pem
+*.key
+*.wgt
+author-signature.xml
+signature1.xml
+app/Release/
+app/Build/
+app/Test/
+app/.buildResult/
+app/.sign/
+store/*.png
+store/*.jpg
+store/*.pdf
+docs/audit-netflix-light-2026-10-06.md
+docs/*.jpg

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget id="https://example.org/chouette-tv" version="0.1.1" viewmodes="maximized"
+        xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets">
+  <name>Chouette TV</name>
+  <icon src="icon.png" />
+  <content src="index.html" />
+  <tizen:profile name="tv-samsung" />
+  <tizen:application id="ChouetteTV.iptv" package="ChouetteTV" required_version="2.3" />
+  <tizen:setting hwkey-event="enable" encryption="disable" background-support="disable"
+                 context-menu="disable" screen-orientation="landscape" />
+  <access subdomains="true" origin="*" />
+  <feature name="http://tizen.org/feature/screen.size.all" />
+  <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice" />
+  <tizen:privilege name="http://tizen.org/privilege/internet" />
+  <tizen:privilege name="http://tizen.org/privilege/filesystem.write" />
+  <tizen:privilege name="http://tizen.org/privilege/filesystem.read" />
+</widget>
