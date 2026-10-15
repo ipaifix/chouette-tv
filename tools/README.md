@@ -32,6 +32,9 @@ Voir [BUILDING](../docs/BUILDING.md) et
 affichée comme serveur Xtream, avec `demo` / `demo`. La démonstration ne contacte
 pas de fournisseur et ne fournit pas de flux vidéo.
 
+`node tests/preview.js --gallery` remplit les grilles de 20 chaînes, 24 films et
+18 séries fictifs avec des affiches géométriques locales pour les captures.
+
 `node tests/browser-smoke.js` est facultatif : il nécessite Playwright et son
 binaire Firefox installés séparément. Il utilise un profil neuf, bloque les
 requêtes externes et contrôle configuration, navigation et rechargement.

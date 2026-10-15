@@ -6,7 +6,7 @@ Chouette TV includes **no channels, playlists, subscriptions or source accounts*
 
 [Install on your TV with VS Code](docs/INSTALLATION.md) · [Screenshots](#screenshots) · [Build and customize](#development-and-customization)
 
-![Chouette TV programme guide with fictional channels and programmes](docs/screenshots/tv-guide.png)
+![Chouette TV movie catalogue with fictional films and demonstration artwork](docs/screenshots/movies.png)
 
 ## Features
 
@@ -25,33 +25,22 @@ The repository contains source code. The build tool prepares an unsigned Tizen p
 
 ## Screenshots
 
-Browser captures of the actual interface at 1920 × 1080, using the local demonstration server. All channels, programmes and film details are fictional. The owl is placeholder artwork; no provider catalogue or real video is included.
+Browser captures of the actual interface at 1920 × 1080, using `node tests/preview.js --gallery`. The demo contains 20 channels, 24 films and 18 series, with fictional titles and original geometric placeholder artwork. No provider catalogue, third-party posters or real video is included. Grids show the visible portion of each catalogue; use the remote to browse further.
 
-<details>
-<summary>Home — recently added movies and series</summary>
-
-![Home with demo movies and series](docs/screenshots/home.png)
-
-</details>
-
-<details>
-<summary>Live TV — channels and current programmes</summary>
+**All channels** — the live catalogue with current programme information.
 
 ![Live TV catalogue with fictional channels](docs/screenshots/live-tv.png)
 
-</details>
+**All movies** — shown at the top of this page.
+
+**All series** — the series catalogue, with remote-control focus.
+
+![Series catalogue with fictional titles and demonstration artwork](docs/screenshots/series.png)
 
 <details>
-<summary>Search — live TV, series and movies</summary>
+<summary>TV guide — programme timeline and filters</summary>
 
-![Search results across the demo catalogues](docs/screenshots/search.png)
-
-</details>
-
-<details>
-<summary>Movie details — synopsis and playback action</summary>
-
-![Movie details with fictional metadata](docs/screenshots/movie-details.png)
+![TV guide with fictional channels and programmes](docs/screenshots/tv-guide.png)
 
 </details>
 
