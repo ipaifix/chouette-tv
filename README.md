@@ -1,83 +1,113 @@
 # Chouette TV
 
-Lecteur IPTV pour **Samsung Smart TV (Tizen)**.
-Il ne fournit aucune chaîne, playlist, abonnement ou compte.
-Au premier lancement, configurez votre source dans **Réglages**.
+An IPTV player for **Samsung Smart TVs running Tizen**, designed for remote-control navigation. Browse live TV, movies and series, explore the programme guide, and keep separate local viewing profiles.
 
-Le code est distribué sous licence MIT. Chouette TV est le nom et le branding
-publics ; des variantes locales peuvent utiliser une autre identité sans
-modifier les sources de l’application.
+Chouette TV includes **no channels, playlists, subscriptions or source accounts**. Connect your own source in Settings on first launch. The interface is currently in French; this introduction and the installation guide are in English.
 
-## Utilisation
+[Install on your TV with VS Code](docs/INSTALLATION.md) · [Screenshots](#screenshots) · [Build and customize](#development-and-customization)
 
-- Xtream Codes : serveur, identifiant et mot de passe ; direct, films et séries.
-- M3U/M3U8 : URL de playlist, avec catégories `group-title`.
-- Guide : URL EPG configurée, guide Xtream ou `url-tvg` de la playlist.
-- Profils locaux, langues préférées, favoris et séries suivies.
-- Reprise des films/épisodes, recherche et fiches fournies par la source.
-- Guide TV paginé, aperçu du direct et réglages audio/sous-titres.
+![Chouette TV programme guide with fictional channels and programmes](docs/screenshots/tv-guide.png)
 
-Le compte Xtream est prioritaire. Sans cache, l’application charge le catalogue
-depuis la source ; avec un cache compatible, elle l’affiche au démarrage.
-**Réglages → Actualiser le catalogue** recharge les données. Une erreur réseau
-conserve le dernier contenu disponible lorsque possible. Une rubrique Xtream
-indisponible peut donner un catalogue partiel.
+## Features
 
-Les données sont locales à l’appareil et séparées par personne/source. Les
-accès restent dans les réglages persistants ; ils ne sont pas chiffrés par
-l’application. Une réinstallation debug peut conserver des fichiers.
-Lire [la documentation de confidentialité](docs/PRIVACY.md).
+- **Your own sources:** Xtream Codes accounts or M3U/M3U8 playlists with category support.
+- **Live TV and guide:** channel browsing, favourites, now/next information and a paginated EPG timeline. Use the source's guide or configure an EPG URL.
+- **Movies and series:** search, source-provided details, playback resume, followed series and optional automatic next episodes.
+- **Local profiles:** separate viewing history and audio/subtitle preferences.
+- **TV controls:** directional navigation, channel switching, aspect ratio, audio tracks, subtitles and playback controls.
+- **Custom branding:** another name and artwork from the same application sources, with private configuration outside Git.
 
-## Télécommande
+## Install on a Samsung TV
 
-- Catalogue : flèches pour naviguer, OK pour ouvrir/lire, BACK pour remonter.
-- Lecture : OK ouvre les commandes ; flèches et OK pour Aspect, Audio/ST et Favori.
-- Direct : CH± change de chaîne ; le bouton Favori ajoute ou retire une chaîne.
-- Films/épisodes : commandes de pause/avance ; BACK ferme les commandes puis revient au catalogue.
-- Guide : ← → change la fenêtre, ↑ ↓ navigue, OK lance le direct.
+Follow the [step-by-step VS Code installation guide](docs/INSTALLATION.md). It covers the Samsung Tizen TV extension, Developer Mode, connecting the TV, creating a Samsung certificate, signing and running the app.
 
-L’enchaînement des épisodes est désactivé initialement et configurable par
-personne. Aucun replay/catch-up n’est inclus.
+The repository contains source code. The build tool prepares an unsigned Tizen project; signing and installation require your own certificate and TV connection. Playback formats and compatibility depend on the TV model and firmware.
 
-## Développement et variantes
+## Screenshots
 
-Node.js 18+ et Bash suffisent aux contrôles hors ligne :
+Browser captures of the actual interface at 1920 × 1080, using the local demonstration server. All channels, programmes and film details are fictional. The owl is placeholder artwork; no provider catalogue or real video is included.
+
+<details>
+<summary>Home — recently added movies and series</summary>
+
+![Home with demo movies and series](docs/screenshots/home.png)
+
+</details>
+
+<details>
+<summary>Live TV — channels and current programmes</summary>
+
+![Live TV catalogue with fictional channels](docs/screenshots/live-tv.png)
+
+</details>
+
+<details>
+<summary>Search — live TV, series and movies</summary>
+
+![Search results across the demo catalogues](docs/screenshots/search.png)
+
+</details>
+
+<details>
+<summary>Movie details — synopsis and playback action</summary>
+
+![Movie details with fictional metadata](docs/screenshots/movie-details.png)
+
+</details>
+
+## Remote controls
+
+- **Browse:** arrows to navigate, OK to open or play, Back to go up a level.
+- **While watching:** OK opens playback controls; arrows and OK select aspect ratio, audio/subtitles or favourites.
+- **Live TV:** CH+/CH− switches channels.
+- **Movies and episodes:** pause/seek controls; Back closes controls, then returns to browsing.
+- **Guide:** Left/Right changes the time window, Up/Down changes the channel, OK starts live playback.
+
+Automatic next episodes are off by default and configurable per profile. Catch-up/replay is not included.
+
+## Sources and local data
+
+Xtream takes priority over a playlist. The app displays a compatible saved catalogue at startup, or loads from the source when no cache is available. **Réglages → Actualiser le catalogue** refreshes it manually. Failed requests preserve available data where possible; unavailable Xtream sections can leave a partial catalogue.
+
+Settings, credentials, profiles and viewing data stay on the device. **Credentials are not encrypted by the application**, and development reinstalls may retain files. See [privacy](docs/PRIVACY.md) (French). No Chouette TV account or project telemetry service is included.
+
+## Development and customization
+
+Node.js 18+ and Bash are sufficient for offline builds and checks; no npm installation is needed:
 
 ```sh
-./tools/build-bundle.sh
-./tools/check.sh
+git clone https://github.com/ipaifix/chouette-tv.git
+cd chouette-tv
+bash tools/build-bundle.sh
+bash tools/check.sh
 node tools/build-variant.js
 ```
 
-Le build public non signé est dans `dist/chouette-tv/app/`. Le fichier
-`branding/public.json` définit nom, icônes, identité Tizen et namespace de
-stockage. Une configuration ignorée dans `private/` permet une autre version.
-Voir [builds et personnalisation](docs/BUILDING.md).
+The unsigned project is generated in `dist/chouette-tv/app/`. Open that folder in VS Code for signing and deployment. The output must not already exist; choose a fresh directory for another build.
 
-L’application utilise des modules JavaScript IIFE, un bundle concaténé et
-AVPlay sur Samsung ; la vidéo HTML5 sert au développement navigateur.
-Éditer les modules sources, puis reconstruire `app/js/app.bundle.js`.
+`branding/public.json` defines the public name, icons, Tizen identity and storage namespace. Copy `branding/custom.example.json` to `private/personal.json` and keep custom assets in the ignored `private/` folder. Build the same sources with another identity:
 
-Pour une démonstration locale sans fournisseur : `node tests/preview.js`, puis
-ouvrir l’adresse affichée et saisir les accès fictifs `demo` / `demo`.
-Les fixtures fournissent des métadonnées et visuels locaux, sans vidéo réelle.
-Voir [les outils](tools/README.md).
+```sh
+node tools/build-variant.js private/personal.json dist/personal/app
+```
 
-## Performance et limites
+See [building and branding](docs/BUILDING.md) and [development tools](tools/README.md) (French). Edit `app/js/` modules, then rebuild `app/js/app.bundle.js`. Samsung playback uses AVPlay; browser development uses HTML5 video.
 
-Le catalogue se charge progressivement ; les imports de recherche/guide sont
-découpés en travaux annulables. Les séries, historiques, cartes et images ont
-des budgets pour limiter l’accumulation sur les TV. Cela ne garantit pas une
-consommation de RAM donnée : réseau, moteur vidéo et décodage des images
-restent dépendants du matériel.
+To explore without a provider:
 
-Les contrôles automatisés simulent Tizen/AVPlay et ne qualifient pas les codecs,
-pistes, veille/reprise ou stockage plein sur TV. Le User-Agent de playlist ne
-peut être appliqué que sur TV ; le Referrer M3U n’est pas appliqué par AVPlay.
+```sh
+node tests/preview.js
+```
 
-## Publication et contributions
+Open the printed local URL and use that URL as the Xtream server with fictional credentials `demo` / `demo`. The demo provides local metadata and artwork without playable video.
 
-Préparer une copie de sources avec une liste de fichiers autorisés :
+## Testing and limitations
+
+Offline tests simulate Tizen/AVPlay. They do not qualify codecs, tracks, standby/resume or full storage on TVs. Incremental catalogue/guide loading and bounded caches limit retained data; actual memory use also depends on the video engine and artwork. Playlist User-Agent overrides are TV-only; M3U Referrer values are not applied by AVPlay.
+
+## Contributing
+
+See [contributing](CONTRIBUTING.md), [security](SECURITY.md) and the [publication checklist](docs/PUBLICATION.md). Keep accounts, private playlists, certificates and device state outside Git. Before sharing sources:
 
 ```sh
 node tools/privacy-audit.js --history
@@ -85,10 +115,8 @@ node tools/prepare-public.js
 node tools/privacy-audit.js --tree dist/public-source
 ```
 
-Ces outils ne publient rien. Ils excluent l’historique Git, les fichiers
-privés et les données de déploiement. Les images/documents exigent également
-une revue visuelle.
+These tools inspect an explicit public file list. They do not publish or sign packages. Images and documents also require visual review.
 
-Voir [le dossier de publication](docs/PUBLICATION.md),
-[contribuer](CONTRIBUTING.md), [sécurité](SECURITY.md) et
-[la description préparée pour le store](store/listing.fr.md).
+## License
+
+[MIT](LICENSE).

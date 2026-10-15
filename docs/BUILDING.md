@@ -1,5 +1,7 @@
 # Builds et personnalisation
 
+Pour installer sur une TV avec VS Code, suivre le [tutoriel pas à pas en anglais](INSTALLATION.md).
+
 Prérequis : Node.js 18 ou plus récent et Bash. Aucun paquet npm n’est nécessaire
 pour le bundle, les variantes ou les contrôles hors ligne.
 
