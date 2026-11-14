@@ -214,7 +214,7 @@ var App = App || {};
         var rec = item && item.kind === 'episode' ? App.seriesRecordForEpisode(item) : item;
         var sid = App.seriesIdFromItem(rec || item);
         if (!sid) {
-            App.toast('Impossible de suivre cette série');
+            App.toast(I18n.t('Impossible de suivre cette série'));
             return false;
         }
         var list = App.loadFollowedSeries().slice();
@@ -226,7 +226,7 @@ var App = App || {};
         if (idx >= 0) {
             list.splice(idx, 1);
             App.saveFollowedSeries(list);
-            App.toast('Série retirée du suivi');
+            App.toast(I18n.t('Série retirée du suivi'));
             return false;
         }
         if (list.length >= (App.FOLLOW_MAX || 40)) {
@@ -240,7 +240,7 @@ var App = App || {};
             at: Date.now()
         });
         App.saveFollowedSeries(list);
-        App.toast('Série suivie — les nouveaux épisodes iront dans Continuer à regarder');
+        App.toast(I18n.t('Série suivie — les nouveaux épisodes iront dans Continuer à regarder'));
         return true;
     };
 
@@ -301,9 +301,9 @@ var App = App || {};
             App._followRefreshBusy = false;
             if (opts.notifyNew && added > 0) {
                 if (added === 1 && firstName) {
-                    App.toast('Nouvel épisode · ' + firstName);
+                    App.toast(I18n.t('Nouvel épisode · {name}', { name: firstName }));
                 } else {
-                    App.toast(added + ' nouveaux épisodes à suivre');
+                    App.toast(I18n.t('{n} nouveaux épisodes à suivre', { n: added }));
                 }
             }
             if (opts.rebuildHome && App.uiState === 'browse' &&
@@ -348,7 +348,7 @@ var App = App || {};
                     if (res.queued && res.isNew) {
                         added += 1;
                         if (!firstName) {
-                            firstName = rec.name || fav.name || 'Série';
+                            firstName = rec.name || fav.name || I18n.t('Série');
                             if (typeof App.displayCatalogTitle === 'function') {
                                 firstName = App.displayCatalogTitle(firstName);
                             }

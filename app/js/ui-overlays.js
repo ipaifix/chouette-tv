@@ -85,14 +85,14 @@ var App = App || {};
             App.$epgNow.textContent = 'Maintenant   ' + EPG.fmtTime(nn.now.start) + '–' +
                 EPG.fmtTime(nn.now.stop) + '   ' + nn.now.title;
         } else if (ch.kind === 'live' && EPG.isLoaded()) {
-            App.$epgNow.textContent = 'Aucun programme disponible pour cette chaîne';
+            App.$epgNow.textContent = I18n.t('Aucun programme disponible pour cette chaîne');
         } else if (ch.kind === 'live') {
-            App.$epgNow.textContent = 'Aucun guide TV — ajoutez une adresse EPG dans Réglages';
+            App.$epgNow.textContent = I18n.t('Aucun guide TV — ajoutez une adresse EPG dans Réglages');
         } else {
-            App.$epgNow.textContent = ch.kind === 'vod' ? 'Film' : (ch.kind === 'episode' ? 'Épisode' : '');
+            App.$epgNow.textContent = ch.kind === 'vod' ? I18n.t('Film') : (ch.kind === 'episode' ? I18n.t('Épisode') : '');
         }
         App.$epgNext.textContent = (nn && nn.next)
-            ? 'À suivre  ' + EPG.fmtTime(nn.next.start) + '   ' + nn.next.title
+            ? I18n.t('À suivre  {time}   {title}', { time: EPG.fmtTime(nn.next.start), title: nn.next.title })
             : '';
         App.updateInfoFocusUi();
     }

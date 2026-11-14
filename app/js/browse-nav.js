@@ -87,7 +87,7 @@ var App = App || {};
         App.buildListRows();
         App.endResumeSnap();
         if (!App.listRows.length) {
-            App.toast('Rien à reprendre');
+            App.toast(I18n.t('Rien à reprendre'));
             if (App.continueFilter) {
                 if (App.categories.length) { App.openCategories(); }
                 else { App.openContentList(null); }
@@ -122,7 +122,7 @@ var App = App || {};
         }
         App.buildListRows();
         if (!App.listRows.length) {
-            App.toast('Aucun favori');
+            App.toast(I18n.t('Aucun favori'));
             if (App.categories.length) { App.openCategories(); }
             else { App.openContentList(null); }
             return;
@@ -202,7 +202,7 @@ var App = App || {};
     App.enterType = function (type) {
         App.setContentType(type);
         if (!App.channels.length) {
-            App.toast('Aucun contenu pour ' + App.typeLabel(type));
+            App.toast(I18n.t('Aucun contenu pour {type}', { type: App.typeLabel(type) }));
             return;
         }
         App.homeFocus = App.homeFocus || {};
@@ -324,7 +324,7 @@ var App = App || {};
 
     App.loadSeriesAndRestore = function (seriesItem, mem) {
         App.activeSeries = seriesItem;
-        App.toast('Chargement de ' + seriesItem.name + '…');
+        App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
         App.seriesLoading = true;
         /* A cached series response can complete synchronously. */
         App.listLevel = 'seasons';
@@ -494,14 +494,14 @@ var App = App || {};
         if (row.kind === 'favorite-item') {
             var favItem = row.item;
             if (!favItem) {
-                App.toast('Contenu indisponible');
+                App.toast(I18n.t('Contenu indisponible'));
                 return;
             }
             if (App.contentType === 'series' || favItem.kind === 'series') {
                 if (App.showDetails) { App.showDetails(favItem); return; }
                 App.openedFromFavorites = true;
                 App.activeSeries = favItem;
-                App.toast('Chargement de ' + favItem.name + '…');
+                App.toast(I18n.t('Chargement de {name}…', { name: favItem.name }));
                 App.seriesLoading = true;
                 Xtream.getSeriesInfo(
                     App.xtreamCreds.base, App.xtreamCreds.username, App.xtreamCreds.password,
@@ -519,7 +519,7 @@ var App = App || {};
                 return;
             }
             if (!favItem.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             if (App.livePreviewActive && App.playingItem && App.playingItem() &&
@@ -566,12 +566,12 @@ var App = App || {};
             var seriesItem = App.channels[row.channelIndex];
             if (App.showDetails && seriesItem) { App.showDetails(seriesItem); return; }
             if (!seriesItem) {
-                App.toast('Série introuvable');
+                App.toast(I18n.t('Série introuvable'));
                 return;
             }
             App.openedFromFavorites = false;
             App.activeSeries = seriesItem;
-            App.toast('Chargement de ' + seriesItem.name + '…');
+            App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
             App.seriesLoading = true;
             Xtream.getSeriesInfo(
                 App.xtreamCreds.base, App.xtreamCreds.username, App.xtreamCreds.password,
@@ -600,11 +600,11 @@ var App = App || {};
         if (row.kind === 'channel') {
             var chItem = App.channels[row.channelIndex];
             if (!chItem) {
-                App.toast('Contenu introuvable');
+                App.toast(I18n.t('Contenu introuvable'));
                 return;
             }
             if (!chItem.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             if ((chItem.kind || App.contentType) === 'live' &&

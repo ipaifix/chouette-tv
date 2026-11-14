@@ -28,10 +28,10 @@ var App = App || {};
         var favorite = !!(App.isFavoriteChannel && App.isFavoriteChannel(item));
         App.liveFavoriteFocus = 'confirm';
         App.$liveFavoriteMessage.textContent = favorite
-            ? 'Retirer « ' + item.name + ' » des favoris ?'
-            : 'Ajouter « ' + item.name + ' » aux favoris ?';
+            ? I18n.t('Retirer « {name} » des favoris ?', { name: item.name })
+            : I18n.t('Ajouter « {name} » aux favoris ?', { name: item.name });
         App.$liveFavoriteConfirm.textContent = favorite
-            ? 'Retirer des favoris' : 'Ajouter aux favoris';
+            ? I18n.t('Retirer des favoris') : I18n.t('Ajouter aux favoris');
         App.$liveFavoriteConfirm.setAttribute('data-removing', favorite ? 'true' : 'false');
         App.uiState = 'liveFavorite';
         App.setExclusiveOverlays({ liveFavorite: true });

@@ -13,108 +13,111 @@
   <div class="hidden" id="browse-dim"></div>
 
   <main id="channel-list" class="hidden">
-    <aside id="home-rail" class="hidden" aria-label="Menu principal">
+    <aside id="home-rail" class="hidden" aria-label="Menu principal" data-i18n-attr="aria-label">
       <div id="home-rail-brand"><img id="home-rail-logo" src="icon-117.png" width="160" height="160" alt="Chouette TV"></div>
-      <nav id="home-rail-nav" aria-label="Rubriques"></nav>
+      <nav id="home-rail-nav" aria-label="Rubriques" data-i18n-attr="aria-label"></nav>
     </aside>
     <div id="browse-pane">
-      <section id="home-main" class="hidden" aria-label="Accueil"><div id="home-rows"></div></section>
-      <section id="search-main" class="hidden" aria-label="Recherche">
+      <section id="home-main" class="hidden" aria-label="Accueil" data-i18n-attr="aria-label"><div id="home-rows"></div></section>
+      <section id="search-main" class="hidden" aria-label="Recherche" data-i18n-attr="aria-label">
         <div id="search-shell-head">
-          <label for="search-query-shell">Recherche</label>
-          <input autocomplete="off" readonly placeholder="Chaîne, film, série…" type="text" id="search-query-shell">
+          <label for="search-query-shell" data-i18n>Recherche</label>
+          <input autocomplete="off" readonly placeholder="Chaîne, film, série…" type="text" id="search-query-shell" data-i18n-attr="placeholder">
         </div>
         <div id="search-shell-meta"></div><div id="search-shell-rows"></div>
       </section>
-      <section id="channel-list-col" aria-label="Catalogue">
+      <section id="channel-list-col" aria-label="Catalogue" data-i18n-attr="aria-label">
         <header id="channel-list-head">
-          <div id="channel-list-mode">Accueil</div>
+          <div id="channel-list-mode" data-i18n>Accueil</div>
           <div id="channel-list-title">Chouette TV</div>
-          <div id="channel-list-sub">Choisissez TV, Films ou Séries</div>
+          <div id="channel-list-sub" data-i18n>Choisissez TV, Films ou Séries</div>
           <div class="hidden" aria-hidden="true" id="channel-list-keys"></div>
         </header>
-        <ul id="channel-items" aria-label="Contenus"></ul>
+        <ul id="channel-items" aria-label="Contenus" data-i18n-attr="aria-label"></ul>
       </section>
       <aside id="live-preview" class="hidden" aria-hidden="true">
         <div id="live-preview-frame">
-          <div id="live-preview-viewport"></div><div id="live-preview-placeholder">Aperçu</div>
+          <div id="live-preview-viewport"></div><div id="live-preview-placeholder" data-i18n>Aperçu</div>
         </div>
         <div id="live-preview-name"></div><div id="live-preview-epg"></div>
       </aside>
     </div>
-    <div id="channel-list-brand" class="hidden" tabindex="-1" role="button" aria-label="Actualiser le catalogue Chouette TV">
+    <div id="channel-list-brand" class="hidden" tabindex="-1" role="button" aria-label="Actualiser le catalogue Chouette TV" data-i18n-attr="aria-label" data-i18n-src-aria-label="Actualiser le catalogue {app}">
       <img id="channel-list-logo" src="icon-117.png" width="160" height="160" alt="Chouette TV">
-      <p id="channel-list-brand-hint" class="channel-list-brand-hint">Sélectionnez le logo pour actualiser</p>
+      <p id="channel-list-brand-hint" class="channel-list-brand-hint" data-i18n>Sélectionnez le logo pour actualiser</p>
     </div>
     <div id="home-refresh-overlay" class="hidden" aria-hidden="true">
-      <div class="home-refresh-spinner" aria-label="Chargement"><span></span><span></span><span></span></div>
+      <div class="home-refresh-spinner" aria-label="Chargement" data-i18n-attr="aria-label"><span></span><span></span><span></span></div>
     </div>
   </main>
 
   <section id="settings" class="hidden" aria-labelledby="settings-title">
     <div id="settings-panel">
-      <div id="settings-title">Réglages</div>
-      <div id="settings-hint">▲▼ naviguer · OK éditer · BACK fermer</div>
-      <p class="settings-intro">Configurez votre source IPTV. Les réglages et profils sont enregistrés sur cet appareil.</p>
-      <div class="settings-section">Compte IPTV (Xtream)</div>
-      <label for="setting-xtream-server">Adresse du serveur</label>
+      <div id="settings-title" data-i18n>Réglages</div>
+      <div id="settings-hint" data-i18n>▲▼ naviguer · OK éditer · BACK fermer</div>
+      <p class="settings-intro" data-i18n>Configurez votre source IPTV. Les réglages et profils sont enregistrés sur cet appareil.</p>
+      <div class="settings-section" data-i18n>Compte IPTV (Xtream)</div>
+      <label for="setting-xtream-server" data-i18n>Adresse du serveur</label>
       <input readonly id="setting-xtream-server" placeholder="https://example.com:8080" type="text">
       <div class="settings-row">
         <div class="settings-col">
-          <label for="setting-xtream-user">Identifiant</label>
-          <input readonly autocomplete="off" id="setting-xtream-user" placeholder="Votre identifiant" type="text">
+          <label for="setting-xtream-user" data-i18n>Identifiant</label>
+          <input readonly autocomplete="off" id="setting-xtream-user" placeholder="Votre identifiant" type="text" data-i18n-attr="placeholder">
         </div>
         <div class="settings-col">
-          <label for="setting-xtream-pass">Mot de passe</label>
-          <input readonly autocomplete="off" data-has-saved="" id="setting-xtream-pass" placeholder="Votre mot de passe" type="password">
+          <label for="setting-xtream-pass" data-i18n>Mot de passe</label>
+          <input readonly autocomplete="off" data-has-saved="" id="setting-xtream-pass" placeholder="Votre mot de passe" type="password" data-i18n-attr="placeholder">
         </div>
       </div>
-      <div class="settings-section">Playlist et guide (facultatif)</div>
-      <label for="setting-url">Adresse de la playlist M3U</label>
+      <div class="settings-section" data-i18n>Playlist et guide (facultatif)</div>
+      <label for="setting-url" data-i18n>Adresse de la playlist M3U</label>
       <input readonly placeholder="https://example.invalid/playlist.m3u" id="setting-url" type="text">
-      <label for="setting-epg">Adresse du guide TV</label>
+      <label for="setting-epg" data-i18n>Adresse du guide TV</label>
       <input readonly placeholder="https://example.invalid/guide.xml" id="setting-epg" type="text">
       <div class="btn-row">
-        <button id="setting-save" type="button">Enregistrer et recharger</button>
-        <button id="setting-refresh" type="button">Actualiser le catalogue</button>
-        <button id="setting-cancel" type="button">Annuler</button>
+        <button id="setting-save" type="button" data-i18n>Enregistrer et recharger</button>
+        <button id="setting-refresh" type="button" data-i18n>Actualiser le catalogue</button>
+        <button id="setting-cancel" type="button" data-i18n>Annuler</button>
       </div>
-      <p class="settings-note">Xtream est prioritaire. Le guide de la source est utilisé si aucune adresse EPG n’est renseignée.</p>
+      <div class="btn-row settings-lang-row">
+        <button id="setting-lang" type="button">Langue : Français</button>
+      </div>
+      <p class="settings-note" data-i18n>Xtream est prioritaire. Le guide de la source est utilisé si aucune adresse EPG n’est renseignée.</p>
     </div>
   </section>
   <div id="search" aria-hidden="true" class="hidden"></div>
 
   <section id="exit-confirm" class="hidden" role="dialog" aria-labelledby="exit-msg">
     <div id="exit-box">
-      <div id="exit-msg">Quitter Chouette TV ?</div>
-      <div class="btn-row"><button id="exit-yes" type="button">Oui</button><button id="exit-no" type="button">Non</button></div>
+      <div id="exit-msg" data-i18n data-i18n-src="Quitter {app} ?">Quitter Chouette TV ?</div>
+      <div class="btn-row"><button id="exit-yes" type="button" data-i18n>Oui</button><button id="exit-no" type="button" data-i18n>Non</button></div>
     </div>
   </section>
   <section id="epg-panel" class="hidden" aria-labelledby="epg-panel-title">
     <div id="epg-panel-title"></div><ul id="epg-panel-items"></ul>
   </section>
-  <section id="info-bar" class="hidden" aria-label="Commandes du direct">
+  <section id="info-bar" class="hidden" aria-label="Commandes du direct" data-i18n-attr="aria-label">
     <div id="info-head"><span id="info-name"></span><span id="info-mode"></span></div>
     <div class="stream-quality hidden" aria-hidden="true" id="info-quality"></div>
     <div id="epg-now"></div><div id="epg-next"></div>
     <div id="info-actions">
-      <div class="watch-action focused" id="info-action-aspect">Aspect</div>
-      <div class="watch-action" id="info-action-subs">Audio &amp; sous-titres</div>
-      <div class="watch-action" id="info-action-favorite" role="button">☆ Favori</div>
+      <div class="watch-action focused" id="info-action-aspect" data-i18n>Aspect</div>
+      <div class="watch-action" id="info-action-subs" data-i18n>Audio &amp; sous-titres</div>
+      <div class="watch-action" id="info-action-favorite" role="button" data-i18n>☆ Favori</div>
     </div>
-    <div id="info-hint">◀▶ boutons · OK activer · ▼ guide · BACK fermer</div>
+    <div id="info-hint" data-i18n>◀▶ boutons · OK activer · ▼ guide · BACK fermer</div>
   </section>
   <section id="live-favorite-popup" class="hidden">
     <div role="dialog" aria-modal="true" aria-labelledby="live-favorite-title" id="live-favorite-dialog">
-      <div id="live-favorite-title">Favoris</div><div id="live-favorite-message"></div>
+      <div id="live-favorite-title" data-i18n>Favoris</div><div id="live-favorite-message"></div>
       <div class="live-favorite-actions">
-        <button class="focused" id="live-favorite-confirm" type="button">Ajouter aux favoris</button>
-        <button id="live-favorite-cancel" type="button">Annuler</button>
+        <button class="focused" id="live-favorite-confirm" type="button" data-i18n>Ajouter aux favoris</button>
+        <button id="live-favorite-cancel" type="button" data-i18n>Annuler</button>
       </div>
-      <div id="live-favorite-hint">◀▶ choisir · OK confirmer · BACK annuler</div>
+      <div id="live-favorite-hint" data-i18n>◀▶ choisir · OK confirmer · BACK annuler</div>
     </div>
   </section>
-  <section id="vod-controls" class="hidden" aria-label="Commandes de lecture">
+  <section id="vod-controls" class="hidden" aria-label="Commandes de lecture" data-i18n-attr="aria-label">
     <div id="vod-controls-title"></div><div class="stream-quality hidden" aria-hidden="true" id="vod-quality"></div>
     <div id="vod-progress-row">
       <span id="vod-time-cur">0:00</span>
@@ -123,32 +126,32 @@
     </div>
     <div id="vod-actions">
       <div class="watch-action" aria-hidden="true" id="vod-play-status">▶</div>
-      <div class="watch-action" id="vod-action-aspect">Aspect</div>
-      <div class="watch-action" id="vod-action-subs">Audio &amp; sous-titres</div>
-      <div class="watch-action hidden" id="vod-action-follow">Suivre</div>
+      <div class="watch-action" id="vod-action-aspect" data-i18n>Aspect</div>
+      <div class="watch-action" id="vod-action-subs" data-i18n>Audio &amp; sous-titres</div>
+      <div class="watch-action hidden" id="vod-action-follow" data-i18n>Suivre</div>
     </div>
-    <div id="vod-controls-hint">▲▼ timeline ↔ boutons · ◀▶ avance · OK activer · Play/Pause · BACK fermer</div>
+    <div id="vod-controls-hint" data-i18n>▲▼ timeline ↔ boutons · ◀▶ avance · OK activer · Play/Pause · BACK fermer</div>
   </section>
   <div class="hidden" id="vod-pause-indicator">❚❚</div>
   <section id="tracks-panel" class="hidden" aria-labelledby="tracks-title">
     <div id="tracks-box">
-      <div id="tracks-title">Audio et sous-titres</div>
-      <div id="tracks-hint">▲▼ naviguer · OK sélectionner · BACK fermer</div>
+      <div id="tracks-title" data-i18n>Audio et sous-titres</div>
+      <div id="tracks-hint" data-i18n>▲▼ naviguer · OK sélectionner · BACK fermer</div>
       <ul id="tracks-items"></ul>
     </div>
   </section>
   <section id="resume-dialog" class="hidden" role="dialog" aria-labelledby="resume-msg">
     <div id="resume-box">
-      <div id="resume-msg">Reprendre la lecture ?</div><div id="resume-sub"></div>
-      <div class="btn-row"><button id="resume-yes" type="button">Reprendre</button><button id="resume-no" type="button">Depuis le début</button></div>
+      <div id="resume-msg" data-i18n>Reprendre la lecture ?</div><div id="resume-sub"></div>
+      <div class="btn-row"><button id="resume-yes" type="button" data-i18n>Reprendre</button><button id="resume-no" type="button" data-i18n>Depuis le début</button></div>
     </div>
   </section>
-  <section id="next-episode-prompt" class="hidden" aria-label="Épisode suivant">
+  <section id="next-episode-prompt" class="hidden" aria-label="Épisode suivant" data-i18n-attr="aria-label">
     <div id="next-episode-box">
       <div id="next-episode-sub"></div>
-      <button class="focused" id="next-episode-btn" type="button">Épisode suivant</button>
-      <button id="next-episode-cancel" type="button">Annuler</button>
-      <div id="next-episode-hint">OK lancer · BACK fermer</div>
+      <button class="focused" id="next-episode-btn" type="button" data-i18n>Épisode suivant</button>
+      <button id="next-episode-cancel" type="button" data-i18n>Annuler</button>
+      <div id="next-episode-hint" data-i18n>OK lancer · BACK fermer</div>
     </div>
   </section>
   <div class="hidden" role="status" id="toast"></div>

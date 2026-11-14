@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 
 function load(context, file) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'app', 'js', file), 'utf8'), context, { filename: file });
@@ -39,7 +40,7 @@ function avplayHarness() {
         getCurrentTime() { return 0; }, getDuration() { return 120000; },
         getCurrentStreamInfo() { return []; }
     };
-    const context = vm.createContext({ ...timers(), webapis: { avplay }, window: { innerWidth: 1920, innerHeight: 1080 } });
+    const context = vm.createContext({ I18n: frenchI18n(),  ...timers(), webapis: { avplay }, window: { innerWidth: 1920, innerHeight: 1080 } });
     load(context, 'player.js');
     context.Player.init((...args) => statuses.push(args));
     return { ...context, avplay, callbacks, listeners, statuses, calls };
@@ -123,7 +124,7 @@ function html5Harness() {
         addEventListener(name, fn) { events.set(name, fn); },
         removeEventListener(name, fn) { if (events.get(name) === fn) { events.delete(name); } }
     };
-    const context = vm.createContext({ ...timers(), document, window: {} });
+    const context = vm.createContext({ I18n: frenchI18n(),  ...timers(), document, window: {} });
     load(context, 'player.js');
     context.Player.init();
     return { Player: context.Player, window: context.window, video, scripts, events };
@@ -182,7 +183,7 @@ function appHarness() {
         isPaused() { return false; }, getPosition() { return 0; }, getDuration() { return 0; },
         seekTo() {}
     };
-    const context = vm.createContext({
+    const context = vm.createContext({ I18n: frenchI18n(), 
         ...clock, App, Player,
         Storage: { KEYS: { resumeMap: 'resume' }, get(key) { return store[key]; }, set(key, value) { store[key] = value; } }
     });
@@ -281,7 +282,7 @@ test('cached catalog reconstructs playback credentials from settings', () => {
         $list: { classList: { remove() {} } },
         toast(message) { bootError = message; }, showSettings() {}
     };
-    const context = vm.createContext({ App, Player: { stop() {} }, setTimeout() {}, clearTimeout() {} });
+    const context = vm.createContext({ I18n: frenchI18n(),  App, Player: { stop() {} }, setTimeout() {}, clearTimeout() {} });
     load(context, 'playback.js');
     const ok = App.startFromCatalog({
         live: { categories: [], items: [{ kind: 'live', name: 'One', url: 'https://stream.test' }] },

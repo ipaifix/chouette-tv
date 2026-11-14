@@ -75,6 +75,8 @@ body {
 .settings-note { line-height: 1.4; margin-top: 16px; color: #6f788c; font-size: 16px; }
 .btn-row { margin-top: 24px; }
 .btn-row button { min-width: 180px; }
+#settings .btn-row button { margin-bottom: 8px; }
+#settings .settings-lang-row { margin-top: 32px; } /* language sits apart from the save/refresh/cancel actions */
 button {
     font: 24px Arial, sans-serif;
     border-radius: 8px;

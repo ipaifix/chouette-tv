@@ -15,7 +15,7 @@ var Storage = (function () {
         'favChannels', 'favSeries', 'searchHistory', 'followedSeries',
         'profileRegistry', 'profileMigration', 'viewers',
         'menuType', 'menuLevel', 'menuCat', 'menuFocus', 'menuExpanded',
-        'menuSeries', 'menuSeason', 'lastChannelUrl'
+        'menuSeries', 'menuSeason', 'lastChannelUrl', 'uiLang'
     ];
 
     var KEYS = {};
@@ -46,7 +46,7 @@ var Storage = (function () {
         KEYS.xtreamServer, KEYS.xtreamUser, KEYS.xtreamPass,
         KEYS.resumeMap, KEYS.prefAudioLang, KEYS.prefSubLang,
         KEYS.favChannels, KEYS.favSeries, KEYS.searchHistory, KEYS.followedSeries,
-        KEYS.profileRegistry, KEYS.profileMigration, KEYS.viewers
+        KEYS.profileRegistry, KEYS.profileMigration, KEYS.viewers, KEYS.uiLang
     ];
     var PROFILE_KEYS = [KEYS.resumeMap, KEYS.favChannels, KEYS.favSeries,
         KEYS.searchHistory, KEYS.followedSeries];

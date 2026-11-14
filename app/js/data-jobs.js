@@ -37,7 +37,7 @@ var DataJobs = (function () {
         var result = [], index = 0, afterComma = false;
         function cancel() { cancelled = true; clearTimeout(timer); text = ''; result = []; }
         while (/\s/.test(text.charAt(pos)) && pos < text.length) { pos++; }
-        if (text.charAt(pos++) !== '[') { fail('Réponse API inattendue'); return cancel; }
+        if (text.charAt(pos++) !== '[') { fail(I18n.t('Réponse API inattendue')); return cancel; }
         from = pos;
         function record(end) {
             var value = text.substring(from, end).trim();
@@ -73,7 +73,7 @@ var DataJobs = (function () {
                     }
                 }
                 throw new Error('incomplete array');
-            } catch (e) { text = ''; result = []; fail('Réponse API invalide'); }
+            } catch (e) { text = ''; result = []; fail(I18n.t('Réponse API invalide')); }
         }
         timer = setTimeout(step, 0);
         return cancel;

@@ -46,7 +46,7 @@ var App = App || {};
 
     App.playItem = function (item, preferredKind, opts) {
         if (!item || !item.url) {
-            App.toast('Flux indisponible');
+            App.toast(I18n.t('Flux indisponible'));
             return;
         }
         opts = opts || {};
@@ -67,7 +67,7 @@ var App = App || {};
 
     App.beginPlayback = function (item, preferredKind, startAt, opts) {
         if (!item || !item.url) {
-            App.toast('Flux indisponible');
+            App.toast(I18n.t('Flux indisponible'));
             return;
         }
         opts = opts || {};
@@ -121,7 +121,7 @@ var App = App || {};
         }
 
         if (!opts.silent) {
-            App.toast('Chargement de ' + item.name + '…', true);
+            App.toast(I18n.t('Chargement de {name}…', { name: item.name }), true);
         }
         Player.play(item.url, { userAgent: item.userAgent || '' });
 
@@ -220,6 +220,7 @@ var App = App || {};
             }
             App.rememberMenu();
             if (App.$list) { App.$list.classList.remove('hidden'); }
+            if (App.reopenSettingsAfterLanguageChange) { App.reopenSettingsAfterLanguageChange(); }
             /* Defer heavy post-paint work so browse is interactive first. */
             setTimeout(function () {
                 if (typeof App.scheduleFollowedSeriesRefresh === 'function') {
@@ -235,7 +236,7 @@ var App = App || {};
             return true;
         } catch (err) {
             try {
-                App.toast('Erreur de démarrage : ' + (err && err.message ? err.message : err), true);
+                App.toast(I18n.t('Erreur de démarrage : {error}', { error: err && err.message ? err.message : err }), true);
             } catch (e2) {}
             try { App.showSettings(); } catch (e3) {}
             return false;
@@ -259,7 +260,7 @@ var App = App || {};
             liveItems.push({
                 kind: 'live',
                 id: ch.id || '',
-                name: ch.name || 'Chaîne',
+                name: ch.name || I18n.t('Chaîne'),
                 url: ch.url || '',
                 categoryId: ch.categoryId || '',
                 logo: ch.logo || '',
@@ -291,7 +292,7 @@ var App = App || {};
         if (state === 'playing') {
             var playbackToken = Player.getPlaybackToken();
             if (!App.livePreviewActive) {
-                App.toast('Lecture en cours');
+                App.toast(I18n.t('Lecture en cours'));
             }
             App.setVodBufferingUi(false);
             if (typeof App.scheduleStreamQualityRefresh === 'function') {
@@ -325,7 +326,7 @@ var App = App || {};
             /* Browse / live preview: no watch toast (preview has its own loading UI). */
             if (!App.livePreviewActive &&
                 App.uiState !== 'browse' && App.uiState !== 'search') {
-                App.toast('Chargement…', true);
+                App.toast(I18n.t('Chargement…'), true);
             }
             if (App.isSeekablePlaying()) { App.setVodBufferingUi(true); }
         } else if (state === 'seeking') {
@@ -348,7 +349,7 @@ var App = App || {};
                 }
             }
         } else if (state === 'blocked') {
-            App.toast('Lecture automatique bloquée — cliquez ou appuyez sur une touche', true);
+            App.toast(I18n.t('Lecture automatique bloquée — cliquez ou appuyez sur une touche'), true);
         } else if (state === 'ended') {
             if (App.isSeekablePlaying()) {
                 App._endedResumeKey = App.resumeKeyFor(App.playingItem()) || '';
@@ -362,12 +363,12 @@ var App = App || {};
             if (typeof App.onEpisodePlaybackEnded === 'function' && App.onEpisodePlaybackEnded()) {
                 /* handled */
             } else if (!App.livePreviewActive) {
-                App.toast('Lecture terminée');
+                App.toast(I18n.t('Lecture terminée'));
             }
         } else if (state === 'error') {
             if (!App.livePreviewActive) {
-                App.toast('Lecture impossible : ' + (detail || 'cause inconnue') +
-                    ' — CH+/- pour changer de chaîne');
+                App.toast(I18n.t('Lecture impossible : {reason} — CH+/- pour changer de chaîne',
+                    { reason: detail || I18n.t('cause inconnue') }));
             }
             App.stopResumeSaveLoop();
         }

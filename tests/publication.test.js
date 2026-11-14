@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 const { buildVariant, readBrand, stripPngMetadata } = require('../tools/build-variant');
 const { prepare } = require('../tools/prepare-public');
 const { scanText, scanTree } = require('../tools/privacy-audit');
@@ -20,7 +21,7 @@ function fakeStorage(initial) {
 }
 function storage(brand, initial = {}, tizen) {
     const localStorage = fakeStorage(initial);
-    const ctx = vm.createContext({ Branding: brand, window: { localStorage }, tizen, setTimeout, clearTimeout });
+    const ctx = vm.createContext({ I18n: frenchI18n(),  Branding: brand, window: { localStorage }, tizen, setTimeout, clearTimeout });
     vm.runInContext(fs.readFileSync(path.join(ROOT, 'app/js/storage.js'), 'utf8'), ctx);
     return { ...ctx, localStorage };
 }
@@ -61,7 +62,7 @@ test('variant build escapes names, isolates storage and never changes the source
     assert.match(html, /Owl &amp; &quot;Friends&quot; \$&amp;/);
     assert.doesNotMatch(html, /Chouette TV/);
     assert.match(fs.readFileSync(path.join(out, 'config.xml'), 'utf8'), /id="OwlTest001\.iptv" package="OwlTest001"/);
-    const context = vm.createContext({});
+    const context = vm.createContext({ I18n: frenchI18n(), });
     vm.runInContext(fs.readFileSync(path.join(out, 'js/branding.js'), 'utf8'), context);
     assert.equal(context.Branding.name, config.name);
     assert.equal(context.Branding.storageNamespace, config.storageNamespace);

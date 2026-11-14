@@ -4,9 +4,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 
 function loadUi(files, extra = {}) {
-    const context = vm.createContext({ App: {}, clearTimeout() {}, setTimeout() {}, ...extra });
+    const context = vm.createContext({ I18n: frenchI18n(),  App: {}, clearTimeout() {}, setTimeout() {}, ...extra });
     for (const file of files) {
         vm.runInContext(fs.readFileSync(path.join(__dirname, '../app/js', file), 'utf8'), context, { filename: file });
     }
@@ -195,7 +196,7 @@ test('the guide row keeps flex layout despite the generic feature-button rule', 
 test('live browse hints describe the direct action performed by OK', () => {
     const browse = fs.readFileSync(path.join(__dirname, '../app/js/browse.js'), 'utf8');
     assert.doesNotMatch(browse, /chaînes\s*·\s*OK ouvrir les options/i);
-    assert.match(browse, /countLabel\(subCount, 'chaîne'\)[\s\S]*OK regarder/i);
+    assert.match(browse, /countLabel\(subCount, I18n\.t\('chaîne'\)[\s\S]*OK regarder/i);
 });
 
 test('playback opened from Search restores the same query and focused result', () => {

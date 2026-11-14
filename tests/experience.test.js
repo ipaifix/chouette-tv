@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 const path = require('node:path');
 
 function element(tag = 'div') {
@@ -17,7 +18,7 @@ function element(tag = 'div') {
 function harness(files) {
     const local = new Map(), tasks = new Map();
     let seq = 0;
-    const ctx = vm.createContext({ App: {}, window: { localStorage: {
+    const ctx = vm.createContext({ I18n: frenchI18n(),  App: {}, window: { localStorage: {
         getItem: k => local.get(k) || null, setItem: (k, v) => local.set(k, v), removeItem: k => local.delete(k)
     } }, document: { createElement: element, body: element(), getElementById() { return null; } },
     setTimeout(fn, delay) { const id = ++seq; tasks.set(id, { fn, delay }); return id; },
@@ -29,6 +30,16 @@ function harness(files) {
         for (const [id, t] of [...tasks]) { if (t.delay === delay) { tasks.delete(id); t.fn(); } }
     } });
 }
+
+test('presets follow the interface language, and older profiles that saved a language code still match', () => {
+    const { App: a } = harness(['storage.js', 'catalog.js', 'profiles.js']);
+    const vf = a.viewerPresets[0];
+    assert.equal(a.resolveTrackLang('ui'), 'fr');
+    assert.equal(a.resolveTrackLang('original'), 'original');
+    assert.ok(a.viewerMatchesPreset({ audio: 'ui', subtitles: 'off' }, vf));
+    assert.ok(a.viewerMatchesPreset({ audio: 'fr', subtitles: 'off' }, vf));
+    assert.ok(!a.viewerMatchesPreset({ audio: 'de', subtitles: 'off' }, vf));
+});
 
 test('people retain separate provider histories and language settings across reloads', () => {
     const h = harness(['storage.js', 'catalog.js', 'profiles.js']);
@@ -45,7 +56,7 @@ test('people retain separate provider histories and language settings across rel
     assert.equal(a.currentViewer().subtitles, 'fr');
     const updated = a.loadViewers(); updated.active = 'default'; s.set(s.KEYS.viewers, JSON.stringify(updated));
     assert.match(a.getProfileValue(s.KEYS.resumeMap), /50/);
-    assert.equal(a.currentViewer().audio, 'fr');
+    assert.equal(a.resolveTrackLang(a.currentViewer().audio), 'fr');
     assert.equal(a.currentViewer().autoplay, false);
     updated.active = id; s.set(s.KEYS.viewers, JSON.stringify(updated));
     assert.equal(a.currentViewer().audio, 'original');

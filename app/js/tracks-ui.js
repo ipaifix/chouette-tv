@@ -14,9 +14,9 @@ var App = App || {};
         var info = Player.getTracks();
         var i;
 
-        App.tracksRows.push({ kind: 'section', label: 'Audio' });
+        App.tracksRows.push({ kind: 'section', label: I18n.t('Audio') });
         if (!info.audio.length) {
-            App.tracksRows.push({ kind: 'empty', label: 'Aucune piste audio' });
+            App.tracksRows.push({ kind: 'empty', label: I18n.t('Aucune piste audio') });
         } else {
             for (i = 0; i < info.audio.length; i++) {
                 var a = info.audio[i];
@@ -30,16 +30,16 @@ var App = App || {};
             }
         }
 
-        App.tracksRows.push({ kind: 'section', label: 'Subtitles' });
+        App.tracksRows.push({ kind: 'section', label: I18n.t('Subtitles') });
         App.tracksRows.push({
             kind: 'text',
             index: -1,
             lang: 'off',
-            label: 'Off',
+            label: I18n.t('Off'),
             selected: info.selectedText < 0
         });
         if (!info.text.length) {
-            App.tracksRows.push({ kind: 'empty', label: 'Aucune piste de sous-titres' });
+            App.tracksRows.push({ kind: 'empty', label: I18n.t('Aucune piste de sous-titres') });
         } else {
             for (i = 0; i < info.text.length; i++) {
                 var t = info.text[i];
@@ -128,13 +128,13 @@ var App = App || {};
         if (row.kind === 'audio') {
             if (Player.selectAudioTrack(row.index)) {
                 if (row.lang) { App.updateViewer({ audio: row.lang }); }
-                App.toast('Audio : ' + row.label);
+                App.toast(I18n.t('Audio : {track}', { track: row.label }));
                 App.renderTracksPanel();
                 if (typeof App.refreshStreamQualityUi === 'function') {
                     App.refreshStreamQualityUi();
                 }
             } else {
-                App.toast('Impossible de changer de piste audio');
+                App.toast(I18n.t('Impossible de changer de piste audio'));
             }
             return;
         }
@@ -142,12 +142,12 @@ var App = App || {};
             if (row.index < 0) {
                 Player.setSubtitlesOff();
                 App.updateViewer({ subtitles: 'off' });
-                App.toast('Sous-titres : désactivés');
+                App.toast(I18n.t('Sous-titres : désactivés'));
             } else if (Player.selectSubtitleTrack(row.index)) {
                 if (row.lang) { App.updateViewer({ subtitles: row.lang }); }
-                App.toast('Sous-titres : ' + row.label);
+                App.toast(I18n.t('Sous-titres : {track}', { track: row.label }));
             } else {
-                App.toast('Impossible de changer de piste de sous-titres');
+                App.toast(I18n.t('Impossible de changer de piste de sous-titres'));
                 return;
             }
             App.renderTracksPanel();
@@ -161,12 +161,12 @@ var App = App || {};
             return;
         }
         if (!App.playingItem()) {
-            App.toast('Aucune lecture en cours');
+            App.toast(I18n.t('Aucune lecture en cours'));
             return;
         }
         var info = Player.getTracks();
         if (!info.audio.length && !info.text.length) {
-            App.toast('Aucune piste audio ou de sous-titres');
+            App.toast(I18n.t('Aucune piste audio ou de sous-titres'));
             return;
         }
         App.tracksPrevState = 'watch';
@@ -218,8 +218,9 @@ var App = App || {};
 
     App.applyStoredTrackPrefs = function (skipMetadata) {
         var viewer = App.currentViewer ? App.currentViewer() : null;
-        var audioPref = viewer ? viewer.audio : Storage.get(Storage.KEYS.prefAudioLang);
-        var subPref = viewer ? viewer.subtitles : Storage.get(Storage.KEYS.prefSubLang);
+        var resolve = App.resolveTrackLang || function (v) { return v; };
+        var audioPref = resolve(viewer ? viewer.audio : Storage.get(Storage.KEYS.prefAudioLang));
+        var subPref = resolve(viewer ? viewer.subtitles : Storage.get(Storage.KEYS.prefSubLang));
         if (!audioPref && !subPref) { return; }
         var item = App.playingItem();
         var creds = App.xtreamCreds;
@@ -247,9 +248,9 @@ var App = App || {};
         try {
             var result = Player.applyPreferredTracks(audioPref, subPref || '', item && item.originalLanguage);
             if (result.originalUnknown) {
-                App.toast('VO non identifiée : piste actuelle conservée. Vérifiez dans Audio / sous-titres.');
+                App.toast(I18n.t('VO non identifiée : piste actuelle conservée. Vérifiez dans Audio / sous-titres.'));
             } else if ((!result.audio && audioPref) || (!result.text && subPref !== 'off')) {
-                App.toast('Langue préférée indisponible sur ce contenu');
+                App.toast(I18n.t('Langue préférée indisponible sur ce contenu'));
             }
         } catch (e) {}
     }

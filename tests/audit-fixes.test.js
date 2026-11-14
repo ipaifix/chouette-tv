@@ -4,8 +4,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 function load(files, extra = {}) {
-    const ctx = vm.createContext({ App: {}, setTimeout, clearTimeout, setInterval, clearInterval,
+    const ctx = vm.createContext({ I18n: frenchI18n(),  App: {}, setTimeout, clearTimeout, setInterval, clearInterval,
         window: { addEventListener() {} }, ...extra });
     for (const file of files) vm.runInContext(fs.readFileSync(path.join(__dirname, '../app/js', file + '.js'), 'utf8'), ctx, { filename: file });
     return ctx;
@@ -96,6 +97,20 @@ test('editing settings leaves LEFT and RIGHT to the native caret', () => {
     App.blurSettingsInputs = assert.fail;
     for (const keyCode of [37, 39]) App.onSettingsKeys({ keyCode, preventDefault: assert.fail });
     assert.equal(App.settingsEditing, true);
+});
+
+test('OK on the language button in settings switches the language', () => {
+    const { App } = load(['remote']);
+    const lang = {};
+    let cycled = 0;
+    App.KEY = { ENTER: 13 };
+    App.$settingLang = lang;
+    App.settingsFocusables = [{}, lang];
+    App.settingsFocus = 1;
+    App.isSettingsInput = () => false;
+    App.cycleLanguage = () => { cycled++; };
+    App.onSettingsKeys({ keyCode: 13, preventDefault() {} });
+    assert.equal(cycled, 1);
 });
 
 test('home row scrolling uses real layout rather than a 320-pixel estimate', () => {

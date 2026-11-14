@@ -154,7 +154,7 @@ var App = App || {};
 
     App.prependSearchRow = function () {
         if (App.listLevelSupportsSearch()) {
-            App.listRows.unshift({ kind: 'search', label: 'Rechercher' });
+            App.listRows.unshift({ kind: 'search', label: I18n.t('Rechercher') });
         }
     }
 
@@ -172,7 +172,7 @@ var App = App || {};
         if (!n) { return; }
         var row = {
             kind: 'continue',
-            label: 'Continuer à regarder',
+            label: I18n.t('Continuer à regarder'),
             count: n,
             filter: filter
         };
@@ -194,7 +194,7 @@ var App = App || {};
         if (!n) { return; }
         var row = {
             kind: 'favorites',
-            label: '★ Favoris',
+            label: I18n.t('★ Favoris'),
             count: n
         };
         var insertAt = 0;
@@ -219,14 +219,14 @@ var App = App || {};
 
     App.appendSettingsRow = function () {
         if (App.listLevel === 'types') {
-            App.listRows.push({ kind: 'settings', label: 'Réglages' });
-            App.listRows.push({ kind: 'exit', label: 'Quitter' });
+            App.listRows.push({ kind: 'settings', label: I18n.t('Réglages') });
+            App.listRows.push({ kind: 'exit', label: I18n.t('Quitter') });
         } else if (App.listLevel === 'categories' && !App.useTypeMenu()) {
-            App.listRows.push({ kind: 'settings', label: 'Réglages' });
-            App.listRows.push({ kind: 'exit', label: 'Quitter' });
+            App.listRows.push({ kind: 'settings', label: I18n.t('Réglages') });
+            App.listRows.push({ kind: 'exit', label: I18n.t('Quitter') });
         } else if (App.listLevel === 'content' && !App.useTypeMenu() && !App.categories.length) {
-            App.listRows.push({ kind: 'settings', label: 'Réglages' });
-            App.listRows.push({ kind: 'exit', label: 'Quitter' });
+            App.listRows.push({ kind: 'settings', label: I18n.t('Réglages') });
+            App.listRows.push({ kind: 'exit', label: I18n.t('Quitter') });
         }
     }
 
@@ -272,7 +272,7 @@ var App = App || {};
                     kind: 'favorite-item',
                     item: favs[i],
                     label: App.displayCatalogTitle(
-                        favs[i].name || (App.contentType === 'series' ? 'Série' : 'Chaîne')
+                        favs[i].name || (App.contentType === 'series' ? I18n.t('Série') : I18n.t('Chaîne'))
                     )
                 });
             }
@@ -280,8 +280,8 @@ var App = App || {};
         }
 
         if (App.listLevel === 'categories') {
-            var allLabel = App.contentType === 'vod' ? 'Tous les films'
-                : (App.contentType === 'series' ? 'Toutes les séries' : 'Toutes les chaînes');
+            var allLabel = App.contentType === 'vod' ? I18n.t('Tous les films')
+                : (App.contentType === 'series' ? I18n.t('Toutes les séries') : I18n.t('Toutes les chaînes'));
             App.listRows.push({ kind: 'category', catId: null, label: allLabel, count: App.channels.length });
             if (App.contentType === 'vod' || App.contentType === 'series') {
                 var recentN = App.countRecentItems();
@@ -289,7 +289,7 @@ var App = App || {};
                     App.listRows.push({
                         kind: 'category',
                         catId: App.RECENT_CAT_ID,
-                        label: 'Derniers ajouts',
+                        label: I18n.t('Derniers ajouts'),
                         count: recentN
                     });
                 }
@@ -455,7 +455,7 @@ var App = App || {};
         art.className = 'home-card-art poster-art';
         var placeholder = document.createElement('span');
         placeholder.className = 'home-card-placeholder poster-placeholder';
-        placeholder.textContent = isLive ? 'TV' : 'Sans image';
+        placeholder.textContent = isLive ? 'TV' : I18n.t('Sans image');
         art.appendChild(placeholder);
 
         if (item && item.logo) {
@@ -628,8 +628,8 @@ var App = App || {};
             var empty = document.createElement('li');
             empty.className = 'is-poster-empty';
             empty.textContent = App.contentType === 'live'
-                ? 'Aucune chaîne'
-                : 'Aucun titre';
+                ? I18n.t('Aucune chaîne')
+                : I18n.t('Aucun titre');
             App.$items.appendChild(empty);
             return;
         }
@@ -813,7 +813,7 @@ var App = App || {};
                 if (App.$listMode) { App.$listMode.textContent = App.typeLabel(App.contentType); }
                 if (App.$listTitle) {
                     if (App.listLevel === 'favorites') {
-                        App.$listTitle.textContent = 'Favoris';
+                        App.$listTitle.textContent = I18n.t('Favoris');
                     } else {
                         App.$listTitle.textContent = App.categoryName(App.activeCategoryId);
                     }
@@ -823,22 +823,22 @@ var App = App || {};
                     var subCount = App.posterSource.length;
                     if (App.listLevel === 'favorites') {
                         App.$listSub.textContent = App.contentType === 'series'
-                            ? (App.countLabel(subCount, 'série') + ' · OK ouvrir les options')
-                            : (App.countLabel(subCount, 'chaîne') + ' · OK regarder');
+                            ? I18n.t('{count} · OK ouvrir les options', { count: App.countLabel(subCount, I18n.t('série'), I18n.t('séries')) })
+                            : I18n.t('{count} · OK regarder', { count: App.countLabel(subCount, I18n.t('chaîne'), I18n.t('chaînes')) });
                     } else if (App.contentType === 'live') {
-                        App.$listSub.textContent = App.countLabel(subCount, 'chaîne') +
-                            ' · OK regarder';
+                        App.$listSub.textContent = I18n.t('{count} · OK regarder',
+                            { count: App.countLabel(subCount, I18n.t('chaîne'), I18n.t('chaînes')) });
                     } else if (App.contentType === 'series') {
-                        App.$listSub.textContent = App.countLabel(subCount, 'série') +
-                            ' · OK ouvrir la fiche';
+                        App.$listSub.textContent = I18n.t('{count} · OK ouvrir la fiche',
+                            { count: App.countLabel(subCount, I18n.t('série'), I18n.t('séries')) });
                     } else {
-                        App.$listSub.textContent = App.countLabel(subCount, 'film') +
-                            ' · OK pour lire';
+                        App.$listSub.textContent = I18n.t('{count} · OK pour lire',
+                            { count: App.countLabel(subCount, I18n.t('film'), I18n.t('films')) });
                     }
                 }
                 if (App.$listKeys) {
                     App.$listKeys.textContent =
-                        '▲▼◀▶ naviguer · OK ouvrir · ◀ menu · BACK retour';
+                        I18n.t('▲▼◀▶ naviguer · OK ouvrir · ◀ menu · BACK retour');
                 }
                 App.posterWindowStart = 0;
                 App.renderPosterWindow(true);
@@ -854,13 +854,13 @@ var App = App || {};
                     App.$livePreview.classList.add('hidden');
                     App.$livePreview.setAttribute('aria-hidden', 'true');
                 }
-                if (App.$listMode) { App.$listMode.textContent = 'Accueil'; }
+                if (App.$listMode) { App.$listMode.textContent = I18n.t('Accueil'); }
                 if (App.$listTitle) { App.$listTitle.textContent = Branding.name; }
                 if (App.$listSub) {
-                    App.$listSub.textContent = 'Choisis TV, Films ou Séries';
+                    App.$listSub.textContent = I18n.t('Choisis TV, Films ou Séries');
                 }
                 if (App.$listKeys) {
-                    App.$listKeys.textContent = '▲▼ naviguer · OK ouvrir · BACK quitter';
+                    App.$listKeys.textContent = I18n.t('▲▼ naviguer · OK ouvrir · BACK quitter');
                 }
             } else {
                 App.homeBrandFocused = false;
@@ -871,62 +871,62 @@ var App = App || {};
                     App.$listMode.textContent = App.typeLabel(App.contentType);
                 }
                 if (App.listLevel === 'continue') {
-                    if (App.$listTitle) { App.$listTitle.textContent = 'Continuer à regarder'; }
+                    if (App.$listTitle) { App.$listTitle.textContent = I18n.t('Continuer à regarder'); }
                     if (App.$listSub) {
                         App.$listSub.textContent = App.continueFilter === 'vod'
-                            ? 'Films en cours · OK pour les options'
+                            ? I18n.t('Films en cours · OK pour les options')
                             : (App.continueFilter === 'series'
-                                ? 'Séries en cours · OK pour les options'
-                                : 'Reprendre ou retirer un contenu avec le menu Options');
+                                ? I18n.t('Séries en cours · OK pour les options')
+                                : I18n.t('Reprendre ou retirer un contenu avec le menu Options'));
                     }
                 } else if (App.listLevel === 'favorites') {
-                    if (App.$listTitle) { App.$listTitle.textContent = 'Favoris'; }
+                    if (App.$listTitle) { App.$listTitle.textContent = I18n.t('Favoris'); }
                     if (App.$listSub) {
                         App.$listSub.textContent = App.contentType === 'series'
-                            ? 'Séries favorites · OK pour ouvrir la fiche'
-                            : 'Chaînes favorites · OK pour les options';
+                            ? I18n.t('Séries favorites · OK pour ouvrir la fiche')
+                            : I18n.t('Chaînes favorites · OK pour les options');
                     }
                 } else if (App.listLevel === 'categories') {
-                    if (App.$listTitle) { App.$listTitle.textContent = 'Catégories'; }
+                    if (App.$listTitle) { App.$listTitle.textContent = I18n.t('Catégories'); }
                     if (App.$listSub) {
-                        App.$listSub.textContent = App.countLabel(App.channels.length, 'titre');
+                        App.$listSub.textContent = App.countLabel(App.channels.length, I18n.t('titre'), I18n.t('titres'));
                     }
                 } else if (App.listLevel === 'seasons') {
                     if (App.$listTitle) {
                         App.$listTitle.textContent = App.activeSeries
                             ? App.displayCatalogTitle(App.activeSeries.name)
-                            : 'Saisons';
+                            : I18n.t('Saisons');
                     }
-                    if (App.$listSub) { App.$listSub.textContent = 'Choisir une saison'; }
+                    if (App.$listSub) { App.$listSub.textContent = I18n.t('Choisir une saison'); }
                 } else if (App.listLevel === 'episodes') {
                     if (App.$listTitle) {
-                        App.$listTitle.textContent = App.activeSeason ? App.activeSeason.name : 'Épisodes';
+                        App.$listTitle.textContent = App.activeSeason ? App.activeSeason.name : I18n.t('Épisodes');
                     }
-                    if (App.$listSub) { App.$listSub.textContent = 'OK pour lire · plein écran'; }
+                    if (App.$listSub) { App.$listSub.textContent = I18n.t('OK pour lire · plein écran'); }
                 } else {
                     if (App.$listTitle) { App.$listTitle.textContent = App.categoryName(App.activeCategoryId); }
                     if (App.$listSub) {
                         App.$listSub.textContent = App.contentType === 'live'
-                            ? 'OK pour regarder ou gérer le favori'
+                            ? I18n.t('OK pour regarder ou gérer le favori')
                             : (App.contentType === 'series'
-                                ? 'OK pour ouvrir la série'
-                                : 'OK pour lire · plein écran');
+                                ? I18n.t('OK pour ouvrir la série')
+                                : I18n.t('OK pour lire · plein écran'));
                     }
                 }
                 if (App.$listKeys) {
                     if (App.listLevel === 'content' && App.contentType === 'live') {
                         App.$listKeys.textContent =
-                            '▲▼ aperçu · OK options · ◀ menu · BACK remonter';
+                            I18n.t('▲▼ aperçu · OK options · ◀ menu · BACK remonter');
                     } else if (App.listLevel === 'favorites') {
                         App.$listKeys.textContent = App.contentType === 'series'
-                            ? '▲▼ naviguer · OK ouvrir la fiche · ◀ menu · BACK remonter'
-                            : '▲▼ aperçu · OK options · ◀ menu · BACK remonter';
+                            ? I18n.t('▲▼ naviguer · OK ouvrir la fiche · ◀ menu · BACK remonter')
+                            : I18n.t('▲▼ aperçu · OK options · ◀ menu · BACK remonter');
                     } else if (App.listLevel === 'continue') {
                         App.$listKeys.textContent =
-                            '▲▼ naviguer · OK options · BACK remonter';
+                            I18n.t('▲▼ naviguer · OK options · BACK remonter');
                     } else {
                         App.$listKeys.textContent =
-                            '▲▼ naviguer · OK ouvrir · ◀ menu · BACK remonter';
+                            I18n.t('▲▼ naviguer · OK ouvrir · ◀ menu · BACK remonter');
                     }
                 }
             }
@@ -938,7 +938,7 @@ var App = App || {};
             App.renderListWindow(true);
             } /* end non-poster */
         } catch (err) {
-            try { App.toast('Erreur du menu : ' + (err && err.message ? err.message : err), true); } catch (e2) {}
+            try { App.toast(I18n.t('Erreur du menu : {error}', { error: err && err.message ? err.message : err }), true); } catch (e2) {}
         }
         App.endResumeSnap();
         App.updateListClasses();
@@ -981,17 +981,17 @@ var App = App || {};
 
         if (row.kind === 'search') {
             li.className = 'is-search';
-            li.appendChild(document.createTextNode(row.label || 'Recherche'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Recherche')));
         } else if (row.kind === 'continue') {
             li.className = 'is-continue';
-            li.appendChild(document.createTextNode(row.label || 'Continue'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Continuer à regarder')));
             var cMeta = document.createElement('span');
             cMeta.className = 'item-meta';
             cMeta.textContent = String(row.count || 0);
             li.appendChild(cMeta);
         } else if (row.kind === 'favorites') {
             li.className = 'is-favorite';
-            li.appendChild(document.createTextNode(row.label || 'Favoris'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Favoris')));
             var fMeta = document.createElement('span');
             fMeta.className = 'item-meta';
             fMeta.textContent = String(row.count || 0);
@@ -1008,7 +1008,7 @@ var App = App || {};
             starF.className = 'fav-star';
             starF.textContent = '★ ';
             li.appendChild(starF);
-            li.appendChild(document.createTextNode(row.label || 'Chaîne'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Chaîne')));
         } else if (row.kind === 'settings' || row.kind === 'exit') {
             li.className = row.kind === 'settings' ? 'is-settings' : 'is-settings is-exit';
             li.appendChild(document.createTextNode(row.label || ''));
@@ -1043,7 +1043,7 @@ var App = App || {};
             li.className = 'is-channel';
             var ep = row.item;
             li.appendChild(document.createTextNode(
-                (ep && App.displayCatalogTitle(ep.name)) || 'Episode'
+                (ep && App.displayCatalogTitle(ep.name)) || I18n.t('Épisode')
             ));
             if (ep) { App.appendWatchProgress(li, App.getResumeEntry(ep)); }
         } else if (row.kind === 'series') {
@@ -1059,7 +1059,7 @@ var App = App || {};
                 li.appendChild(starS);
             }
             li.appendChild(document.createTextNode(
-                App.displayCatalogTitle(seriesItem.name || 'Série')
+                App.displayCatalogTitle(seriesItem.name || I18n.t('Série'))
             ));
             App.appendWatchProgress(li, App.bestSeriesResume(seriesItem.seriesId), {
                 seriesStyle: true
@@ -1083,7 +1083,7 @@ var App = App || {};
                 li.appendChild(badge);
             }
             li.appendChild(document.createTextNode(
-                App.displayCatalogTitle(item.name || 'Chaîne')
+                App.displayCatalogTitle(item.name || I18n.t('Chaîne'))
             ));
             if (item.kind === 'vod') {
                 App.appendWatchProgress(li, App.getResumeEntry(item));
@@ -1252,7 +1252,7 @@ var App = App || {};
                 if (rail.action === 'type') {
                     App.$listTitle.textContent = rail.label;
                 } else if (rail.action === 'home') {
-                    App.$listTitle.textContent = 'Accueil';
+                    App.$listTitle.textContent = I18n.t('Accueil');
                 } else {
                     App.$listTitle.textContent = rail.label;
                 }
@@ -1265,15 +1265,15 @@ var App = App || {};
 
         if (App.listLevel === 'categories') {
             if (row.kind === 'category' && App.$listTitle) {
-                App.$listTitle.textContent = row.label || 'Catégorie';
+                App.$listTitle.textContent = row.label || I18n.t('Catégorie');
             } else if (row.kind === 'search' && App.$listTitle) {
-                App.$listTitle.textContent = 'Recherche';
+                App.$listTitle.textContent = I18n.t('Recherche');
             } else if (row.kind === 'continue' && App.$listTitle) {
-                App.$listTitle.textContent = 'Continuer à regarder';
+                App.$listTitle.textContent = I18n.t('Continuer à regarder');
             } else if (row.kind === 'favorites' && App.$listTitle) {
-                App.$listTitle.textContent = 'Favoris';
+                App.$listTitle.textContent = I18n.t('Favoris');
             } else if (App.$listTitle) {
-                App.$listTitle.textContent = 'Catégories';
+                App.$listTitle.textContent = I18n.t('Catégories');
             }
             return;
         }
@@ -1287,11 +1287,11 @@ var App = App || {};
                     App.$listTitle.textContent = gLabel || App.categoryName(App.activeCategoryId);
                 }
             } else if (row.kind === 'search' && App.$listTitle) {
-                App.$listTitle.textContent = 'Recherche';
+                App.$listTitle.textContent = I18n.t('Recherche');
             } else if (row.kind === 'continue' && App.$listTitle) {
-                App.$listTitle.textContent = 'Continuer à regarder';
+                App.$listTitle.textContent = I18n.t('Continuer à regarder');
             } else if (row.kind === 'favorites' && App.$listTitle) {
-                App.$listTitle.textContent = 'Favoris';
+                App.$listTitle.textContent = I18n.t('Favoris');
             } else if (App.$listTitle) {
                 App.$listTitle.textContent = App.categoryName(App.activeCategoryId);
             }

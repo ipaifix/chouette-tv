@@ -74,10 +74,10 @@ var App = App || {};
         if (!keepDraft && App.$settingXtreamPass) {
             App.$settingXtreamPass.value = '';
             if (storedPass) {
-                App.$settingXtreamPass.placeholder = '•••• (enregistré)';
+                App.$settingXtreamPass.placeholder = I18n.t('•••• (enregistré)');
                 App.$settingXtreamPass.setAttribute('data-has-saved', '1');
             } else {
-                App.$settingXtreamPass.placeholder = 'Votre mot de passe';
+                App.$settingXtreamPass.placeholder = I18n.t('Votre mot de passe');
                 App.$settingXtreamPass.setAttribute('data-has-saved', '');
             }
         }
@@ -160,7 +160,7 @@ var App = App || {};
     App.refreshCatalogFromSettings = function () {
         if (App.settingsRefreshBusy) { return; }
         if (!App.catalogSourceFingerprint || !App.catalogSourceFingerprint()) {
-            App.toast('Enregistrez d’abord un compte IPTV ou une playlist M3U');
+            App.toast(I18n.t('Enregistrez d’abord un compte IPTV ou une playlist M3U'));
             return;
         }
         App.settingsRefreshBusy = true;
@@ -177,7 +177,7 @@ var App = App || {};
                 App.settingsRefreshBusy = false;
                 if (App.$settingRefresh) {
                     App.$settingRefresh.disabled = false;
-                    App.$settingRefresh.textContent = 'Actualiser le catalogue';
+                    App.$settingRefresh.textContent = I18n.t('Actualiser le catalogue');
                 }
             }
         });
@@ -208,22 +208,22 @@ var App = App || {};
         }
 
         if ((server || user) && (!server || !user || !pass)) {
-            App.toast('Renseignez le serveur, le compte et son mot de passe');
+            App.toast(I18n.t('Renseignez le serveur, le compte et son mot de passe'));
             return;
         }
         if (!server && !m3u) {
-            App.toast('Renseignez un compte Xtream ou une URL M3U');
+            App.toast(I18n.t('Renseignez un compte Xtream ou une URL M3U'));
             return;
         }
         var urls = [server, m3u, epg];
         for (var i = 0; i < urls.length; i++) {
             if (urls[i] && !/^https?:\/\/[^\s/?#]+(?:[^\s]*)$/i.test(urls[i])) {
-                App.toast('Utilisez une URL complète commençant par http:// ou https://');
+                App.toast(I18n.t('Utilisez une URL complète commençant par http:// ou https://'));
                 return;
             }
         }
         if (server && /[?#]/.test(server)) {
-            App.toast('Le serveur Xtream doit être une URL sans paramètres ni fragment');
+            App.toast(I18n.t('Le serveur Xtream doit être une URL sans paramètres ni fragment'));
             return;
         }
 
@@ -246,6 +246,37 @@ var App = App || {};
     if (App.$settingCancel && App.$settingCancel.addEventListener) {
         App.$settingCancel.addEventListener('click', function () { App.hideSettings(); });
     }
+    /* Interface language: each press moves to the next language, saves it and reloads, so labels built
+       at start-up change too. */
+    App.showLanguageSetting = function () {
+        if (App.$settingLang) {
+            App.$settingLang.textContent = I18n.t('Langue : {name}', { name: I18n.languageName(I18n.lang()) });
+        }
+    };
+    /* Session-only marker: after the reload, settings reopen on the language button instead of Home. */
+    var REOPEN_SETTINGS = 'chouette-tv.reopenSettings';
+    App.cycleLanguage = function () {
+        if (!I18n.setLang(I18n.next(I18n.lang()))) { return; }
+        Storage.flush();
+        try { window.sessionStorage.setItem(REOPEN_SETTINGS, '1'); } catch (e) { /* lands on Home, as before */ }
+        try { window.location.reload(); } catch (e2) { App.showLanguageSetting(); }
+    };
+    /* Called once the catalog is on screen after boot; true when settings were reopened. */
+    App.reopenSettingsAfterLanguageChange = function () {
+        try {
+            if (window.sessionStorage.getItem(REOPEN_SETTINGS) !== '1') { return false; }
+            window.sessionStorage.removeItem(REOPEN_SETTINGS);
+        } catch (e) { return false; }
+        App.showSettings();
+        for (var i = 0; i < App.settingsFocusables.length; i++) {
+            if (App.settingsFocusables[i] === App.$settingLang) { App.setSettingsFocus(i); break; }
+        }
+        return true;
+    };
+    if (App.$settingLang && App.$settingLang.addEventListener) {
+        App.$settingLang.addEventListener('click', App.cycleLanguage);
+    }
+    App.showLanguageSetting();
     (function bindSettingsInputClicks() {
         var inputs = [App.$settingXtreamServer, App.$settingXtreamUser,
             App.$settingXtreamPass, App.$settingUrl, App.$settingEpg];

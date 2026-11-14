@@ -98,10 +98,10 @@ var Xtream = (function () {
         try {
             data = JSON.parse(text);
         } catch (e) {
-            return { error: onErrorLabel + ' : réponse API invalide' };
+            return { error: I18n.t('{label} : réponse API invalide', { label: onErrorLabel }) };
         }
         if (data && data.user_info && String(data.user_info.auth) === '0') {
-            return { error: onErrorLabel + ' : authentification refusée' };
+            return { error: I18n.t('{label} : authentification refusée', { label: onErrorLabel }) };
         }
         return { data: data };
     }
@@ -114,7 +114,7 @@ var Xtream = (function () {
         var parsed = parseJson(text, onErrorLabel);
         if (parsed.error) { return parsed; }
         if (parsed.data && !isArray(parsed.data)) {
-            return { error: onErrorLabel + ' : réponse API inattendue' };
+            return { error: I18n.t('{label} : réponse API inattendue', { label: onErrorLabel }) };
         }
         return { data: parsed.data || [] };
     }
@@ -223,7 +223,7 @@ var Xtream = (function () {
                 kind: 'series',
                 id: String(s.series_id),
                 seriesId: String(s.series_id),
-                name: s.name || ('Série ' + s.series_id),
+                name: s.name || I18n.t('Série {id}', { id: s.series_id }),
                 url: '',
                 categoryId: s.category_id != null ? String(s.category_id) : '',
                 logo: s.cover || '',
@@ -251,7 +251,7 @@ var Xtream = (function () {
         user = (user || '').trim();
         pass = (pass || '').trim();
         if (!base || !user || !pass) {
-            onError('Xtream : serveur, identifiant et mot de passe requis');
+            onError(I18n.t('Xtream : serveur, identifiant et mot de passe requis'));
             return;
         }
 
@@ -276,7 +276,7 @@ var Xtream = (function () {
             var vodItems = mapVodStreams((vodStreams && vodStreams.data) || [], base, user, pass);
             var seriesItems = mapSeriesList((seriesList && seriesList.data) || []);
             if (!liveItems.length && !vodItems.length && !seriesItems.length) {
-                onError((liveStreams && liveStreams.error) || 'Xtream : aucun contenu disponible');
+                onError((liveStreams && liveStreams.error) || I18n.t('Xtream : aucun contenu disponible'));
                 return;
             }
 
@@ -392,7 +392,7 @@ var Xtream = (function () {
                 ['live', 'vod', 'series'].forEach(function (type) {
                     cat[type].categories = buildCategories(cat[type].categories, cat[type].items, cat[type]._categoryCounts);
                 });
-                if (!success) { onError('Xtream : aucun contenu disponible'); }
+                if (!success) { onError(I18n.t('Xtream : aucun contenu disponible')); }
                 else { onDone(cat); }
             }
         }
@@ -456,7 +456,7 @@ var Xtream = (function () {
 
     function getVodDetails(base, user, pass, id, onDone, onError) {
         return xhrGet(apiUrl(normalizeBase(base), user, pass, 'get_vod_info', { vod_id: id }), function (text) {
-            var parsed = parseJson(text, 'Xtream film');
+            var parsed = parseJson(text, I18n.t('Xtream film'));
             if (parsed.error) { onError(parsed.error); return; }
             onDone(normalizeDetails(parsed.data && parsed.data.info));
         }, onError);
@@ -468,7 +468,7 @@ var Xtream = (function () {
         pass = (pass || '').trim();
         seriesId = String(seriesId || '');
         if (!base || !user || !pass || !seriesId) {
-            onError('Xtream : identifiants et série requis');
+            onError(I18n.t('Xtream : identifiants et série requis'));
             return;
         }
 
@@ -551,7 +551,7 @@ var Xtream = (function () {
             }
 
             if (!seasons.length) {
-                onError('Xtream : aucun épisode disponible pour cette série');
+                onError(I18n.t('Xtream : aucun épisode disponible pour cette série'));
                 return;
             }
             seasons.details = normalizeDetails(info);

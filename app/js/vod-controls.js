@@ -101,7 +101,7 @@ var App = App || {};
         }
         App.$vodActionFollow.classList.remove('hidden');
         var on = typeof App.isFollowedSeries === 'function' && App.isFollowedSeries(ch);
-        App.$vodActionFollow.textContent = on ? 'Suivie' : 'Suivre';
+        App.$vodActionFollow.textContent = on ? I18n.t('Suivie') : I18n.t('Suivre');
         if (on) { App.$vodActionFollow.classList.add('is-on'); }
         else { App.$vodActionFollow.classList.remove('is-on'); }
     };
@@ -620,7 +620,7 @@ var App = App || {};
                         App.currentViewer().id !== viewerId || !App.currentViewer().autoplay) { return; }
                     if (remaining === 0) { App.confirmNextEpisode(); return; }
                     if (App.$nextEpisodeSub) {
-                        App.$nextEpisodeSub.textContent = next.item.name + ' · Lecture dans ' + remaining + ' s';
+                        App.$nextEpisodeSub.textContent = I18n.t('{name} · Lecture dans {n} s', { name: next.item.name, n: remaining });
                     }
                     remaining--;
                     App.nextEpisodeTimer = setTimeout(tick, 1000);
@@ -724,7 +724,7 @@ var App = App || {};
         }
         if (App.episodeInSeasons(ch, App.seriesSeasons) ||
             (App.activeSeason && App.episodeInSeasons(ch, [App.activeSeason]))) {
-            App.toast('Fin de la série');
+            App.toast(I18n.t('Fin de la série'));
             return true;
         }
         App.ensureSeriesContextForEpisode(ch, function (ok) {
@@ -737,7 +737,7 @@ var App = App || {};
                 }
                 App.showNextEpisodePrompt(n, { exclusive: true });
             } else {
-                App.toast('Fin de la série');
+                App.toast(I18n.t('Fin de la série'));
             }
         });
         return true;

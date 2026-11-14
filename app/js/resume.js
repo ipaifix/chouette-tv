@@ -176,10 +176,10 @@ var App = App || {};
             else if (entry.url) { key = 'url:' + entry.url; }
         }
         if (!key || !App.clearResumeKey(key)) {
-            App.toast('Impossible de supprimer');
+            App.toast(I18n.t('Impossible de supprimer'));
             return false;
         }
-        App.toast('Retiré de Continuer à regarder');
+        App.toast(I18n.t('Retiré de Continuer à regarder'));
         return true;
     }
 
@@ -367,9 +367,9 @@ var App = App || {};
         if (left >= 60) {
             var h = Math.floor(left / 60);
             var m = left % 60;
-            return m > 0 ? (h + ' h ' + m + ' min') : (h + ' h');
+            return m > 0 ? I18n.t('{h} h {m} min', { h: h, m: m }) : I18n.t('{h} h', { h: h });
         }
-        return left + ' min';
+        return I18n.t('{m} min', { m: left });
     }
 
     App.seasonEpisodeLabel = function (entry) {
@@ -393,19 +393,19 @@ var App = App || {};
         if (opts.seriesStyle) {
             var se = App.seasonEpisodeLabel(entry);
             if (done) {
-                label = se ? (se + ' · Vu') : 'Vu';
+                label = se ? I18n.t('{episode} · Vu', { episode: se }) : I18n.t('Vu');
             } else if (entry.queued && !(entry.pos >= App.RESUME_MIN_SEC)) {
-                label = se ? (se + ' · À suivre') : 'À suivre';
+                label = se ? I18n.t('{episode} · À suivre', { episode: se }) : I18n.t('À suivre');
             } else {
                 var left = App.formatMinutesLeft(entry);
-                label = se ? (se + (left ? ' · ' + left : '')) : (left || 'En cours');
+                label = se ? (se + (left ? ' · ' + left : '')) : (left || I18n.t('En cours'));
             }
         } else if (done) {
-            label = 'Vu';
+            label = I18n.t('Vu');
         } else if (entry.queued && !(entry.pos >= App.RESUME_MIN_SEC)) {
-            label = 'À suivre';
+            label = I18n.t('À suivre');
         } else {
-            label = App.formatMinutesLeft(entry) || 'En cours';
+            label = App.formatMinutesLeft(entry) || I18n.t('En cours');
         }
         return { label: label, pct: done ? 100 : pct, done: done };
     }
@@ -514,11 +514,11 @@ var App = App || {};
         var clean = typeof App.displayCatalogTitle === 'function'
             ? App.displayCatalogTitle : function (s) { return String(s || ''); };
         if (entry.kind === 'episode') {
-            var name = clean(entry.seriesTitle || entry.title || 'Épisode');
+            var name = clean(entry.seriesTitle || entry.title || I18n.t('Épisode'));
             var se = App.seasonEpisodeLabel(entry);
             return se ? (name + ' · ' + se) : name;
         }
-        return clean(entry.title || 'Film');
+        return clean(entry.title || I18n.t('Film'));
     }
 
     App.itemFromResumeEntry = function (entry) {
@@ -542,7 +542,7 @@ var App = App || {};
                     id: String(entry.id),
                     streamId: String(entry.id),
                     url: Xtream.movieUrl(base, user, pass, entry.id, ext),
-                    name: entry.title || 'Film',
+                    name: entry.title || I18n.t('Film'),
                     extension: ext
                 };
             }
@@ -551,7 +551,7 @@ var App = App || {};
                     kind: 'vod',
                     id: entry.id || '',
                     url: entry.url,
-                    name: entry.title || 'Film',
+                    name: entry.title || I18n.t('Film'),
                     extension: ext
                 };
             }
@@ -564,7 +564,7 @@ var App = App || {};
                     id: String(entry.id),
                     episodeId: String(entry.id),
                     url: Xtream.seriesEpisodeUrl(base, user, pass, entry.id, ext),
-                    name: entry.title || 'Épisode',
+                    name: entry.title || I18n.t('Épisode'),
                     season: entry.season || '',
                     episodeNum: entry.episode,
                     seriesId: entry.seriesId || '',
@@ -577,7 +577,7 @@ var App = App || {};
                     kind: 'episode',
                     id: entry.id || '',
                     url: entry.url,
-                    name: entry.title || 'Épisode',
+                    name: entry.title || I18n.t('Épisode'),
                     season: entry.season || '',
                     episodeNum: entry.episode,
                     seriesId: entry.seriesId || '',

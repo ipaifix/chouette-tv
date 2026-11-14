@@ -22,10 +22,10 @@ var App = App || {};
     };
 
     App.kindBadge = function (kind) {
-        if (kind === 'vod') { return 'Film'; }
-        if (kind === 'series') { return 'Série'; }
-        if (kind === 'episode') { return 'Épisode'; }
-        if (kind === 'search-query') { return 'Recherche'; }
+        if (kind === 'vod') { return I18n.t('Film'); }
+        if (kind === 'series') { return I18n.t('Série'); }
+        if (kind === 'episode') { return I18n.t('Épisode'); }
+        if (kind === 'search-query') { return I18n.t('Recherche'); }
         return 'TV';
     };
 
@@ -80,13 +80,13 @@ var App = App || {};
                 kind: 'search-query',
                 title: hist[i],
                 query: hist[i],
-                meta: 'Récent',
+                meta: I18n.t('Récent'),
                 logo: ''
             });
         }
         App.searchRows = [{
             id: 'search-history',
-            title: 'Recherches récentes',
+            title: I18n.t('Recherches récentes'),
             items: items
         }];
     };
@@ -146,10 +146,10 @@ var App = App || {};
             rows.push({ id: 'search-live', title: 'TV', items: byKind.live });
         }
         if (byKind.series.length) {
-            rows.push({ id: 'search-series', title: 'Séries', items: byKind.series });
+            rows.push({ id: 'search-series', title: I18n.t('Séries'), items: byKind.series });
         }
         if (byKind.vod.length) {
-            rows.push({ id: 'search-vod', title: 'Films', items: byKind.vod });
+            rows.push({ id: 'search-vod', title: I18n.t('Films'), items: byKind.vod });
         }
         App.searchRows = rows;
     };
@@ -193,7 +193,7 @@ var App = App || {};
             finish();
         }
         if (chunked) {
-            if (App.$searchShellMeta) { App.$searchShellMeta.textContent = 'Recherche…'; }
+            if (App.$searchShellMeta) { App.$searchShellMeta.textContent = I18n.t('Recherche…'); }
             App._searchWorkTimer = setTimeout(step, 0);
         } else { step(); }
     };
@@ -242,29 +242,30 @@ var App = App || {};
         if (App.$searchShellMeta) {
             if (!q) {
                 App.$searchShellMeta.textContent = App.searchRows.length
-                    ? 'Recherches récentes · OK pour relancer'
+                    ? I18n.t('Recherches récentes · OK pour relancer')
                     : (App.searchEditing
-                        ? 'Saisissez une chaîne, un film ou une série'
-                        : 'OK pour commencer la saisie');
+                        ? I18n.t('Saisissez une chaîne, un film ou une série')
+                        : I18n.t('OK pour commencer la saisie'));
             } else if (!App.searchRows.length) {
-                App.$searchShellMeta.textContent = 'Aucun résultat';
+                App.$searchShellMeta.textContent = I18n.t('Aucun résultat');
             } else {
-                App.$searchShellMeta.textContent = App.searchResults.length + ' résultat' +
-                    (App.searchResults.length > 1 ? 's' : '');
+                App.$searchShellMeta.textContent = App.searchResults.length > 1
+                    ? I18n.t('{n} résultats', { n: App.searchResults.length })
+                    : I18n.t('{n} résultat', { n: App.searchResults.length });
             }
         }
         if (!q) {
             if (!App.searchRows.length) {
                 var tip = document.createElement('div');
                 tip.className = 'home-empty';
-                tip.textContent = 'Tape une recherche pour afficher TV, Films et Séries.';
+                tip.textContent = I18n.t('Tape une recherche pour afficher TV, Films et Séries.');
                 App.$searchShellRows.appendChild(tip);
                 return;
             }
         } else if (!App.searchRows.length) {
             var none = document.createElement('div');
             none.className = 'home-empty';
-            none.textContent = 'Aucun résultat pour « ' + q + ' ».';
+            none.textContent = I18n.t('Aucun résultat pour « {query} ».', { query: q });
             App.$searchShellRows.appendChild(none);
             return;
         }
@@ -297,7 +298,7 @@ var App = App || {};
                     });
                     head.appendChild(pager);
                 }
-                if (from > 0) { pageButton('← Précédents', Math.max(0, from - size), i); }
+                if (from > 0) { pageButton(I18n.t('← Précédents'), Math.max(0, from - size), i); }
                 if (until < row.items.length) { pageButton('Suivants →', until, i); }
             }
             for (var j = from; j < until; j++) {
@@ -425,7 +426,7 @@ var App = App || {};
         try { App.$searchQuery.select(); } catch (e) {}
         if (App.$searchShellMeta && !App.$searchQuery.value.trim() &&
             !(App.searchRows || []).length) {
-            App.$searchShellMeta.textContent = 'Saisissez une chaîne, un film ou une série';
+            App.$searchShellMeta.textContent = I18n.t('Saisissez une chaîne, un film ou une série');
         }
         App.updateSearchFocusUi();
     };
@@ -545,7 +546,7 @@ var App = App || {};
         App.hideSearchPane();
         App.uiState = 'browse';
         App.setExclusiveOverlays({ list: true, dim: true });
-        App.toast('Chargement de ' + seriesItem.name + '…');
+        App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
         App.seriesLoading = true;
         /* Install the placeholder before either a cached or network response. */
         App.listLevel = 'seasons';

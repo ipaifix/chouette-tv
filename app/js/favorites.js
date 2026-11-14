@@ -204,7 +204,7 @@ var App = App || {};
         if (!item || App.isGroupHeader(item)) { return false; }
         var key = App.favoriteKeyFor(item);
         if (!key && !item.url && !item.streamId) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         var list = App.loadFavoriteList().slice();
@@ -235,11 +235,11 @@ var App = App || {};
         if (idx >= 0) {
             list.splice(idx, 1);
             App.saveFavoriteList(list);
-            App.toast('Retiré des favoris');
+            App.toast(I18n.t('Retiré des favoris'));
             return false;
         }
         if (!key) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         list.unshift({
@@ -251,7 +251,7 @@ var App = App || {};
             at: Date.now()
         });
         App.saveFavoriteList(list);
-        App.toast('Ajouté aux favoris');
+        App.toast(I18n.t('Ajouté aux favoris'));
         return true;
     };
 
@@ -341,12 +341,12 @@ var App = App || {};
 
     App.toggleFavoriteSeries = function (item) {
         if (!item || !item.seriesId) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         var key = App.favoriteSeriesKeyFor(item);
         if (!key) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         var list = App.loadFavoriteSeriesList().slice();
@@ -363,7 +363,7 @@ var App = App || {};
         if (idx >= 0) {
             list.splice(idx, 1);
             App.saveFavoriteSeriesList(list);
-            App.toast('Retiré des favoris');
+            App.toast(I18n.t('Retiré des favoris'));
             return false;
         }
         list.unshift({
@@ -376,7 +376,7 @@ var App = App || {};
             at: Date.now()
         });
         App.saveFavoriteSeriesList(list);
-        App.toast('Ajouté aux favoris');
+        App.toast(I18n.t('Ajouté aux favoris'));
         return true;
     };
 

@@ -56,7 +56,7 @@ function applyBrand(appDir, brand) {
     let html = fs.readFileSync(path.join(appDir, 'index.html'), 'utf8');
     html = html.replace(/<title>[^<]*<\/title>/, () => '<title>' + xml(brand.name) + '</title>')
         .replace(/(<div id="channel-list-title">)[^<]*/, (_, prefix) => prefix + xml(brand.name))
-        .replace(/(<div id="exit-msg">)[^<]*/, (_, prefix) => prefix + 'Quitter ' + xml(brand.name) + ' ?')
+        .replace(/(<div id="exit-msg"[^>]*>)[^<]*/, (_, prefix) => prefix + 'Quitter ' + xml(brand.name) + ' ?')
         .replace(/(<img id="(?:home-rail-logo|channel-list-logo)"[^>]* alt=")[^"]*/g, (_, prefix) => prefix + xml(brand.name))
         .replace(/(id="channel-list-brand"[^>]* aria-label=")[^"]*/, (_, prefix) => prefix + 'Actualiser le catalogue ' + xml(brand.name))
         .replace(/(<p id="channel-list-brand-hint"[^>]*>)[^<]*/, '$1Sélectionnez le logo pour actualiser');

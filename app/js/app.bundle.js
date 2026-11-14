@@ -44,7 +44,7 @@ var Http = (function () {
                     fail(label + ' HTTP ' + xhr.status);
                 }
             };
-            xhr.onerror = function () { fail(label + ' : erreur réseau'); };
+            xhr.onerror = function () { fail(I18n.t('{label} : erreur réseau', { label: label })); };
             xhr.ontimeout = function () { fail(label + ' request timed out'); };
             xhr.onabort = function () { fail(label + ' request aborted'); };
             xhr.send();
@@ -106,7 +106,7 @@ var DataJobs = (function () {
         var result = [], index = 0, afterComma = false;
         function cancel() { cancelled = true; clearTimeout(timer); text = ''; result = []; }
         while (/\s/.test(text.charAt(pos)) && pos < text.length) { pos++; }
-        if (text.charAt(pos++) !== '[') { fail('Réponse API inattendue'); return cancel; }
+        if (text.charAt(pos++) !== '[') { fail(I18n.t('Réponse API inattendue')); return cancel; }
         from = pos;
         function record(end) {
             var value = text.substring(from, end).trim();
@@ -142,7 +142,7 @@ var DataJobs = (function () {
                     }
                 }
                 throw new Error('incomplete array');
-            } catch (e) { text = ''; result = []; fail('Réponse API invalide'); }
+            } catch (e) { text = ''; result = []; fail(I18n.t('Réponse API invalide')); }
         }
         timer = setTimeout(step, 0);
         return cancel;
@@ -231,7 +231,7 @@ var Storage = (function () {
         'favChannels', 'favSeries', 'searchHistory', 'followedSeries',
         'profileRegistry', 'profileMigration', 'viewers',
         'menuType', 'menuLevel', 'menuCat', 'menuFocus', 'menuExpanded',
-        'menuSeries', 'menuSeason', 'lastChannelUrl'
+        'menuSeries', 'menuSeason', 'lastChannelUrl', 'uiLang'
     ];
 
     var KEYS = {};
@@ -262,7 +262,7 @@ var Storage = (function () {
         KEYS.xtreamServer, KEYS.xtreamUser, KEYS.xtreamPass,
         KEYS.resumeMap, KEYS.prefAudioLang, KEYS.prefSubLang,
         KEYS.favChannels, KEYS.favSeries, KEYS.searchHistory, KEYS.followedSeries,
-        KEYS.profileRegistry, KEYS.profileMigration, KEYS.viewers
+        KEYS.profileRegistry, KEYS.profileMigration, KEYS.viewers, KEYS.uiLang
     ];
     var PROFILE_KEYS = [KEYS.resumeMap, KEYS.favChannels, KEYS.favSeries,
         KEYS.searchHistory, KEYS.followedSeries];
@@ -824,6 +824,707 @@ var Storage = (function () {
 })();
 
 
+/* ==== i18n.js ==== */
+/* Interface languages. French strings in the code are the lookup keys; English and Dutch come from
+ * the tables below, and anything missing falls back to the French source. The language is the saved
+ * choice, else the TV language (nl → Dutch, fr → French, anything else → English), else English. */
+var I18n = (function () {
+    'use strict';
+
+    var SUPPORTED = ['fr', 'en', 'nl'];
+    var NAMES = { fr: 'Français', en: 'English', nl: 'Nederlands' };
+    var TABLES = {
+        en: {
+            "Accueil": "Home",
+            "En direct": "Live TV",
+            "Guide TV": "TV guide",
+            "Films": "Movies",
+            "Séries": "Series",
+            "Recherche": "Search",
+            "Rechercher": "Search",
+            "Profil": "Profile",
+            "Réglages": "Settings",
+            "Chaîne": "Channel",
+            "chaîne": "channel",
+            "chaînes": "channels",
+            "Série": "Series",
+            "série": "series",
+            "séries": "series",
+            "Film": "Movie",
+            "film": "movie",
+            "films": "movies",
+            "titre": "title",
+            "titres": "titles",
+            "Épisode": "Episode",
+            "Épisodes": "Episodes",
+            "Saison": "Season",
+            "Saisons": "Seasons",
+            "Catégorie": "Category",
+            "Catégories": "Categories",
+            "Catalogue": "Catalog",
+            "Contenus": "Content",
+            "Contenu": "Content",
+            "Fiche": "Details",
+            "Favoris": "Favorites",
+            "★ Favoris": "★ Favorites",
+            "☆ Favori": "☆ Favorite",
+            "TV favoris": "Favorite channels",
+            "Continuer à regarder": "Continue watching",
+            "Derniers ajouts": "Recently added",
+            "Tous les films": "All movies",
+            "Toutes les séries": "All series",
+            "Toutes les chaînes": "All channels",
+            "Quitter": "Exit",
+            "Quitter {app} ?": "Exit {app}?",
+            "Oui": "Yes",
+            "Non": "No",
+            "oui": "yes",
+            "non": "no",
+            "Options": "Options",
+            "Menu principal": "Main menu",
+            "Rubriques": "Sections",
+            "Unknown": "Unknown",
+            "Maison": "Home",
+            "Stéréo": "Stereo",
+            "Aspect": "Aspect",
+            "Audio": "Audio",
+            "Subtitles": "Subtitles",
+            "Off": "Off",
+            "Choisis TV, Films ou Séries": "Choose TV, Movies or Series",
+            "Choisissez TV, Films ou Séries": "Choose TV, Movies or Series",
+            "Sélectionnez le logo pour actualiser": "Select the logo to refresh",
+            "Actualiser le catalogue {app}": "Refresh the {app} catalog",
+            "Récemment ajouté dans Séries": "Recently added in Series",
+            "Récemment ajouté dans Films": "Recently added in Movies",
+            "Mes séries suivies": "Series I follow",
+            "Ajouts dans vos catégories": "New in your categories",
+            "Selon vos contenus regardés et suivis": "Based on what you watch and follow",
+            "Rien à afficher pour l’instant — ouvre En direct, Films ou Séries.": "Nothing to show yet — open Live TV, Movies or Series.",
+            "Programme indisponible": "Program unavailable",
+            "Sans image": "No image",
+            "Aucune chaîne": "No channels",
+            "Aucun titre": "No titles",
+            "Aucun favori": "No favorites",
+            "Aucun contenu pour {type}": "No content for {type}",
+            "Rien à reprendre": "Nothing to resume",
+            "Chargement de {name}…": "Loading {name}…",
+            "Chargement…": "Loading…",
+            "Chargement": "Loading",
+            "Erreur sur l’accueil : {error}": "Home screen error: {error}",
+            "Erreur du menu : {error}": "Menu error: {error}",
+            "{count} · OK ouvrir les options": "{count} · OK open options",
+            "{count} · OK regarder": "{count} · OK watch",
+            "{count} · OK ouvrir la fiche": "{count} · OK open details",
+            "{count} · OK pour lire": "{count} · OK to play",
+            "Films en cours · OK pour les options": "Movies in progress · OK for options",
+            "Séries en cours · OK pour les options": "Series in progress · OK for options",
+            "Reprendre ou retirer un contenu avec le menu Options": "Resume or remove an item with the Options menu",
+            "Séries favorites · OK pour ouvrir la fiche": "Favorite series · OK to open details",
+            "Chaînes favorites · OK pour les options": "Favorite channels · OK for options",
+            "Choisir une saison": "Choose a season",
+            "OK pour lire · plein écran": "OK to play · full screen",
+            "OK pour regarder ou gérer le favori": "OK to watch or manage the favorite",
+            "OK pour ouvrir la série": "OK to open the series",
+            "▲▼◀▶ naviguer · OK ouvrir · ◀ menu · BACK retour": "▲▼◀▶ navigate · OK open · ◀ menu · BACK back",
+            "▲▼ naviguer · OK ouvrir · BACK quitter": "▲▼ navigate · OK open · BACK exit",
+            "▲▼ aperçu · OK options · ◀ menu · BACK remonter": "▲▼ preview · OK options · ◀ menu · BACK up",
+            "▲▼ naviguer · OK ouvrir la fiche · ◀ menu · BACK remonter": "▲▼ navigate · OK open details · ◀ menu · BACK up",
+            "▲▼ naviguer · OK options · BACK remonter": "▲▼ navigate · OK options · BACK up",
+            "▲▼ naviguer · OK ouvrir · ◀ menu · BACK remonter": "▲▼ navigate · OK open · ◀ menu · BACK up",
+            "Guide TV chargé ({n} chaînes)": "TV guide loaded ({n} channels)",
+            "Catalogue partiel — rubriques indisponibles conservées": "Partial catalog — unavailable sections kept",
+            "Catalogue à jour": "Catalog up to date",
+            "Maj catalogue échouée — dernier catalogue conservé": "Catalog update failed — keeping the last catalog",
+            "Mise à jour du catalogue…": "Updating the catalog…",
+            "Catalogue chargé · copie hors ligne non enregistrée (stockage indisponible ou plein)": "Catalog loaded · offline copy not saved (storage unavailable or full)",
+            "{error} — vérifiez les réglages": "{error} — check the settings",
+            "Erreur réseau": "Network error",
+            "{label} : erreur réseau": "{label}: network error",
+            "Bienvenue — configurez Xtream ou une URL M3U": "Welcome — set up Xtream or an M3U address",
+            "Erreur de chargement : {error}": "Loading error: {error}",
+            "Démarrage impossible : {error}": "Can’t start: {error}",
+            "La playlist est vide ou invalide": "The playlist is empty or invalid",
+            "Réponse API inattendue": "Unexpected API response",
+            "Réponse API invalide": "Invalid API response",
+            "{label} : réponse API invalide": "{label}: invalid API response",
+            "{label} : authentification refusée": "{label}: authentication refused",
+            "{label} : réponse API inattendue": "{label}: unexpected API response",
+            "Série {id}": "Series {id}",
+            "Xtream film": "Xtream movie",
+            "Xtream : serveur, identifiant et mot de passe requis": "Xtream: server, username and password required",
+            "Xtream : aucun contenu disponible": "Xtream: no content available",
+            "Xtream : identifiants et série requis": "Xtream: credentials and series required",
+            "Xtream : aucun épisode disponible pour cette série": "Xtream: no episodes available for this series",
+            "Contenu indisponible": "Content unavailable",
+            "Contenu introuvable": "Content not found",
+            "Flux indisponible": "Stream unavailable",
+            "Série introuvable": "Series not found",
+            "Application fermée — fermez l’onglet du navigateur": "App closed — close the browser tab",
+            "Le guide TV concerne les chaînes en direct": "The TV guide covers live channels",
+            "Aucun programme disponible pour cette chaîne": "No programs available for this channel",
+            "Ajoutez un guide TV dans les réglages pour afficher les programmes": "Add a TV guide in Settings to show programs",
+            "Aucun guide TV — ajoutez une adresse EPG dans Réglages": "No TV guide — add an EPG address in Settings",
+            "Guide TV invalide : données illisibles": "Invalid TV guide: unreadable data",
+            "Pas de programme EPG": "No EPG program",
+            "EPG non chargé": "EPG not loaded",
+            "Programme non renseigné": "No program information",
+            "Favoris : {state}": "Favorites: {state}",
+            "Programmes en cours : oui": "Show: on now only",
+            "Programmes en cours : tous": "Show: all programs",
+            "Chaîne précédente": "Previous channel",
+            "Aucune chaîne précédente": "No previous channel",
+            "← 2 h": "← 2 h",
+            "Maintenant": "Now",
+            "+ 2 h →": "+ 2 h →",
+            "{from} — {to} · OK : regarder · ← → : horaires · ↑ ↓ : chaînes": "{from} — {to} · OK: watch · ← →: times · ↑ ↓: channels",
+            "Aucune chaîne pour ce filtre. Désactivez-le pour afficher toutes les chaînes.": "No channels for this filter. Turn it off to show all channels.",
+            "↑ Chaînes précédentes": "↑ Previous channels",
+            "↓ Chaînes suivantes": "↓ Next channels",
+            "À suivre  {time}   {title}": "Next  {time}   {title}",
+            "Aperçu…": "Preview…",
+            "Aperçu": "Preview",
+            "Aperçu indisponible": "Preview unavailable",
+            "Sélectionnez une chaîne": "Select a channel",
+            "Erreur de démarrage : {error}": "Start-up error: {error}",
+            "Lecture en cours": "Playing",
+            "Lecture automatique bloquée — cliquez ou appuyez sur une touche": "Autoplay blocked — click or press a key",
+            "Lecture terminée": "Playback finished",
+            "Lecture impossible : {reason} — CH+/- pour changer de chaîne": "Can’t play: {reason} — CH+/- to change channel",
+            "cause inconnue": "unknown cause",
+            "Lecteur vidéo HTML5 introuvable": "HTML5 video player not found",
+            "Ce navigateur ne peut pas lire cette vidéo": "This browser can’t play this video",
+            "Lecture HLS indisponible dans ce navigateur": "HLS playback not available in this browser",
+            "Lecture HLS interrompue : {type}": "HLS playback interrupted: {type}",
+            "Lecture vidéo indisponible": "Video playback unavailable",
+            "Commandes du direct": "Live controls",
+            "Commandes de lecture": "Playback controls",
+            "◀▶ boutons · OK activer · ▼ guide · BACK fermer": "◀▶ buttons · OK select · ▼ guide · BACK close",
+            "▲▼ timeline ↔ boutons · ◀▶ avance · OK activer · Play/Pause · BACK fermer": "▲▼ timeline ↔ buttons · ◀▶ seek · OK select · Play/Pause · BACK close",
+            "Audio & sous-titres": "Audio & subtitles",
+            "Audio et sous-titres": "Audio and subtitles",
+            "▲▼ naviguer · OK sélectionner · BACK fermer": "▲▼ navigate · OK select · BACK close",
+            "Aucune piste audio": "No audio tracks",
+            "Aucune piste de sous-titres": "No subtitle tracks",
+            "Impossible de changer de piste audio": "Couldn’t change the audio track",
+            "Sous-titres : désactivés": "Subtitles: off",
+            "Sous-titres : {track}": "Subtitles: {track}",
+            "Impossible de changer de piste de sous-titres": "Couldn’t change the subtitle track",
+            "Aucune lecture en cours": "Nothing is playing",
+            "Aucune piste audio ou de sous-titres": "No audio or subtitle tracks",
+            "VO non identifiée : piste actuelle conservée. Vérifiez dans Audio / sous-titres.": "Original audio not identified: keeping the current track. Check Audio / subtitles.",
+            "Langue préférée indisponible sur ce contenu": "Preferred language not available for this content",
+            "Impossible d’ajouter aux favoris": "Couldn’t add to favorites",
+            "Retiré des favoris": "Removed from favorites",
+            "Ajouté aux favoris": "Added to favorites",
+            "Retirer des favoris": "Remove from favorites",
+            "Ajouter aux favoris": "Add to favorites",
+            "Retirer « {name} » des favoris ?": "Remove “{name}” from favorites?",
+            "Ajouter « {name} » aux favoris ?": "Add “{name}” to favorites?",
+            "◀▶ choisir · OK confirmer · BACK annuler": "◀▶ choose · OK confirm · BACK cancel",
+            "Impossible de suivre cette série": "Couldn’t follow this series",
+            "Série retirée du suivi": "Series unfollowed",
+            "Série suivie — les nouveaux épisodes iront dans Continuer à regarder": "Following — new episodes will appear in Continue watching",
+            "Série suivie": "Following",
+            "✓ Série suivie — retirer": "✓ Following — unfollow",
+            "+ Suivre cette série": "+ Follow this series",
+            "Suivre": "Follow",
+            "Suivie": "Following",
+            "Nouvel épisode · {name}": "New episode · {name}",
+            "{n} nouveaux épisodes à suivre": "{n} new episodes to watch",
+            "Impossible de supprimer": "Couldn’t remove",
+            "Retiré de Continuer à regarder": "Removed from Continue watching",
+            "Retirer de Continuer à regarder": "Remove from Continue watching",
+            "{h} h {m} min": "{h} h {m} min",
+            "{h} h": "{h} h",
+            "{m} min": "{m} min",
+            "{episode} · Vu": "{episode} · Watched",
+            "Vu": "Watched",
+            "{episode} · À suivre": "{episode} · Up next",
+            "À suivre": "Up next",
+            "En cours": "In progress",
+            "Reprendre la lecture ?": "Resume playback?",
+            "Reprendre la lecture": "Resume playback",
+            "Reprendre": "Resume",
+            "Depuis le début": "From the beginning",
+            "Recommencer depuis le début": "Start over from the beginning",
+            "Lire": "Play",
+            "Épisode suivant": "Next episode",
+            "OK lancer · BACK fermer": "OK start · BACK close",
+            "{name} · Lecture dans {n} s": "{name} · Playing in {n} s",
+            "Fin de la série": "End of series",
+            "← Retour": "← Back",
+            "Qui regarde ?": "Who’s watching?",
+            "Préférences de {name}": "Preferences for {name}",
+            "Audio et sous-titres : {preset}": "Audio and subtitles: {preset}",
+            "La VO utilise la langue originale renseignée ou une piste identifiée « original ». Sinon, la piste actuelle est conservée.": "Original audio uses the listed original language or a track marked “original”. Otherwise the current track is kept.",
+            "Épisode suivant automatique : {state}": "Autoplay next episode: {state}",
+            "Nom du profil": "Profile name",
+            "Renommer": "Rename",
+            "Créer un profil avec ce nom": "Create a profile with this name",
+            "Chaque profil conserve ses reprises, favoris, recherches et séries suivies. Les profils sont enregistrés sur cet appareil.": "Each profile keeps its own resume points, favorites, searches and followed series. Profiles are stored on this device.",
+            "8 profils maximum": "8 profiles maximum",
+            "Ce contenu n’est plus disponible, mais il peut être retiré de la liste.": "This item is no longer available, but it can be removed from the list.",
+            "Chargement des informations…": "Loading information…",
+            "Chargement des épisodes…": "Loading episodes…",
+            "Synopsis non fourni par la source.": "No synopsis provided by the source.",
+            "Langue originale : {language}": "Original language: {language}",
+            "{viewer} · {preset} · selon les pistes disponibles": "{viewer} · {preset} · depending on available tracks",
+            "Épisodes {from} — {to} / {total}": "Episodes {from} — {to} / {total}",
+            "← Épisodes précédents": "← Previous episodes",
+            "✓ Vu · {name}": "✓ Watched · {name}",
+            "Reprendre · {name}": "Resume · {name}",
+            "Épisodes suivants →": "Next episodes →",
+            "← Saisons précédentes": "← Previous seasons",
+            "Saisons suivantes →": "Next seasons →",
+            "Informations indisponibles. Vous pouvez réessayer.": "Information unavailable. You can try again.",
+            "Réessayer": "Try again",
+            "VF · sans sous-titres": "English audio · no subtitles",
+            "VOSTFR": "Original audio · English subtitles",
+            "VF · sous-titres français": "English audio · English subtitles",
+            "VO · sans sous-titres": "Original audio · no subtitles",
+            "Personnalisé · {audio} / {subtitles}": "Custom · {audio} / {subtitles}",
+            "Récent": "Recent",
+            "Recherches récentes": "Recent searches",
+            "Recherche…": "Searching…",
+            "Recherches récentes · OK pour relancer": "Recent searches · OK to search again",
+            "Saisissez une chaîne, un film ou une série": "Enter a channel, movie or series",
+            "OK pour commencer la saisie": "OK to start typing",
+            "Aucun résultat": "No results",
+            "{n} résultat": "{n} result",
+            "{n} résultats": "{n} results",
+            "Tape une recherche pour afficher TV, Films et Séries.": "Type a search to show TV, Movies and Series.",
+            "Aucun résultat pour « {query} ».": "No results for “{query}”.",
+            "← Précédents": "← Previous",
+            "Chaîne, film, série…": "Channel, movie, series…",
+            "▲▼ naviguer · OK éditer · BACK fermer": "▲▼ navigate · OK edit · BACK close",
+            "Configurez votre source IPTV. Les réglages et profils sont enregistrés sur cet appareil.": "Set up your IPTV source. Settings and profiles are stored on this device.",
+            "Compte IPTV (Xtream)": "IPTV account (Xtream)",
+            "Adresse du serveur": "Server address",
+            "Identifiant": "Username",
+            "Votre identifiant": "Your username",
+            "Mot de passe": "Password",
+            "Votre mot de passe": "Your password",
+            "•••• (enregistré)": "•••• (saved)",
+            "Playlist et guide (facultatif)": "Playlist and guide (optional)",
+            "Adresse de la playlist M3U": "M3U playlist address",
+            "Adresse du guide TV": "TV guide address",
+            "Enregistrer et recharger": "Save and reload",
+            "Actualiser le catalogue": "Refresh the catalog",
+            "Annuler": "Cancel",
+            "Xtream est prioritaire. Le guide de la source est utilisé si aucune adresse EPG n’est renseignée.": "Xtream takes priority. The source’s own guide is used when no EPG address is entered.",
+            "Enregistrez d’abord un compte IPTV ou une playlist M3U": "Save an IPTV account or an M3U playlist first",
+            "Renseignez le serveur, le compte et son mot de passe": "Enter the server, the account and its password",
+            "Renseignez un compte Xtream ou une URL M3U": "Enter an Xtream account or an M3U address",
+            "Utilisez une URL complète commençant par http:// ou https://": "Use a full address starting with http:// or https://",
+            "Le serveur Xtream doit être une URL sans paramètres ni fragment": "The Xtream server must be an address without parameters or fragment",
+            "Note : {rating}": "Rating: {rating}",
+            "Avec : {cast}": "Cast: {cast}",
+            "Réalisation : {director}": "Director: {director}",
+            "Audio : {track}": "Audio: {track}",
+            "Langue : {name}": "Language: {name}"
+        },
+        nl: {
+            "Accueil": "Start",
+            "En direct": "Live tv",
+            "Guide TV": "Tv-gids",
+            "Films": "Films",
+            "Séries": "Series",
+            "Recherche": "Zoeken",
+            "Rechercher": "Zoeken",
+            "Profil": "Profiel",
+            "Réglages": "Instellingen",
+            "Chaîne": "Zender",
+            "chaîne": "zender",
+            "chaînes": "zenders",
+            "Série": "Serie",
+            "série": "serie",
+            "séries": "series",
+            "Film": "Film",
+            "film": "film",
+            "films": "films",
+            "titre": "titel",
+            "titres": "titels",
+            "Épisode": "Aflevering",
+            "Épisodes": "Afleveringen",
+            "Saison": "Seizoen",
+            "Saisons": "Seizoenen",
+            "Catégorie": "Categorie",
+            "Catégories": "Categorieën",
+            "Catalogue": "Catalogus",
+            "Contenus": "Inhoud",
+            "Contenu": "Inhoud",
+            "Fiche": "Details",
+            "Favoris": "Favorieten",
+            "★ Favoris": "★ Favorieten",
+            "☆ Favori": "☆ Favoriet",
+            "TV favoris": "Favoriete zenders",
+            "Continuer à regarder": "Verder kijken",
+            "Derniers ajouts": "Recent toegevoegd",
+            "Tous les films": "Alle films",
+            "Toutes les séries": "Alle series",
+            "Toutes les chaînes": "Alle zenders",
+            "Quitter": "Afsluiten",
+            "Quitter {app} ?": "{app} afsluiten?",
+            "Oui": "Ja",
+            "Non": "Nee",
+            "oui": "ja",
+            "non": "nee",
+            "Options": "Opties",
+            "Menu principal": "Hoofdmenu",
+            "Rubriques": "Rubrieken",
+            "Unknown": "Onbekend",
+            "Maison": "Thuis",
+            "Stéréo": "Stereo",
+            "Aspect": "Beeldverhouding",
+            "Audio": "Audio",
+            "Subtitles": "Ondertitels",
+            "Off": "Uit",
+            "Choisis TV, Films ou Séries": "Kies tv, Films of Series",
+            "Choisissez TV, Films ou Séries": "Kies tv, Films of Series",
+            "Sélectionnez le logo pour actualiser": "Selecteer het logo om te vernieuwen",
+            "Actualiser le catalogue {app}": "{app}-catalogus vernieuwen",
+            "Récemment ajouté dans Séries": "Recent toegevoegd in Series",
+            "Récemment ajouté dans Films": "Recent toegevoegd in Films",
+            "Mes séries suivies": "Mijn gevolgde series",
+            "Ajouts dans vos catégories": "Nieuw in je categorieën",
+            "Selon vos contenus regardés et suivis": "Op basis van wat je kijkt en volgt",
+            "Rien à afficher pour l’instant — ouvre En direct, Films ou Séries.": "Nog niets te tonen — open Live tv, Films of Series.",
+            "Programme indisponible": "Programma niet beschikbaar",
+            "Sans image": "Geen afbeelding",
+            "Aucune chaîne": "Geen zenders",
+            "Aucun titre": "Geen titels",
+            "Aucun favori": "Geen favorieten",
+            "Aucun contenu pour {type}": "Geen inhoud voor {type}",
+            "Rien à reprendre": "Niets om te hervatten",
+            "Chargement de {name}…": "{name} laden…",
+            "Chargement…": "Laden…",
+            "Chargement": "Laden",
+            "Erreur sur l’accueil : {error}": "Fout op het startscherm: {error}",
+            "Erreur du menu : {error}": "Menufout: {error}",
+            "{count} · OK ouvrir les options": "{count} · OK opties openen",
+            "{count} · OK regarder": "{count} · OK kijken",
+            "{count} · OK ouvrir la fiche": "{count} · OK details openen",
+            "{count} · OK pour lire": "{count} · OK om af te spelen",
+            "Films en cours · OK pour les options": "Films bezig · OK voor opties",
+            "Séries en cours · OK pour les options": "Series bezig · OK voor opties",
+            "Reprendre ou retirer un contenu avec le menu Options": "Hervat of verwijder een item via het menu Opties",
+            "Séries favorites · OK pour ouvrir la fiche": "Favoriete series · OK om details te openen",
+            "Chaînes favorites · OK pour les options": "Favoriete zenders · OK voor opties",
+            "Choisir une saison": "Kies een seizoen",
+            "OK pour lire · plein écran": "OK om af te spelen · volledig scherm",
+            "OK pour regarder ou gérer le favori": "OK om te kijken of de favoriet te beheren",
+            "OK pour ouvrir la série": "OK om de serie te openen",
+            "▲▼◀▶ naviguer · OK ouvrir · ◀ menu · BACK retour": "▲▼◀▶ navigeren · OK openen · ◀ menu · BACK terug",
+            "▲▼ naviguer · OK ouvrir · BACK quitter": "▲▼ navigeren · OK openen · BACK afsluiten",
+            "▲▼ aperçu · OK options · ◀ menu · BACK remonter": "▲▼ voorbeeld · OK opties · ◀ menu · BACK omhoog",
+            "▲▼ naviguer · OK ouvrir la fiche · ◀ menu · BACK remonter": "▲▼ navigeren · OK details openen · ◀ menu · BACK omhoog",
+            "▲▼ naviguer · OK options · BACK remonter": "▲▼ navigeren · OK opties · BACK omhoog",
+            "▲▼ naviguer · OK ouvrir · ◀ menu · BACK remonter": "▲▼ navigeren · OK openen · ◀ menu · BACK omhoog",
+            "Guide TV chargé ({n} chaînes)": "Tv-gids geladen ({n} zenders)",
+            "Catalogue partiel — rubriques indisponibles conservées": "Gedeeltelijke catalogus — niet-beschikbare rubrieken behouden",
+            "Catalogue à jour": "Catalogus is bijgewerkt",
+            "Maj catalogue échouée — dernier catalogue conservé": "Bijwerken van catalogus mislukt — laatste catalogus behouden",
+            "Mise à jour du catalogue…": "Catalogus bijwerken…",
+            "Catalogue chargé · copie hors ligne non enregistrée (stockage indisponible ou plein)": "Catalogus geladen · offline kopie niet opgeslagen (opslag niet beschikbaar of vol)",
+            "{error} — vérifiez les réglages": "{error} — controleer de instellingen",
+            "Erreur réseau": "Netwerkfout",
+            "{label} : erreur réseau": "{label}: netwerkfout",
+            "Bienvenue — configurez Xtream ou une URL M3U": "Welkom — stel Xtream of een M3U-adres in",
+            "Erreur de chargement : {error}": "Fout bij laden: {error}",
+            "Démarrage impossible : {error}": "Starten mislukt: {error}",
+            "La playlist est vide ou invalide": "De afspeellijst is leeg of ongeldig",
+            "Réponse API inattendue": "Onverwacht API-antwoord",
+            "Réponse API invalide": "Ongeldig API-antwoord",
+            "{label} : réponse API invalide": "{label}: ongeldig API-antwoord",
+            "{label} : authentification refusée": "{label}: aanmelding geweigerd",
+            "{label} : réponse API inattendue": "{label}: onverwacht API-antwoord",
+            "Série {id}": "Serie {id}",
+            "Xtream film": "Xtream-film",
+            "Xtream : serveur, identifiant et mot de passe requis": "Xtream: server, gebruikersnaam en wachtwoord vereist",
+            "Xtream : aucun contenu disponible": "Xtream: geen inhoud beschikbaar",
+            "Xtream : identifiants et série requis": "Xtream: inloggegevens en serie vereist",
+            "Xtream : aucun épisode disponible pour cette série": "Xtream: geen afleveringen beschikbaar voor deze serie",
+            "Contenu indisponible": "Inhoud niet beschikbaar",
+            "Contenu introuvable": "Inhoud niet gevonden",
+            "Flux indisponible": "Stream niet beschikbaar",
+            "Série introuvable": "Serie niet gevonden",
+            "Application fermée — fermez l’onglet du navigateur": "App gesloten — sluit het browsertabblad",
+            "Le guide TV concerne les chaînes en direct": "De tv-gids geldt voor live zenders",
+            "Aucun programme disponible pour cette chaîne": "Geen programma’s beschikbaar voor deze zender",
+            "Ajoutez un guide TV dans les réglages pour afficher les programmes": "Voeg een tv-gids toe in Instellingen om programma’s te tonen",
+            "Aucun guide TV — ajoutez une adresse EPG dans Réglages": "Geen tv-gids — voeg een EPG-adres toe in Instellingen",
+            "Guide TV invalide : données illisibles": "Ongeldige tv-gids: onleesbare gegevens",
+            "Pas de programme EPG": "Geen EPG-programma",
+            "EPG non chargé": "EPG niet geladen",
+            "Programme non renseigné": "Geen programma-informatie",
+            "Favoris : {state}": "Favorieten: {state}",
+            "Programmes en cours : oui": "Tonen: alleen wat nu loopt",
+            "Programmes en cours : tous": "Tonen: alle programma’s",
+            "Chaîne précédente": "Vorige zender",
+            "Aucune chaîne précédente": "Geen vorige zender",
+            "← 2 h": "← 2 u",
+            "Maintenant": "Nu",
+            "+ 2 h →": "+ 2 u →",
+            "{from} — {to} · OK : regarder · ← → : horaires · ↑ ↓ : chaînes": "{from} — {to} · OK: kijken · ← →: tijden · ↑ ↓: zenders",
+            "Aucune chaîne pour ce filtre. Désactivez-le pour afficher toutes les chaînes.": "Geen zenders voor dit filter. Zet het uit om alle zenders te tonen.",
+            "↑ Chaînes précédentes": "↑ Vorige zenders",
+            "↓ Chaînes suivantes": "↓ Volgende zenders",
+            "À suivre  {time}   {title}": "Hierna  {time}   {title}",
+            "Aperçu…": "Voorbeeld…",
+            "Aperçu": "Voorbeeld",
+            "Aperçu indisponible": "Voorbeeld niet beschikbaar",
+            "Sélectionnez une chaîne": "Selecteer een zender",
+            "Erreur de démarrage : {error}": "Fout bij starten: {error}",
+            "Lecture en cours": "Wordt afgespeeld",
+            "Lecture automatique bloquée — cliquez ou appuyez sur une touche": "Automatisch afspelen geblokkeerd — klik of druk op een toets",
+            "Lecture terminée": "Afspelen voltooid",
+            "Lecture impossible : {reason} — CH+/- pour changer de chaîne": "Afspelen mislukt: {reason} — CH+/- om van zender te wisselen",
+            "cause inconnue": "onbekende oorzaak",
+            "Lecteur vidéo HTML5 introuvable": "HTML5-videospeler niet gevonden",
+            "Ce navigateur ne peut pas lire cette vidéo": "Deze browser kan deze video niet afspelen",
+            "Lecture HLS indisponible dans ce navigateur": "HLS-afspelen niet beschikbaar in deze browser",
+            "Lecture HLS interrompue : {type}": "HLS-afspelen onderbroken: {type}",
+            "Lecture vidéo indisponible": "Video afspelen niet beschikbaar",
+            "Commandes du direct": "Live-bediening",
+            "Commandes de lecture": "Afspeelbediening",
+            "◀▶ boutons · OK activer · ▼ guide · BACK fermer": "◀▶ knoppen · OK kiezen · ▼ gids · BACK sluiten",
+            "▲▼ timeline ↔ boutons · ◀▶ avance · OK activer · Play/Pause · BACK fermer": "▲▼ tijdlijn ↔ knoppen · ◀▶ spoelen · OK kiezen · Play/Pause · BACK sluiten",
+            "Audio & sous-titres": "Audio & ondertitels",
+            "Audio et sous-titres": "Audio en ondertitels",
+            "▲▼ naviguer · OK sélectionner · BACK fermer": "▲▼ navigeren · OK selecteren · BACK sluiten",
+            "Aucune piste audio": "Geen audiosporen",
+            "Aucune piste de sous-titres": "Geen ondertitelsporen",
+            "Impossible de changer de piste audio": "Kan audiospoor niet wijzigen",
+            "Sous-titres : désactivés": "Ondertitels: uit",
+            "Sous-titres : {track}": "Ondertitels: {track}",
+            "Impossible de changer de piste de sous-titres": "Kan ondertitelspoor niet wijzigen",
+            "Aucune lecture en cours": "Er wordt niets afgespeeld",
+            "Aucune piste audio ou de sous-titres": "Geen audio- of ondertitelsporen",
+            "VO non identifiée : piste actuelle conservée. Vérifiez dans Audio / sous-titres.": "Originele audio niet herkend: huidige spoor behouden. Controleer Audio / ondertitels.",
+            "Langue préférée indisponible sur ce contenu": "Voorkeurstaal niet beschikbaar voor deze inhoud",
+            "Impossible d’ajouter aux favoris": "Kan niet toevoegen aan favorieten",
+            "Retiré des favoris": "Verwijderd uit favorieten",
+            "Ajouté aux favoris": "Toegevoegd aan favorieten",
+            "Retirer des favoris": "Verwijderen uit favorieten",
+            "Ajouter aux favoris": "Toevoegen aan favorieten",
+            "Retirer « {name} » des favoris ?": "‘{name}’ uit favorieten verwijderen?",
+            "Ajouter « {name} » aux favoris ?": "‘{name}’ aan favorieten toevoegen?",
+            "◀▶ choisir · OK confirmer · BACK annuler": "◀▶ kiezen · OK bevestigen · BACK annuleren",
+            "Impossible de suivre cette série": "Kan deze serie niet volgen",
+            "Série retirée du suivi": "Serie niet meer gevolgd",
+            "Série suivie — les nouveaux épisodes iront dans Continuer à regarder": "Gevolgd — nieuwe afleveringen komen in Verder kijken",
+            "Série suivie": "Gevolgd",
+            "✓ Série suivie — retirer": "✓ Gevolgd — ontvolgen",
+            "+ Suivre cette série": "+ Deze serie volgen",
+            "Suivre": "Volgen",
+            "Suivie": "Gevolgd",
+            "Nouvel épisode · {name}": "Nieuwe aflevering · {name}",
+            "{n} nouveaux épisodes à suivre": "{n} nieuwe afleveringen om te kijken",
+            "Impossible de supprimer": "Kan niet verwijderen",
+            "Retiré de Continuer à regarder": "Verwijderd uit Verder kijken",
+            "Retirer de Continuer à regarder": "Verwijderen uit Verder kijken",
+            "{h} h {m} min": "{h} u {m} min",
+            "{h} h": "{h} u",
+            "{m} min": "{m} min",
+            "{episode} · Vu": "{episode} · Bekeken",
+            "Vu": "Bekeken",
+            "{episode} · À suivre": "{episode} · Volgende",
+            "À suivre": "Volgende",
+            "En cours": "Bezig",
+            "Reprendre la lecture ?": "Afspelen hervatten?",
+            "Reprendre la lecture": "Afspelen hervatten",
+            "Reprendre": "Hervatten",
+            "Depuis le début": "Vanaf het begin",
+            "Recommencer depuis le début": "Opnieuw vanaf het begin",
+            "Lire": "Afspelen",
+            "Épisode suivant": "Volgende aflevering",
+            "OK lancer · BACK fermer": "OK starten · BACK sluiten",
+            "{name} · Lecture dans {n} s": "{name} · Speelt over {n} s",
+            "Fin de la série": "Einde van de serie",
+            "← Retour": "← Terug",
+            "Qui regarde ?": "Wie kijkt er?",
+            "Préférences de {name}": "Voorkeuren van {name}",
+            "Audio et sous-titres : {preset}": "Audio en ondertitels: {preset}",
+            "La VO utilise la langue originale renseignée ou une piste identifiée « original ». Sinon, la piste actuelle est conservée.": "Originele audio gebruikt de opgegeven oorspronkelijke taal of een spoor gemarkeerd als ‘original’. Anders blijft het huidige spoor behouden.",
+            "Épisode suivant automatique : {state}": "Volgende aflevering automatisch: {state}",
+            "Nom du profil": "Profielnaam",
+            "Renommer": "Hernoemen",
+            "Créer un profil avec ce nom": "Profiel met deze naam maken",
+            "Chaque profil conserve ses reprises, favoris, recherches et séries suivies. Les profils sont enregistrés sur cet appareil.": "Elk profiel bewaart eigen hervatpunten, favorieten, zoekopdrachten en gevolgde series. Profielen worden op dit apparaat opgeslagen.",
+            "8 profils maximum": "Maximaal 8 profielen",
+            "Ce contenu n’est plus disponible, mais il peut être retiré de la liste.": "Dit item is niet meer beschikbaar, maar kan uit de lijst worden verwijderd.",
+            "Chargement des informations…": "Informatie laden…",
+            "Chargement des épisodes…": "Afleveringen laden…",
+            "Synopsis non fourni par la source.": "Geen samenvatting beschikbaar bij de bron.",
+            "Langue originale : {language}": "Oorspronkelijke taal: {language}",
+            "{viewer} · {preset} · selon les pistes disponibles": "{viewer} · {preset} · afhankelijk van beschikbare sporen",
+            "Épisodes {from} — {to} / {total}": "Afleveringen {from} — {to} / {total}",
+            "← Épisodes précédents": "← Vorige afleveringen",
+            "✓ Vu · {name}": "✓ Bekeken · {name}",
+            "Reprendre · {name}": "Hervatten · {name}",
+            "Épisodes suivants →": "Volgende afleveringen →",
+            "← Saisons précédentes": "← Vorige seizoenen",
+            "Saisons suivantes →": "Volgende seizoenen →",
+            "Informations indisponibles. Vous pouvez réessayer.": "Informatie niet beschikbaar. Je kunt het opnieuw proberen.",
+            "Réessayer": "Opnieuw proberen",
+            "VF · sans sous-titres": "Nederlandse audio · geen ondertitels",
+            "VOSTFR": "Originele audio · Nederlandse ondertitels",
+            "VF · sous-titres français": "Nederlandse audio · Nederlandse ondertitels",
+            "VO · sans sous-titres": "Originele audio · geen ondertitels",
+            "Personnalisé · {audio} / {subtitles}": "Aangepast · {audio} / {subtitles}",
+            "Récent": "Recent",
+            "Recherches récentes": "Recente zoekopdrachten",
+            "Recherche…": "Zoeken…",
+            "Recherches récentes · OK pour relancer": "Recente zoekopdrachten · OK om opnieuw te zoeken",
+            "Saisissez une chaîne, un film ou une série": "Voer een zender, film of serie in",
+            "OK pour commencer la saisie": "OK om te beginnen met typen",
+            "Aucun résultat": "Geen resultaten",
+            "{n} résultat": "{n} resultaat",
+            "{n} résultats": "{n} resultaten",
+            "Tape une recherche pour afficher TV, Films et Séries.": "Typ een zoekopdracht om tv, Films en Series te tonen.",
+            "Aucun résultat pour « {query} ».": "Geen resultaten voor ‘{query}’.",
+            "← Précédents": "← Vorige",
+            "Chaîne, film, série…": "Zender, film, serie…",
+            "▲▼ naviguer · OK éditer · BACK fermer": "▲▼ navigeren · OK bewerken · BACK sluiten",
+            "Configurez votre source IPTV. Les réglages et profils sont enregistrés sur cet appareil.": "Stel je IPTV-bron in. Instellingen en profielen worden op dit apparaat opgeslagen.",
+            "Compte IPTV (Xtream)": "IPTV-account (Xtream)",
+            "Adresse du serveur": "Serveradres",
+            "Identifiant": "Gebruikersnaam",
+            "Votre identifiant": "Je gebruikersnaam",
+            "Mot de passe": "Wachtwoord",
+            "Votre mot de passe": "Je wachtwoord",
+            "•••• (enregistré)": "•••• (opgeslagen)",
+            "Playlist et guide (facultatif)": "Afspeellijst en gids (optioneel)",
+            "Adresse de la playlist M3U": "Adres van de M3U-afspeellijst",
+            "Adresse du guide TV": "Adres van de tv-gids",
+            "Enregistrer et recharger": "Opslaan en herladen",
+            "Actualiser le catalogue": "Catalogus vernieuwen",
+            "Annuler": "Annuleren",
+            "Xtream est prioritaire. Le guide de la source est utilisé si aucune adresse EPG n’est renseignée.": "Xtream heeft voorrang. De gids van de bron wordt gebruikt als er geen EPG-adres is ingevuld.",
+            "Enregistrez d’abord un compte IPTV ou une playlist M3U": "Sla eerst een IPTV-account of M3U-afspeellijst op",
+            "Renseignez le serveur, le compte et son mot de passe": "Vul de server, het account en het wachtwoord in",
+            "Renseignez un compte Xtream ou une URL M3U": "Vul een Xtream-account of een M3U-adres in",
+            "Utilisez une URL complète commençant par http:// ou https://": "Gebruik een volledig adres dat begint met http:// of https://",
+            "Le serveur Xtream doit être une URL sans paramètres ni fragment": "De Xtream-server moet een adres zijn zonder parameters of fragment",
+            "Note : {rating}": "Beoordeling: {rating}",
+            "Avec : {cast}": "Met: {cast}",
+            "Réalisation : {director}": "Regie: {director}",
+            "Audio : {track}": "Audio: {track}",
+            "Langue : {name}": "Taal: {name}"
+        }
+    };
+
+    function isSupported(l) {
+        for (var i = 0; i < SUPPORTED.length; i++) { if (SUPPORTED[i] === l) { return true; } }
+        return false;
+    }
+
+    function fromTag(tag) {
+        var base = String(tag || '').toLowerCase().split(/[-_]/)[0];
+        if (base === 'nl' || base === 'fr') { return base; }
+        return base ? 'en' : '';
+    }
+
+    function savedLang() {
+        try {
+            if (typeof Storage !== 'undefined' && Storage.get) { return Storage.get(Storage.KEYS.uiLang) || ''; }
+        } catch (e) { /* storage not ready: fall through to detection */ }
+        return '';
+    }
+
+    function detect() {
+        var saved = savedLang();
+        if (isSupported(saved)) { return saved; }
+        if (typeof navigator !== 'undefined' && navigator) {
+            var tag = navigator.language || (navigator.languages && navigator.languages[0]) || navigator.userLanguage;
+            var l = fromTag(tag);
+            if (l) { return l; }
+        }
+        return 'en';
+    }
+
+    var current = detect();
+
+    /* {app} is the product name, so white-label builds (tools/build-variant.js) translate too. */
+    function appName() {
+        return typeof Branding !== 'undefined' && Branding && Branding.name ? Branding.name : 'Chouette TV';
+    }
+
+    function fill(s, params) {
+        return s.replace(/\{(\w+)\}/g, function (whole, name) {
+            if (params && Object.prototype.hasOwnProperty.call(params, name) && params[name] !== undefined && params[name] !== null) {
+                return String(params[name]);
+            }
+            return name === 'app' ? appName() : whole;
+        });
+    }
+
+    function t(fr, params) {
+        var table = TABLES[current];
+        var s = table && Object.prototype.hasOwnProperty.call(table, fr) ? table[fr] : fr;
+        return fill(s, params);
+    }
+
+    function setLang(l) {
+        if (!isSupported(l)) { return false; }
+        current = l;
+        try { Storage.set(Storage.KEYS.uiLang, l); } catch (e) { /* kept for this run only */ }
+        return true;
+    }
+
+    function next(l) {
+        for (var i = 0; i < SUPPORTED.length; i++) {
+            if (SUPPORTED[i] === l) { return SUPPORTED[(i + 1) % SUPPORTED.length]; }
+        }
+        return SUPPORTED[0];
+    }
+
+    /* Translate data-i18n text and data-i18n-attr attributes. The French source is kept in
+     * data-i18n-src(-<attr>) so applying twice, or after a language change, stays correct. */
+    function applyDom(root) {
+        if (!root || !root.querySelectorAll) { return; }
+        var i, j, el, src, attrs, name;
+        var texts = root.querySelectorAll('[data-i18n]');
+        for (i = 0; i < texts.length; i++) {
+            el = texts[i];
+            src = el.getAttribute('data-i18n-src');
+            if (src === null) {
+                src = (el.textContent || '').replace(/^\s+|\s+$/g, '');
+                el.setAttribute('data-i18n-src', src);
+            }
+            if (src) { el.textContent = t(src); }
+        }
+        var tagged = root.querySelectorAll('[data-i18n-attr]');
+        for (i = 0; i < tagged.length; i++) {
+            el = tagged[i];
+            attrs = el.getAttribute('data-i18n-attr').split(',');
+            for (j = 0; j < attrs.length; j++) {
+                name = attrs[j].replace(/^\s+|\s+$/g, '');
+                if (!name) { continue; }
+                src = el.getAttribute('data-i18n-src-' + name);
+                if (src === null) {
+                    src = el.getAttribute(name) || '';
+                    el.setAttribute('data-i18n-src-' + name, src);
+                }
+                if (src) { el.setAttribute(name, t(src)); }
+            }
+        }
+        if (root.documentElement) { root.documentElement.lang = current; }
+    }
+
+    return {
+        t: t,
+        lang: function () { return current; },
+        setLang: setLang,
+        next: next,
+        languageName: function (l) { return NAMES[l] || l; },
+        contentLang: function () { return current; },
+        applyDom: applyDom,
+        _tables: TABLES
+    };
+})();
+
+
 /* ==== playlist.js ==== */
 /* Chouette playlist reader: metadata records followed by media addresses. */
 var Playlist = (function createPlaylistReader() {
@@ -885,7 +1586,7 @@ var Playlist = (function createPlaylistReader() {
                         output.categories.push({ name: group, id: category });
                     }
                 }
-                record = { name: metadata.label || 'Unknown', logo: fields['tvg-logo'] || '',
+                record = { name: metadata.label || I18n.t('Unknown'), logo: fields['tvg-logo'] || '',
                     id: fields['tvg-id'] || '', kind: 'live', categoryId: category,
                     referrer: '', userAgent: '' };
                 return;
@@ -912,7 +1613,7 @@ var Playlist = (function createPlaylistReader() {
             var fresh = address + (address.indexOf('?') < 0 ? '?' : '&') + '_=' + Date.now();
             return Http.get(fresh, { label: 'Playlist', timeoutMs: 60000 }, function (body) {
                 var catalog = parse(body);
-                if (!catalog.channels.length) { rejected('La playlist est vide ou invalide'); return; }
+                if (!catalog.channels.length) { rejected(I18n.t('La playlist est vide ou invalide')); return; }
                 ready(catalog.channels, catalog.epgUrl, catalog.categories);
             }, rejected);
         }
@@ -1021,10 +1722,10 @@ var Xtream = (function () {
         try {
             data = JSON.parse(text);
         } catch (e) {
-            return { error: onErrorLabel + ' : réponse API invalide' };
+            return { error: I18n.t('{label} : réponse API invalide', { label: onErrorLabel }) };
         }
         if (data && data.user_info && String(data.user_info.auth) === '0') {
-            return { error: onErrorLabel + ' : authentification refusée' };
+            return { error: I18n.t('{label} : authentification refusée', { label: onErrorLabel }) };
         }
         return { data: data };
     }
@@ -1037,7 +1738,7 @@ var Xtream = (function () {
         var parsed = parseJson(text, onErrorLabel);
         if (parsed.error) { return parsed; }
         if (parsed.data && !isArray(parsed.data)) {
-            return { error: onErrorLabel + ' : réponse API inattendue' };
+            return { error: I18n.t('{label} : réponse API inattendue', { label: onErrorLabel }) };
         }
         return { data: parsed.data || [] };
     }
@@ -1146,7 +1847,7 @@ var Xtream = (function () {
                 kind: 'series',
                 id: String(s.series_id),
                 seriesId: String(s.series_id),
-                name: s.name || ('Série ' + s.series_id),
+                name: s.name || I18n.t('Série {id}', { id: s.series_id }),
                 url: '',
                 categoryId: s.category_id != null ? String(s.category_id) : '',
                 logo: s.cover || '',
@@ -1174,7 +1875,7 @@ var Xtream = (function () {
         user = (user || '').trim();
         pass = (pass || '').trim();
         if (!base || !user || !pass) {
-            onError('Xtream : serveur, identifiant et mot de passe requis');
+            onError(I18n.t('Xtream : serveur, identifiant et mot de passe requis'));
             return;
         }
 
@@ -1199,7 +1900,7 @@ var Xtream = (function () {
             var vodItems = mapVodStreams((vodStreams && vodStreams.data) || [], base, user, pass);
             var seriesItems = mapSeriesList((seriesList && seriesList.data) || []);
             if (!liveItems.length && !vodItems.length && !seriesItems.length) {
-                onError((liveStreams && liveStreams.error) || 'Xtream : aucun contenu disponible');
+                onError((liveStreams && liveStreams.error) || I18n.t('Xtream : aucun contenu disponible'));
                 return;
             }
 
@@ -1315,7 +2016,7 @@ var Xtream = (function () {
                 ['live', 'vod', 'series'].forEach(function (type) {
                     cat[type].categories = buildCategories(cat[type].categories, cat[type].items, cat[type]._categoryCounts);
                 });
-                if (!success) { onError('Xtream : aucun contenu disponible'); }
+                if (!success) { onError(I18n.t('Xtream : aucun contenu disponible')); }
                 else { onDone(cat); }
             }
         }
@@ -1379,7 +2080,7 @@ var Xtream = (function () {
 
     function getVodDetails(base, user, pass, id, onDone, onError) {
         return xhrGet(apiUrl(normalizeBase(base), user, pass, 'get_vod_info', { vod_id: id }), function (text) {
-            var parsed = parseJson(text, 'Xtream film');
+            var parsed = parseJson(text, I18n.t('Xtream film'));
             if (parsed.error) { onError(parsed.error); return; }
             onDone(normalizeDetails(parsed.data && parsed.data.info));
         }, onError);
@@ -1391,7 +2092,7 @@ var Xtream = (function () {
         pass = (pass || '').trim();
         seriesId = String(seriesId || '');
         if (!base || !user || !pass || !seriesId) {
-            onError('Xtream : identifiants et série requis');
+            onError(I18n.t('Xtream : identifiants et série requis'));
             return;
         }
 
@@ -1474,7 +2175,7 @@ var Xtream = (function () {
             }
 
             if (!seasons.length) {
-                onError('Xtream : aucun épisode disponible pour cette série');
+                onError(I18n.t('Xtream : aucun épisode disponible pour cette série'));
                 return;
             }
             seasons.details = normalizeDetails(info);
@@ -1617,7 +2318,7 @@ var XmltvReader = (function () {
                 if (!root || !closed || stack.length) { throw new Error('incomplete XML'); }
                 var result = out; text = ''; out = null;
                 done(result);
-            } catch (e) { text = ''; out = null; fail('Guide TV invalide : données illisibles'); }
+            } catch (e) { text = ''; out = null; fail(I18n.t('Guide TV invalide : données illisibles')); }
         }
         timer = setTimeout(step, 0);
         return cancel;
@@ -1731,7 +2432,7 @@ var EPG = (function createGuideRepository() {
                 } else {
                     commit(first === '{' || first === '[' ? jsonGuide(body, selected, window) : domGuide(body, selected, window));
                 }
-            } catch (error) { failure('Guide TV invalide : données illisibles'); }
+            } catch (error) { failure(I18n.t('Guide TV invalide : données illisibles')); }
         }, failure));
     }
 
@@ -2016,7 +2717,7 @@ var Player = (function createPlaybackController() {
 
     function openBrowser(address) {
         var session = playbackToken;
-        if (!videoEl) { statusCb('error', 'Lecteur vidéo HTML5 introuvable'); return; }
+        if (!videoEl) { statusCb('error', I18n.t('Lecteur vidéo HTML5 introuvable')); return; }
         function current() { return session === playbackToken; }
         videoEl.onplaying = function () {
             if (!current()) { return; }
@@ -2026,7 +2727,7 @@ var Player = (function createPlaybackController() {
             if (current()) { playbackToken++; clearAutoplayResume(); pausedFlag = false; statusCb('ended'); }
         };
         videoEl.onerror = function () {
-            if (current()) { statusCb('error', 'Ce navigateur ne peut pas lire cette vidéo'); }
+            if (current()) { statusCb('error', I18n.t('Ce navigateur ne peut pas lire cette vidéo')); }
         };
         applyDisplayMode();
         statusCb('buffering');
@@ -2038,10 +2739,10 @@ var Player = (function createPlaybackController() {
         }
         requestHls(function (Library) {
             if (!current()) { return; }
-            if (!Library || !Library.isSupported()) { statusCb('error', 'Lecture HLS indisponible dans ce navigateur'); return; }
+            if (!Library || !Library.isSupported()) { statusCb('error', I18n.t('Lecture HLS indisponible dans ce navigateur')); return; }
             hlsInstance = new Library();
             hlsInstance.on(Library.Events.ERROR, function (event, error) {
-                if (current() && error.fatal) { statusCb('error', 'Lecture HLS interrompue : ' + error.type); }
+                if (current() && error.fatal) { statusCb('error', I18n.t('Lecture HLS interrompue : {type}', { type: error.type })); }
             });
             hlsInstance.attachMedia(videoEl);
             hlsInstance.loadSource(address);
@@ -2061,7 +2762,7 @@ var Player = (function createPlaybackController() {
         if (session !== playbackToken || !videoEl) { return; }
         var promise;
         try { promise = videoEl.play(); }
-        catch (error) { statusCb('error', 'Lecture vidéo indisponible'); return; }
+        catch (error) { statusCb('error', I18n.t('Lecture vidéo indisponible')); return; }
         if (!promise || typeof promise.catch !== 'function') { return; }
         promise.catch(function (error) {
             if (session !== playbackToken || !error || error.name !== 'NotAllowedError') { return; }
@@ -2430,6 +3131,7 @@ var Player = (function createPlaybackController() {
             if (!pref || !lang) { return false; }
             pref = String(pref).toLowerCase();
             lang = String(lang).toLowerCase();
+            if (lang === 'dut') { lang = 'nld'; } /* ISO 639-2/B code for Dutch */
             return lang === pref || lang.indexOf(pref) === 0 || pref.indexOf(lang) === 0;
         }
 
@@ -2488,7 +3190,7 @@ var Player = (function createPlaybackController() {
         var n = Number(channels);
         if (!isFinite(n) || n <= 0) { return ''; }
         if (n === 1) { return 'Mono'; }
-        if (n === 2) { return 'Stéréo'; }
+        if (n === 2) { return I18n.t('Stéréo'); }
         if (n === 6) { return '5.1'; }
         if (n === 8) { return '7.1'; }
         return n + 'ch';
@@ -2748,14 +3450,14 @@ var App = App || {};
     App.homeRows = [];
     App.HOME_ROW_MAX = 14;
     App.HOME_RAIL = [
-        { id: 'home', label: 'Accueil', action: 'home' },
-        { id: 'live', label: 'En direct', action: 'type', type: 'live' },
-        { id: 'guide', label: 'Guide TV', action: 'guide' },
-        { id: 'vod', label: 'Films', action: 'type', type: 'vod' },
-        { id: 'series', label: 'Séries', action: 'type', type: 'series' },
-        { id: 'search', label: 'Recherche', action: 'search' },
-        { id: 'profiles', label: 'Profil', action: 'profiles', section: 'secondary' },
-        { id: 'settings', label: 'Réglages', action: 'settings' }
+        { id: 'home', label: I18n.t('Accueil'), action: 'home' },
+        { id: 'live', label: I18n.t('En direct'), action: 'type', type: 'live' },
+        { id: 'guide', label: I18n.t('Guide TV'), action: 'guide' },
+        { id: 'vod', label: I18n.t('Films'), action: 'type', type: 'vod' },
+        { id: 'series', label: I18n.t('Séries'), action: 'type', type: 'series' },
+        { id: 'search', label: I18n.t('Recherche'), action: 'search' },
+        { id: 'profiles', label: I18n.t('Profil'), action: 'profiles', section: 'secondary' },
+        { id: 'settings', label: I18n.t('Réglages'), action: 'settings' }
     ];
     App.catalogRefreshing = false;
     App.epgFocusIndex = 0;
@@ -2784,8 +3486,8 @@ var App = App || {};
 
     App.TYPE_ROWS = [
         { type: 'live', label: 'TV' },
-        { type: 'vod', label: 'Films' },
-        { type: 'series', label: 'Séries' }
+        { type: 'vod', label: I18n.t('Films') },
+        { type: 'series', label: I18n.t('Séries') }
     ];
 
     var surfaceIds = {
@@ -2838,6 +3540,7 @@ var App = App || {};
         '$settingSave': 'setting-save',
         '$settingRefresh': 'setting-refresh',
         '$settingCancel': 'setting-cancel',
+        '$settingLang': 'setting-lang',
         '$exit': 'exit-confirm',
         '$exitYes': 'exit-yes',
         '$exitNo': 'exit-no',
@@ -2899,7 +3602,7 @@ var App = App || {};
         var raw = [
             App.$settingXtreamServer, App.$settingXtreamUser, App.$settingXtreamPass,
             App.$settingUrl, App.$settingEpg,
-            App.$settingSave, App.$settingRefresh, App.$settingCancel
+            App.$settingSave, App.$settingRefresh, App.$settingCancel, App.$settingLang
         ];
         for (var i = 0; i < raw.length; i++) {
             if (raw[i]) { App.settingsFocusables.push(raw[i]); }
@@ -3192,15 +3895,15 @@ var App = App || {};
 
     App.categoryName = function (catId) {
         if (!catId) {
-            if (App.contentType === 'vod') { return 'Tous les films'; }
-            if (App.contentType === 'series') { return 'Toutes les séries'; }
-            return 'Toutes les chaînes';
+            if (App.contentType === 'vod') { return I18n.t('Tous les films'); }
+            if (App.contentType === 'series') { return I18n.t('Toutes les séries'); }
+            return I18n.t('Toutes les chaînes');
         }
-        if (catId === App.RECENT_CAT_ID) { return 'Derniers ajouts'; }
+        if (catId === App.RECENT_CAT_ID) { return I18n.t('Derniers ajouts'); }
         for (var i = 0; i < App.categories.length; i++) {
             if (App.categories[i].id === catId) { return App.categories[i].name; }
         }
-        return 'Catégorie';
+        return I18n.t('Catégorie');
     }
 
     App.isRecentCategory = function (catId) {
@@ -3448,7 +4151,7 @@ var App = App || {};
             catalog: cached
         }, function (ok) {
             if (ok === false && typeof App.toast === 'function') {
-                App.toast('Catalogue chargé · copie hors ligne non enregistrée (stockage indisponible ou plein)');
+                App.toast(I18n.t('Catalogue chargé · copie hors ligne non enregistrée (stockage indisponible ou plein)'));
             }
         });
     }
@@ -3478,23 +4181,33 @@ var App = App || {};
 (function (App) {
     'use strict';
     var viewerRaw = null, viewerCache = null;
+    /* 'ui' = the interface language, resolved at playback, so a preset keeps meaning
+     * "my language" after the interface language changes. */
     App.viewerPresets = [
-        { name: 'VF · sans sous-titres', audio: 'fr', subtitles: 'off' },
-        { name: 'VOSTFR', audio: 'original', subtitles: 'fr' },
-        { name: 'VF · sous-titres français', audio: 'fr', subtitles: 'fr' },
-        { name: 'VO · sans sous-titres', audio: 'original', subtitles: 'off' }
+        { name: I18n.t('VF · sans sous-titres'), audio: 'ui', subtitles: 'off' },
+        { name: I18n.t('VOSTFR'), audio: 'original', subtitles: 'ui' },
+        { name: I18n.t('VF · sous-titres français'), audio: 'ui', subtitles: 'ui' },
+        { name: I18n.t('VO · sans sous-titres'), audio: 'original', subtitles: 'off' }
     ];
+    App.resolveTrackLang = function (pref) {
+        return pref === 'ui' ? I18n.contentLang() : pref;
+    };
+    /* Profiles saved before 'ui' existed hold a language code: it matches while it is the interface language. */
+    App.viewerMatchesPreset = function (viewer, preset) {
+        return App.resolveTrackLang(viewer.audio) === App.resolveTrackLang(preset.audio) &&
+            App.resolveTrackLang(viewer.subtitles) === App.resolveTrackLang(preset.subtitles);
+    };
     App.loadViewers = function () {
         var data;
         var raw = Storage.get(Storage.KEYS.viewers) || '';
-        var defaults = (Storage.get(Storage.KEYS.prefAudioLang) || 'fr') + '|' +
+        var defaults = (Storage.get(Storage.KEYS.prefAudioLang) || 'ui') + '|' +
             (Storage.get(Storage.KEYS.prefSubLang) || 'off');
         var cacheKey = raw || defaults;
         if (cacheKey === viewerRaw && viewerCache) { return viewerCache; }
         try { data = JSON.parse(raw || 'null'); } catch (e) {}
         if (!data || !Array.isArray(data.list) || !data.list.length) {
-            data = { active: 'default', list: [{ id: 'default', name: 'Maison',
-                audio: Storage.get(Storage.KEYS.prefAudioLang) || 'fr',
+            data = { active: 'default', list: [{ id: 'default', name: I18n.t('Maison'),
+                audio: Storage.get(Storage.KEYS.prefAudioLang) || 'ui',
                 subtitles: Storage.get(Storage.KEYS.prefSubLang) || 'off', autoplay: false }] };
         }
         viewerRaw = cacheKey; viewerCache = data;
@@ -3522,9 +4235,9 @@ var App = App || {};
         name = String(name || '').trim().slice(0, 24);
         if (!name) { return null; }
         var data = App.loadViewers();
-        if (data.list.length >= 8) { App.toast('8 profils maximum'); return null; }
+        if (data.list.length >= 8) { App.toast(I18n.t('8 profils maximum')); return null; }
         var id = 'user-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
-        data.list.push({ id: id, name: name, audio: 'fr', subtitles: 'off', autoplay: false });
+        data.list.push({ id: id, name: name, audio: I18n.contentLang(), subtitles: 'off', autoplay: false });
         Storage.set(Storage.KEYS.viewers, JSON.stringify(data));
         return id;
     };
@@ -3573,9 +4286,10 @@ var App = App || {};
         var p = App.currentViewer();
         for (var i = 0; i < App.viewerPresets.length; i++) {
             var preset = App.viewerPresets[i];
-            if (p.audio === preset.audio && p.subtitles === preset.subtitles) { return preset.name; }
+            if (App.viewerMatchesPreset(p, preset)) { return preset.name; }
         }
-        return 'Personnalisé · ' + p.audio + ' / ' + p.subtitles;
+        return I18n.t('Personnalisé · {audio} / {subtitles}',
+            { audio: App.resolveTrackLang(p.audio), subtitles: App.resolveTrackLang(p.subtitles) });
     };
     App.personalizedAdditions = function (max) {
         var categories = Object.create(null);
@@ -3601,7 +4315,7 @@ var App = App || {};
                 if (out.length >= max || !categories[type + ':' + item.categoryId] ||
                     watched[type + ':' + (item.seriesId || item.id)]) { return; }
                 out.push({ kind: type, item: item, title: App.displayCatalogTitle(item.name),
-                    logo: item.logo || '', meta: 'Selon vos contenus regardés et suivis' });
+                    logo: item.logo || '', meta: I18n.t('Selon vos contenus regardés et suivis') });
             });
         });
         return out;
@@ -3697,14 +4411,14 @@ var App = App || {};
             App.$epgNow.textContent = 'Maintenant   ' + EPG.fmtTime(nn.now.start) + '–' +
                 EPG.fmtTime(nn.now.stop) + '   ' + nn.now.title;
         } else if (ch.kind === 'live' && EPG.isLoaded()) {
-            App.$epgNow.textContent = 'Aucun programme disponible pour cette chaîne';
+            App.$epgNow.textContent = I18n.t('Aucun programme disponible pour cette chaîne');
         } else if (ch.kind === 'live') {
-            App.$epgNow.textContent = 'Aucun guide TV — ajoutez une adresse EPG dans Réglages';
+            App.$epgNow.textContent = I18n.t('Aucun guide TV — ajoutez une adresse EPG dans Réglages');
         } else {
-            App.$epgNow.textContent = ch.kind === 'vod' ? 'Film' : (ch.kind === 'episode' ? 'Épisode' : '');
+            App.$epgNow.textContent = ch.kind === 'vod' ? I18n.t('Film') : (ch.kind === 'episode' ? I18n.t('Épisode') : '');
         }
         App.$epgNext.textContent = (nn && nn.next)
-            ? 'À suivre  ' + EPG.fmtTime(nn.next.start) + '   ' + nn.next.title
+            ? I18n.t('À suivre  {time}   {title}', { time: EPG.fmtTime(nn.next.start), title: nn.next.title })
             : '';
         App.updateInfoFocusUi();
     }
@@ -3890,9 +4604,9 @@ var App = App || {};
         });
         if (!rows.length) {
             var explanation = document.createElement('li');
-            explanation.textContent = !live ? 'Le guide TV concerne les chaînes en direct'
-                : EPG.isLoaded() ? 'Aucun programme disponible pour cette chaîne'
-                : 'Ajoutez un guide TV dans les réglages pour afficher les programmes';
+            explanation.textContent = !live ? I18n.t('Le guide TV concerne les chaînes en direct')
+                : EPG.isLoaded() ? I18n.t('Aucun programme disponible pour cette chaîne')
+                : I18n.t('Ajoutez un guide TV dans les réglages pour afficher les programmes');
             rows.push(explanation);
         }
         rows.forEach(function (row) { app.$epgItems.appendChild(row); });
@@ -4070,7 +4784,7 @@ var App = App || {};
 
     App.prependSearchRow = function () {
         if (App.listLevelSupportsSearch()) {
-            App.listRows.unshift({ kind: 'search', label: 'Rechercher' });
+            App.listRows.unshift({ kind: 'search', label: I18n.t('Rechercher') });
         }
     }
 
@@ -4088,7 +4802,7 @@ var App = App || {};
         if (!n) { return; }
         var row = {
             kind: 'continue',
-            label: 'Continuer à regarder',
+            label: I18n.t('Continuer à regarder'),
             count: n,
             filter: filter
         };
@@ -4110,7 +4824,7 @@ var App = App || {};
         if (!n) { return; }
         var row = {
             kind: 'favorites',
-            label: '★ Favoris',
+            label: I18n.t('★ Favoris'),
             count: n
         };
         var insertAt = 0;
@@ -4135,14 +4849,14 @@ var App = App || {};
 
     App.appendSettingsRow = function () {
         if (App.listLevel === 'types') {
-            App.listRows.push({ kind: 'settings', label: 'Réglages' });
-            App.listRows.push({ kind: 'exit', label: 'Quitter' });
+            App.listRows.push({ kind: 'settings', label: I18n.t('Réglages') });
+            App.listRows.push({ kind: 'exit', label: I18n.t('Quitter') });
         } else if (App.listLevel === 'categories' && !App.useTypeMenu()) {
-            App.listRows.push({ kind: 'settings', label: 'Réglages' });
-            App.listRows.push({ kind: 'exit', label: 'Quitter' });
+            App.listRows.push({ kind: 'settings', label: I18n.t('Réglages') });
+            App.listRows.push({ kind: 'exit', label: I18n.t('Quitter') });
         } else if (App.listLevel === 'content' && !App.useTypeMenu() && !App.categories.length) {
-            App.listRows.push({ kind: 'settings', label: 'Réglages' });
-            App.listRows.push({ kind: 'exit', label: 'Quitter' });
+            App.listRows.push({ kind: 'settings', label: I18n.t('Réglages') });
+            App.listRows.push({ kind: 'exit', label: I18n.t('Quitter') });
         }
     }
 
@@ -4188,7 +4902,7 @@ var App = App || {};
                     kind: 'favorite-item',
                     item: favs[i],
                     label: App.displayCatalogTitle(
-                        favs[i].name || (App.contentType === 'series' ? 'Série' : 'Chaîne')
+                        favs[i].name || (App.contentType === 'series' ? I18n.t('Série') : I18n.t('Chaîne'))
                     )
                 });
             }
@@ -4196,8 +4910,8 @@ var App = App || {};
         }
 
         if (App.listLevel === 'categories') {
-            var allLabel = App.contentType === 'vod' ? 'Tous les films'
-                : (App.contentType === 'series' ? 'Toutes les séries' : 'Toutes les chaînes');
+            var allLabel = App.contentType === 'vod' ? I18n.t('Tous les films')
+                : (App.contentType === 'series' ? I18n.t('Toutes les séries') : I18n.t('Toutes les chaînes'));
             App.listRows.push({ kind: 'category', catId: null, label: allLabel, count: App.channels.length });
             if (App.contentType === 'vod' || App.contentType === 'series') {
                 var recentN = App.countRecentItems();
@@ -4205,7 +4919,7 @@ var App = App || {};
                     App.listRows.push({
                         kind: 'category',
                         catId: App.RECENT_CAT_ID,
-                        label: 'Derniers ajouts',
+                        label: I18n.t('Derniers ajouts'),
                         count: recentN
                     });
                 }
@@ -4371,7 +5085,7 @@ var App = App || {};
         art.className = 'home-card-art poster-art';
         var placeholder = document.createElement('span');
         placeholder.className = 'home-card-placeholder poster-placeholder';
-        placeholder.textContent = isLive ? 'TV' : 'Sans image';
+        placeholder.textContent = isLive ? 'TV' : I18n.t('Sans image');
         art.appendChild(placeholder);
 
         if (item && item.logo) {
@@ -4544,8 +5258,8 @@ var App = App || {};
             var empty = document.createElement('li');
             empty.className = 'is-poster-empty';
             empty.textContent = App.contentType === 'live'
-                ? 'Aucune chaîne'
-                : 'Aucun titre';
+                ? I18n.t('Aucune chaîne')
+                : I18n.t('Aucun titre');
             App.$items.appendChild(empty);
             return;
         }
@@ -4729,7 +5443,7 @@ var App = App || {};
                 if (App.$listMode) { App.$listMode.textContent = App.typeLabel(App.contentType); }
                 if (App.$listTitle) {
                     if (App.listLevel === 'favorites') {
-                        App.$listTitle.textContent = 'Favoris';
+                        App.$listTitle.textContent = I18n.t('Favoris');
                     } else {
                         App.$listTitle.textContent = App.categoryName(App.activeCategoryId);
                     }
@@ -4739,22 +5453,22 @@ var App = App || {};
                     var subCount = App.posterSource.length;
                     if (App.listLevel === 'favorites') {
                         App.$listSub.textContent = App.contentType === 'series'
-                            ? (App.countLabel(subCount, 'série') + ' · OK ouvrir les options')
-                            : (App.countLabel(subCount, 'chaîne') + ' · OK regarder');
+                            ? I18n.t('{count} · OK ouvrir les options', { count: App.countLabel(subCount, I18n.t('série'), I18n.t('séries')) })
+                            : I18n.t('{count} · OK regarder', { count: App.countLabel(subCount, I18n.t('chaîne'), I18n.t('chaînes')) });
                     } else if (App.contentType === 'live') {
-                        App.$listSub.textContent = App.countLabel(subCount, 'chaîne') +
-                            ' · OK regarder';
+                        App.$listSub.textContent = I18n.t('{count} · OK regarder',
+                            { count: App.countLabel(subCount, I18n.t('chaîne'), I18n.t('chaînes')) });
                     } else if (App.contentType === 'series') {
-                        App.$listSub.textContent = App.countLabel(subCount, 'série') +
-                            ' · OK ouvrir la fiche';
+                        App.$listSub.textContent = I18n.t('{count} · OK ouvrir la fiche',
+                            { count: App.countLabel(subCount, I18n.t('série'), I18n.t('séries')) });
                     } else {
-                        App.$listSub.textContent = App.countLabel(subCount, 'film') +
-                            ' · OK pour lire';
+                        App.$listSub.textContent = I18n.t('{count} · OK pour lire',
+                            { count: App.countLabel(subCount, I18n.t('film'), I18n.t('films')) });
                     }
                 }
                 if (App.$listKeys) {
                     App.$listKeys.textContent =
-                        '▲▼◀▶ naviguer · OK ouvrir · ◀ menu · BACK retour';
+                        I18n.t('▲▼◀▶ naviguer · OK ouvrir · ◀ menu · BACK retour');
                 }
                 App.posterWindowStart = 0;
                 App.renderPosterWindow(true);
@@ -4770,13 +5484,13 @@ var App = App || {};
                     App.$livePreview.classList.add('hidden');
                     App.$livePreview.setAttribute('aria-hidden', 'true');
                 }
-                if (App.$listMode) { App.$listMode.textContent = 'Accueil'; }
+                if (App.$listMode) { App.$listMode.textContent = I18n.t('Accueil'); }
                 if (App.$listTitle) { App.$listTitle.textContent = Branding.name; }
                 if (App.$listSub) {
-                    App.$listSub.textContent = 'Choisis TV, Films ou Séries';
+                    App.$listSub.textContent = I18n.t('Choisis TV, Films ou Séries');
                 }
                 if (App.$listKeys) {
-                    App.$listKeys.textContent = '▲▼ naviguer · OK ouvrir · BACK quitter';
+                    App.$listKeys.textContent = I18n.t('▲▼ naviguer · OK ouvrir · BACK quitter');
                 }
             } else {
                 App.homeBrandFocused = false;
@@ -4787,62 +5501,62 @@ var App = App || {};
                     App.$listMode.textContent = App.typeLabel(App.contentType);
                 }
                 if (App.listLevel === 'continue') {
-                    if (App.$listTitle) { App.$listTitle.textContent = 'Continuer à regarder'; }
+                    if (App.$listTitle) { App.$listTitle.textContent = I18n.t('Continuer à regarder'); }
                     if (App.$listSub) {
                         App.$listSub.textContent = App.continueFilter === 'vod'
-                            ? 'Films en cours · OK pour les options'
+                            ? I18n.t('Films en cours · OK pour les options')
                             : (App.continueFilter === 'series'
-                                ? 'Séries en cours · OK pour les options'
-                                : 'Reprendre ou retirer un contenu avec le menu Options');
+                                ? I18n.t('Séries en cours · OK pour les options')
+                                : I18n.t('Reprendre ou retirer un contenu avec le menu Options'));
                     }
                 } else if (App.listLevel === 'favorites') {
-                    if (App.$listTitle) { App.$listTitle.textContent = 'Favoris'; }
+                    if (App.$listTitle) { App.$listTitle.textContent = I18n.t('Favoris'); }
                     if (App.$listSub) {
                         App.$listSub.textContent = App.contentType === 'series'
-                            ? 'Séries favorites · OK pour ouvrir la fiche'
-                            : 'Chaînes favorites · OK pour les options';
+                            ? I18n.t('Séries favorites · OK pour ouvrir la fiche')
+                            : I18n.t('Chaînes favorites · OK pour les options');
                     }
                 } else if (App.listLevel === 'categories') {
-                    if (App.$listTitle) { App.$listTitle.textContent = 'Catégories'; }
+                    if (App.$listTitle) { App.$listTitle.textContent = I18n.t('Catégories'); }
                     if (App.$listSub) {
-                        App.$listSub.textContent = App.countLabel(App.channels.length, 'titre');
+                        App.$listSub.textContent = App.countLabel(App.channels.length, I18n.t('titre'), I18n.t('titres'));
                     }
                 } else if (App.listLevel === 'seasons') {
                     if (App.$listTitle) {
                         App.$listTitle.textContent = App.activeSeries
                             ? App.displayCatalogTitle(App.activeSeries.name)
-                            : 'Saisons';
+                            : I18n.t('Saisons');
                     }
-                    if (App.$listSub) { App.$listSub.textContent = 'Choisir une saison'; }
+                    if (App.$listSub) { App.$listSub.textContent = I18n.t('Choisir une saison'); }
                 } else if (App.listLevel === 'episodes') {
                     if (App.$listTitle) {
-                        App.$listTitle.textContent = App.activeSeason ? App.activeSeason.name : 'Épisodes';
+                        App.$listTitle.textContent = App.activeSeason ? App.activeSeason.name : I18n.t('Épisodes');
                     }
-                    if (App.$listSub) { App.$listSub.textContent = 'OK pour lire · plein écran'; }
+                    if (App.$listSub) { App.$listSub.textContent = I18n.t('OK pour lire · plein écran'); }
                 } else {
                     if (App.$listTitle) { App.$listTitle.textContent = App.categoryName(App.activeCategoryId); }
                     if (App.$listSub) {
                         App.$listSub.textContent = App.contentType === 'live'
-                            ? 'OK pour regarder ou gérer le favori'
+                            ? I18n.t('OK pour regarder ou gérer le favori')
                             : (App.contentType === 'series'
-                                ? 'OK pour ouvrir la série'
-                                : 'OK pour lire · plein écran');
+                                ? I18n.t('OK pour ouvrir la série')
+                                : I18n.t('OK pour lire · plein écran'));
                     }
                 }
                 if (App.$listKeys) {
                     if (App.listLevel === 'content' && App.contentType === 'live') {
                         App.$listKeys.textContent =
-                            '▲▼ aperçu · OK options · ◀ menu · BACK remonter';
+                            I18n.t('▲▼ aperçu · OK options · ◀ menu · BACK remonter');
                     } else if (App.listLevel === 'favorites') {
                         App.$listKeys.textContent = App.contentType === 'series'
-                            ? '▲▼ naviguer · OK ouvrir la fiche · ◀ menu · BACK remonter'
-                            : '▲▼ aperçu · OK options · ◀ menu · BACK remonter';
+                            ? I18n.t('▲▼ naviguer · OK ouvrir la fiche · ◀ menu · BACK remonter')
+                            : I18n.t('▲▼ aperçu · OK options · ◀ menu · BACK remonter');
                     } else if (App.listLevel === 'continue') {
                         App.$listKeys.textContent =
-                            '▲▼ naviguer · OK options · BACK remonter';
+                            I18n.t('▲▼ naviguer · OK options · BACK remonter');
                     } else {
                         App.$listKeys.textContent =
-                            '▲▼ naviguer · OK ouvrir · ◀ menu · BACK remonter';
+                            I18n.t('▲▼ naviguer · OK ouvrir · ◀ menu · BACK remonter');
                     }
                 }
             }
@@ -4854,7 +5568,7 @@ var App = App || {};
             App.renderListWindow(true);
             } /* end non-poster */
         } catch (err) {
-            try { App.toast('Erreur du menu : ' + (err && err.message ? err.message : err), true); } catch (e2) {}
+            try { App.toast(I18n.t('Erreur du menu : {error}', { error: err && err.message ? err.message : err }), true); } catch (e2) {}
         }
         App.endResumeSnap();
         App.updateListClasses();
@@ -4897,17 +5611,17 @@ var App = App || {};
 
         if (row.kind === 'search') {
             li.className = 'is-search';
-            li.appendChild(document.createTextNode(row.label || 'Recherche'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Recherche')));
         } else if (row.kind === 'continue') {
             li.className = 'is-continue';
-            li.appendChild(document.createTextNode(row.label || 'Continue'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Continuer à regarder')));
             var cMeta = document.createElement('span');
             cMeta.className = 'item-meta';
             cMeta.textContent = String(row.count || 0);
             li.appendChild(cMeta);
         } else if (row.kind === 'favorites') {
             li.className = 'is-favorite';
-            li.appendChild(document.createTextNode(row.label || 'Favoris'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Favoris')));
             var fMeta = document.createElement('span');
             fMeta.className = 'item-meta';
             fMeta.textContent = String(row.count || 0);
@@ -4924,7 +5638,7 @@ var App = App || {};
             starF.className = 'fav-star';
             starF.textContent = '★ ';
             li.appendChild(starF);
-            li.appendChild(document.createTextNode(row.label || 'Chaîne'));
+            li.appendChild(document.createTextNode(row.label || I18n.t('Chaîne')));
         } else if (row.kind === 'settings' || row.kind === 'exit') {
             li.className = row.kind === 'settings' ? 'is-settings' : 'is-settings is-exit';
             li.appendChild(document.createTextNode(row.label || ''));
@@ -4959,7 +5673,7 @@ var App = App || {};
             li.className = 'is-channel';
             var ep = row.item;
             li.appendChild(document.createTextNode(
-                (ep && App.displayCatalogTitle(ep.name)) || 'Episode'
+                (ep && App.displayCatalogTitle(ep.name)) || I18n.t('Épisode')
             ));
             if (ep) { App.appendWatchProgress(li, App.getResumeEntry(ep)); }
         } else if (row.kind === 'series') {
@@ -4975,7 +5689,7 @@ var App = App || {};
                 li.appendChild(starS);
             }
             li.appendChild(document.createTextNode(
-                App.displayCatalogTitle(seriesItem.name || 'Série')
+                App.displayCatalogTitle(seriesItem.name || I18n.t('Série'))
             ));
             App.appendWatchProgress(li, App.bestSeriesResume(seriesItem.seriesId), {
                 seriesStyle: true
@@ -4999,7 +5713,7 @@ var App = App || {};
                 li.appendChild(badge);
             }
             li.appendChild(document.createTextNode(
-                App.displayCatalogTitle(item.name || 'Chaîne')
+                App.displayCatalogTitle(item.name || I18n.t('Chaîne'))
             ));
             if (item.kind === 'vod') {
                 App.appendWatchProgress(li, App.getResumeEntry(item));
@@ -5168,7 +5882,7 @@ var App = App || {};
                 if (rail.action === 'type') {
                     App.$listTitle.textContent = rail.label;
                 } else if (rail.action === 'home') {
-                    App.$listTitle.textContent = 'Accueil';
+                    App.$listTitle.textContent = I18n.t('Accueil');
                 } else {
                     App.$listTitle.textContent = rail.label;
                 }
@@ -5181,15 +5895,15 @@ var App = App || {};
 
         if (App.listLevel === 'categories') {
             if (row.kind === 'category' && App.$listTitle) {
-                App.$listTitle.textContent = row.label || 'Catégorie';
+                App.$listTitle.textContent = row.label || I18n.t('Catégorie');
             } else if (row.kind === 'search' && App.$listTitle) {
-                App.$listTitle.textContent = 'Recherche';
+                App.$listTitle.textContent = I18n.t('Recherche');
             } else if (row.kind === 'continue' && App.$listTitle) {
-                App.$listTitle.textContent = 'Continuer à regarder';
+                App.$listTitle.textContent = I18n.t('Continuer à regarder');
             } else if (row.kind === 'favorites' && App.$listTitle) {
-                App.$listTitle.textContent = 'Favoris';
+                App.$listTitle.textContent = I18n.t('Favoris');
             } else if (App.$listTitle) {
-                App.$listTitle.textContent = 'Catégories';
+                App.$listTitle.textContent = I18n.t('Catégories');
             }
             return;
         }
@@ -5203,11 +5917,11 @@ var App = App || {};
                     App.$listTitle.textContent = gLabel || App.categoryName(App.activeCategoryId);
                 }
             } else if (row.kind === 'search' && App.$listTitle) {
-                App.$listTitle.textContent = 'Recherche';
+                App.$listTitle.textContent = I18n.t('Recherche');
             } else if (row.kind === 'continue' && App.$listTitle) {
-                App.$listTitle.textContent = 'Continuer à regarder';
+                App.$listTitle.textContent = I18n.t('Continuer à regarder');
             } else if (row.kind === 'favorites' && App.$listTitle) {
-                App.$listTitle.textContent = 'Favoris';
+                App.$listTitle.textContent = I18n.t('Favoris');
             } else if (App.$listTitle) {
                 App.$listTitle.textContent = App.categoryName(App.activeCategoryId);
             }
@@ -5419,7 +6133,7 @@ var App = App || {};
             }
             rows.push({
                 id: 'continue',
-                title: 'Continuer à regarder',
+                title: I18n.t('Continuer à regarder'),
                 items: cItems
             });
         }
@@ -5433,14 +6147,14 @@ var App = App || {};
                 fItems.push({
                     kind: 'live',
                     item: ch,
-                    title: App.homeNowPlayingForLive(ch) || 'Programme indisponible',
+                    title: App.homeNowPlayingForLive(ch) || I18n.t('Programme indisponible'),
                     meta: '',
                     logo: ch.logo || ''
                 });
             }
             rows.push({
                 id: 'fav-live',
-                title: 'TV favoris',
+                title: I18n.t('TV favoris'),
                 items: fItems
             });
         }
@@ -5454,14 +6168,14 @@ var App = App || {};
                 sItems.push({
                     kind: 'series',
                     item: s,
-                    title: App.displayCatalogTitle(s.name || 'Série'),
+                    title: App.displayCatalogTitle(s.name || I18n.t('Série')),
                     meta: App.homeMetaForCatalogItem(s),
                     logo: s.logo || ''
                 });
             }
             rows.push({
                 id: 'recent-series',
-                title: 'Récemment ajouté dans Séries',
+                title: I18n.t('Récemment ajouté dans Séries'),
                 items: sItems
             });
         }
@@ -5475,14 +6189,14 @@ var App = App || {};
                 vItems.push({
                     kind: 'vod',
                     item: v,
-                    title: App.displayCatalogTitle(v.name || 'Film'),
+                    title: App.displayCatalogTitle(v.name || I18n.t('Film')),
                     meta: App.homeMetaForCatalogItem(v),
                     logo: v.logo || ''
                 });
             }
             rows.push({
                 id: 'recent-vod',
-                title: 'Récemment ajouté dans Films',
+                title: I18n.t('Récemment ajouté dans Films'),
                 items: vItems
             });
         }
@@ -5494,16 +6208,16 @@ var App = App || {};
                 var item = App.findSeriesByFavorite(record);
                 if (item && followedItems.length < max) {
                     followedItems.push({ kind: 'series', item: item,
-                        title: App.displayCatalogTitle(item.name), logo: item.logo || '', meta: 'Série suivie' });
+                        title: App.displayCatalogTitle(item.name), logo: item.logo || '', meta: I18n.t('Série suivie') });
                 }
             });
             if (followedItems.length) { rows.splice(continues.length ? 1 : 0, 0,
-                { id: 'followed', title: 'Mes séries suivies', items: followedItems }); }
+                { id: 'followed', title: I18n.t('Mes séries suivies'), items: followedItems }); }
         }
         if (App.personalizedAdditions) {
             var picks = App.personalizedAdditions(max);
             if (picks.length) { rows.splice(continues.length ? 1 : 0, 0,
-                { id: 'for-you', title: 'Ajouts dans vos catégories', items: picks }); }
+                { id: 'for-you', title: I18n.t('Ajouts dans vos catégories'), items: picks }); }
         }
         if (App.currentViewer && rows.length) {
             rows[0].title = App.currentViewer().name + ' · ' + rows[0].title;
@@ -5727,7 +6441,7 @@ var App = App || {};
         art.className = 'home-card-art';
         var placeholder = document.createElement('span');
         placeholder.className = 'home-card-placeholder';
-        placeholder.textContent = item.kind === 'live' ? 'TV' : 'Sans image';
+        placeholder.textContent = item.kind === 'live' ? 'TV' : I18n.t('Sans image');
         art.appendChild(placeholder);
 
         if (item.logo) {
@@ -5781,7 +6495,7 @@ var App = App || {};
         if (item.kind === 'continue') {
             var options = document.createElement('button');
             options.className = 'continue-options';
-            options.textContent = 'Options'; options.tabIndex = -1;
+            options.textContent = I18n.t('Options'); options.tabIndex = -1;
             options.addEventListener('click', function (e) {
                 if (e && e.stopPropagation) { e.stopPropagation(); }
                 App.showItemActions(App.itemFromResumeEntry(item.entry), { entry: item.entry });
@@ -5980,7 +6694,7 @@ var App = App || {};
             if (!App.homeRows.length) {
                 var empty = document.createElement('div');
                 empty.className = 'home-empty';
-                empty.textContent = 'Rien à afficher pour l’instant — ouvre En direct, Films ou Séries.';
+                empty.textContent = I18n.t('Rien à afficher pour l’instant — ouvre En direct, Films ou Séries.');
                 App.$homeRows.appendChild(empty);
             } else {
                 for (var i = 0; i < App.homeRows.length; i++) {
@@ -6013,7 +6727,7 @@ var App = App || {};
             App.loadVisibleHomeImages();
         } catch (err) {
             try {
-                App.toast('Erreur sur l’accueil : ' + (err && err.message ? err.message : err), true);
+                App.toast(I18n.t('Erreur sur l’accueil : {error}', { error: err && err.message ? err.message : err }), true);
             } catch (e2) {}
         }
         App.endResumeSnap();
@@ -6305,7 +7019,7 @@ var App = App || {};
         if (card.kind === 'live') {
             var live = card.item;
             if (!live || !live.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             App.playItem(live, 'live');
@@ -6314,7 +7028,7 @@ var App = App || {};
         if (card.kind === 'vod') {
             var vod = card.item;
             if (!vod || !vod.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             App.showDetails(vod);
@@ -6324,13 +7038,13 @@ var App = App || {};
             var seriesItem = card.item;
             if (App.showDetails && seriesItem) { App.showDetails(seriesItem); return; }
             if (!seriesItem) {
-                App.toast('Série introuvable');
+                App.toast(I18n.t('Série introuvable'));
                 return;
             }
             App.setContentType('series');
             App.openedFromFavorites = false;
             App.activeSeries = seriesItem;
-            App.toast('Chargement de ' + seriesItem.name + '…');
+            App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
             App.seriesLoading = true;
             Xtream.getSeriesInfo(
                 App.xtreamCreds.base, App.xtreamCreds.username, App.xtreamCreds.password,
@@ -6579,17 +7293,17 @@ var App = App || {};
             return;
         }
         App.$livePreviewName.textContent = typeof App.displayCatalogTitle === 'function'
-            ? App.displayCatalogTitle(item.name || 'Chaîne')
-            : (item.name || 'Chaîne');
+            ? App.displayCatalogTitle(item.name || I18n.t('Chaîne'))
+            : (item.name || I18n.t('Chaîne'));
         if (!App.$livePreviewEpg) { return; }
         var nn = (item.id && typeof EPG !== 'undefined') ? EPG.nowNext(item.id) : null;
         if (nn && nn.now) {
             App.$livePreviewEpg.textContent = EPG.fmtTime(nn.now.start) + '–' +
                 EPG.fmtTime(nn.now.stop) + '  ·  ' + (nn.now.title || '');
         } else if (item.id && typeof EPG !== 'undefined' && EPG.isLoaded()) {
-            App.$livePreviewEpg.textContent = 'Pas de programme EPG';
+            App.$livePreviewEpg.textContent = I18n.t('Pas de programme EPG');
         } else if (typeof EPG !== 'undefined' && !EPG.isLoaded()) {
-            App.$livePreviewEpg.textContent = 'EPG non chargé';
+            App.$livePreviewEpg.textContent = I18n.t('EPG non chargé');
         } else {
             App.$livePreviewEpg.textContent = '';
         }
@@ -6716,7 +7430,7 @@ var App = App || {};
             App.livePreviewPendingUrl = '';
             App.updateLivePreviewMeta(item);
             if (App.$livePreviewPlaceholder) {
-                App.$livePreviewPlaceholder.textContent = 'Aperçu…';
+                App.$livePreviewPlaceholder.textContent = I18n.t('Aperçu…');
             }
             return;
         }
@@ -6745,7 +7459,7 @@ var App = App || {};
                 App.stopLivePreview({ keepChrome: true, forceStop: true, keepRect: true });
                 App.updateLivePreviewMeta(null);
                 if (App.$livePreviewPlaceholder) {
-                    App.$livePreviewPlaceholder.textContent = 'Sélectionnez une chaîne';
+                    App.$livePreviewPlaceholder.textContent = I18n.t('Sélectionnez une chaîne');
                 }
                 App.setLivePreviewLoadingUi(true);
             }, App.LIVE_PREVIEW_DEBOUNCE_MS);
@@ -6753,7 +7467,7 @@ var App = App || {};
         }
 
         if (App.$livePreviewPlaceholder) {
-            App.$livePreviewPlaceholder.textContent = 'Aperçu…';
+            App.$livePreviewPlaceholder.textContent = I18n.t('Aperçu…');
         }
         App.updateLivePreviewMeta(item);
 
@@ -6777,7 +7491,7 @@ var App = App || {};
             App.setLivePreviewPlayingUi(false);
             App.setLivePreviewLoadingUi(true);
             if (App.$livePreviewPlaceholder) {
-                App.$livePreviewPlaceholder.textContent = state === 'error' ? 'Aperçu indisponible' : 'Aperçu';
+                App.$livePreviewPlaceholder.textContent = state === 'error' ? I18n.t('Aperçu indisponible') : I18n.t('Aperçu');
             }
         }
         /* buffering: stay quiet — browse uses placeholder, not the watch toast. */
@@ -6875,7 +7589,7 @@ var App = App || {};
         App.buildListRows();
         App.endResumeSnap();
         if (!App.listRows.length) {
-            App.toast('Rien à reprendre');
+            App.toast(I18n.t('Rien à reprendre'));
             if (App.continueFilter) {
                 if (App.categories.length) { App.openCategories(); }
                 else { App.openContentList(null); }
@@ -6910,7 +7624,7 @@ var App = App || {};
         }
         App.buildListRows();
         if (!App.listRows.length) {
-            App.toast('Aucun favori');
+            App.toast(I18n.t('Aucun favori'));
             if (App.categories.length) { App.openCategories(); }
             else { App.openContentList(null); }
             return;
@@ -6990,7 +7704,7 @@ var App = App || {};
     App.enterType = function (type) {
         App.setContentType(type);
         if (!App.channels.length) {
-            App.toast('Aucun contenu pour ' + App.typeLabel(type));
+            App.toast(I18n.t('Aucun contenu pour {type}', { type: App.typeLabel(type) }));
             return;
         }
         App.homeFocus = App.homeFocus || {};
@@ -7112,7 +7826,7 @@ var App = App || {};
 
     App.loadSeriesAndRestore = function (seriesItem, mem) {
         App.activeSeries = seriesItem;
-        App.toast('Chargement de ' + seriesItem.name + '…');
+        App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
         App.seriesLoading = true;
         /* A cached series response can complete synchronously. */
         App.listLevel = 'seasons';
@@ -7282,14 +7996,14 @@ var App = App || {};
         if (row.kind === 'favorite-item') {
             var favItem = row.item;
             if (!favItem) {
-                App.toast('Contenu indisponible');
+                App.toast(I18n.t('Contenu indisponible'));
                 return;
             }
             if (App.contentType === 'series' || favItem.kind === 'series') {
                 if (App.showDetails) { App.showDetails(favItem); return; }
                 App.openedFromFavorites = true;
                 App.activeSeries = favItem;
-                App.toast('Chargement de ' + favItem.name + '…');
+                App.toast(I18n.t('Chargement de {name}…', { name: favItem.name }));
                 App.seriesLoading = true;
                 Xtream.getSeriesInfo(
                     App.xtreamCreds.base, App.xtreamCreds.username, App.xtreamCreds.password,
@@ -7307,7 +8021,7 @@ var App = App || {};
                 return;
             }
             if (!favItem.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             if (App.livePreviewActive && App.playingItem && App.playingItem() &&
@@ -7354,12 +8068,12 @@ var App = App || {};
             var seriesItem = App.channels[row.channelIndex];
             if (App.showDetails && seriesItem) { App.showDetails(seriesItem); return; }
             if (!seriesItem) {
-                App.toast('Série introuvable');
+                App.toast(I18n.t('Série introuvable'));
                 return;
             }
             App.openedFromFavorites = false;
             App.activeSeries = seriesItem;
-            App.toast('Chargement de ' + seriesItem.name + '…');
+            App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
             App.seriesLoading = true;
             Xtream.getSeriesInfo(
                 App.xtreamCreds.base, App.xtreamCreds.username, App.xtreamCreds.password,
@@ -7388,11 +8102,11 @@ var App = App || {};
         if (row.kind === 'channel') {
             var chItem = App.channels[row.channelIndex];
             if (!chItem) {
-                App.toast('Contenu introuvable');
+                App.toast(I18n.t('Contenu introuvable'));
                 return;
             }
             if (!chItem.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             if ((chItem.kind || App.contentType) === 'live' &&
@@ -7531,10 +8245,10 @@ var App = App || {};
     };
 
     App.kindBadge = function (kind) {
-        if (kind === 'vod') { return 'Film'; }
-        if (kind === 'series') { return 'Série'; }
-        if (kind === 'episode') { return 'Épisode'; }
-        if (kind === 'search-query') { return 'Recherche'; }
+        if (kind === 'vod') { return I18n.t('Film'); }
+        if (kind === 'series') { return I18n.t('Série'); }
+        if (kind === 'episode') { return I18n.t('Épisode'); }
+        if (kind === 'search-query') { return I18n.t('Recherche'); }
         return 'TV';
     };
 
@@ -7589,13 +8303,13 @@ var App = App || {};
                 kind: 'search-query',
                 title: hist[i],
                 query: hist[i],
-                meta: 'Récent',
+                meta: I18n.t('Récent'),
                 logo: ''
             });
         }
         App.searchRows = [{
             id: 'search-history',
-            title: 'Recherches récentes',
+            title: I18n.t('Recherches récentes'),
             items: items
         }];
     };
@@ -7655,10 +8369,10 @@ var App = App || {};
             rows.push({ id: 'search-live', title: 'TV', items: byKind.live });
         }
         if (byKind.series.length) {
-            rows.push({ id: 'search-series', title: 'Séries', items: byKind.series });
+            rows.push({ id: 'search-series', title: I18n.t('Séries'), items: byKind.series });
         }
         if (byKind.vod.length) {
-            rows.push({ id: 'search-vod', title: 'Films', items: byKind.vod });
+            rows.push({ id: 'search-vod', title: I18n.t('Films'), items: byKind.vod });
         }
         App.searchRows = rows;
     };
@@ -7702,7 +8416,7 @@ var App = App || {};
             finish();
         }
         if (chunked) {
-            if (App.$searchShellMeta) { App.$searchShellMeta.textContent = 'Recherche…'; }
+            if (App.$searchShellMeta) { App.$searchShellMeta.textContent = I18n.t('Recherche…'); }
             App._searchWorkTimer = setTimeout(step, 0);
         } else { step(); }
     };
@@ -7751,29 +8465,30 @@ var App = App || {};
         if (App.$searchShellMeta) {
             if (!q) {
                 App.$searchShellMeta.textContent = App.searchRows.length
-                    ? 'Recherches récentes · OK pour relancer'
+                    ? I18n.t('Recherches récentes · OK pour relancer')
                     : (App.searchEditing
-                        ? 'Saisissez une chaîne, un film ou une série'
-                        : 'OK pour commencer la saisie');
+                        ? I18n.t('Saisissez une chaîne, un film ou une série')
+                        : I18n.t('OK pour commencer la saisie'));
             } else if (!App.searchRows.length) {
-                App.$searchShellMeta.textContent = 'Aucun résultat';
+                App.$searchShellMeta.textContent = I18n.t('Aucun résultat');
             } else {
-                App.$searchShellMeta.textContent = App.searchResults.length + ' résultat' +
-                    (App.searchResults.length > 1 ? 's' : '');
+                App.$searchShellMeta.textContent = App.searchResults.length > 1
+                    ? I18n.t('{n} résultats', { n: App.searchResults.length })
+                    : I18n.t('{n} résultat', { n: App.searchResults.length });
             }
         }
         if (!q) {
             if (!App.searchRows.length) {
                 var tip = document.createElement('div');
                 tip.className = 'home-empty';
-                tip.textContent = 'Tape une recherche pour afficher TV, Films et Séries.';
+                tip.textContent = I18n.t('Tape une recherche pour afficher TV, Films et Séries.');
                 App.$searchShellRows.appendChild(tip);
                 return;
             }
         } else if (!App.searchRows.length) {
             var none = document.createElement('div');
             none.className = 'home-empty';
-            none.textContent = 'Aucun résultat pour « ' + q + ' ».';
+            none.textContent = I18n.t('Aucun résultat pour « {query} ».', { query: q });
             App.$searchShellRows.appendChild(none);
             return;
         }
@@ -7806,7 +8521,7 @@ var App = App || {};
                     });
                     head.appendChild(pager);
                 }
-                if (from > 0) { pageButton('← Précédents', Math.max(0, from - size), i); }
+                if (from > 0) { pageButton(I18n.t('← Précédents'), Math.max(0, from - size), i); }
                 if (until < row.items.length) { pageButton('Suivants →', until, i); }
             }
             for (var j = from; j < until; j++) {
@@ -7934,7 +8649,7 @@ var App = App || {};
         try { App.$searchQuery.select(); } catch (e) {}
         if (App.$searchShellMeta && !App.$searchQuery.value.trim() &&
             !(App.searchRows || []).length) {
-            App.$searchShellMeta.textContent = 'Saisissez une chaîne, un film ou une série';
+            App.$searchShellMeta.textContent = I18n.t('Saisissez une chaîne, un film ou une série');
         }
         App.updateSearchFocusUi();
     };
@@ -8054,7 +8769,7 @@ var App = App || {};
         App.hideSearchPane();
         App.uiState = 'browse';
         App.setExclusiveOverlays({ list: true, dim: true });
-        App.toast('Chargement de ' + seriesItem.name + '…');
+        App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
         App.seriesLoading = true;
         /* Install the placeholder before either a cached or network response. */
         App.listLevel = 'seasons';
@@ -8365,10 +9080,10 @@ var App = App || {};
         if (!keepDraft && App.$settingXtreamPass) {
             App.$settingXtreamPass.value = '';
             if (storedPass) {
-                App.$settingXtreamPass.placeholder = '•••• (enregistré)';
+                App.$settingXtreamPass.placeholder = I18n.t('•••• (enregistré)');
                 App.$settingXtreamPass.setAttribute('data-has-saved', '1');
             } else {
-                App.$settingXtreamPass.placeholder = 'Votre mot de passe';
+                App.$settingXtreamPass.placeholder = I18n.t('Votre mot de passe');
                 App.$settingXtreamPass.setAttribute('data-has-saved', '');
             }
         }
@@ -8451,7 +9166,7 @@ var App = App || {};
     App.refreshCatalogFromSettings = function () {
         if (App.settingsRefreshBusy) { return; }
         if (!App.catalogSourceFingerprint || !App.catalogSourceFingerprint()) {
-            App.toast('Enregistrez d’abord un compte IPTV ou une playlist M3U');
+            App.toast(I18n.t('Enregistrez d’abord un compte IPTV ou une playlist M3U'));
             return;
         }
         App.settingsRefreshBusy = true;
@@ -8468,7 +9183,7 @@ var App = App || {};
                 App.settingsRefreshBusy = false;
                 if (App.$settingRefresh) {
                     App.$settingRefresh.disabled = false;
-                    App.$settingRefresh.textContent = 'Actualiser le catalogue';
+                    App.$settingRefresh.textContent = I18n.t('Actualiser le catalogue');
                 }
             }
         });
@@ -8499,22 +9214,22 @@ var App = App || {};
         }
 
         if ((server || user) && (!server || !user || !pass)) {
-            App.toast('Renseignez le serveur, le compte et son mot de passe');
+            App.toast(I18n.t('Renseignez le serveur, le compte et son mot de passe'));
             return;
         }
         if (!server && !m3u) {
-            App.toast('Renseignez un compte Xtream ou une URL M3U');
+            App.toast(I18n.t('Renseignez un compte Xtream ou une URL M3U'));
             return;
         }
         var urls = [server, m3u, epg];
         for (var i = 0; i < urls.length; i++) {
             if (urls[i] && !/^https?:\/\/[^\s/?#]+(?:[^\s]*)$/i.test(urls[i])) {
-                App.toast('Utilisez une URL complète commençant par http:// ou https://');
+                App.toast(I18n.t('Utilisez une URL complète commençant par http:// ou https://'));
                 return;
             }
         }
         if (server && /[?#]/.test(server)) {
-            App.toast('Le serveur Xtream doit être une URL sans paramètres ni fragment');
+            App.toast(I18n.t('Le serveur Xtream doit être une URL sans paramètres ni fragment'));
             return;
         }
 
@@ -8537,6 +9252,37 @@ var App = App || {};
     if (App.$settingCancel && App.$settingCancel.addEventListener) {
         App.$settingCancel.addEventListener('click', function () { App.hideSettings(); });
     }
+    /* Interface language: each press moves to the next language, saves it and reloads, so labels built
+       at start-up change too. */
+    App.showLanguageSetting = function () {
+        if (App.$settingLang) {
+            App.$settingLang.textContent = I18n.t('Langue : {name}', { name: I18n.languageName(I18n.lang()) });
+        }
+    };
+    /* Session-only marker: after the reload, settings reopen on the language button instead of Home. */
+    var REOPEN_SETTINGS = 'chouette-tv.reopenSettings';
+    App.cycleLanguage = function () {
+        if (!I18n.setLang(I18n.next(I18n.lang()))) { return; }
+        Storage.flush();
+        try { window.sessionStorage.setItem(REOPEN_SETTINGS, '1'); } catch (e) { /* lands on Home, as before */ }
+        try { window.location.reload(); } catch (e2) { App.showLanguageSetting(); }
+    };
+    /* Called once the catalog is on screen after boot; true when settings were reopened. */
+    App.reopenSettingsAfterLanguageChange = function () {
+        try {
+            if (window.sessionStorage.getItem(REOPEN_SETTINGS) !== '1') { return false; }
+            window.sessionStorage.removeItem(REOPEN_SETTINGS);
+        } catch (e) { return false; }
+        App.showSettings();
+        for (var i = 0; i < App.settingsFocusables.length; i++) {
+            if (App.settingsFocusables[i] === App.$settingLang) { App.setSettingsFocus(i); break; }
+        }
+        return true;
+    };
+    if (App.$settingLang && App.$settingLang.addEventListener) {
+        App.$settingLang.addEventListener('click', App.cycleLanguage);
+    }
+    App.showLanguageSetting();
     (function bindSettingsInputClicks() {
         var inputs = [App.$settingXtreamServer, App.$settingXtreamUser,
             App.$settingXtreamPass, App.$settingUrl, App.$settingEpg];
@@ -8612,7 +9358,7 @@ var App = App || {};
             tizen.application.getCurrentApplication().exit();
         } else {
             Player.stop();
-            App.toast('Application fermée — fermez l’onglet du navigateur', true);
+            App.toast(I18n.t('Application fermée — fermez l’onglet du navigateur'), true);
         }
     }
     if (App.$exitNo && App.$exitNo.addEventListener) {
@@ -8831,7 +9577,7 @@ var App = App || {};
         if (!item || App.isGroupHeader(item)) { return false; }
         var key = App.favoriteKeyFor(item);
         if (!key && !item.url && !item.streamId) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         var list = App.loadFavoriteList().slice();
@@ -8862,11 +9608,11 @@ var App = App || {};
         if (idx >= 0) {
             list.splice(idx, 1);
             App.saveFavoriteList(list);
-            App.toast('Retiré des favoris');
+            App.toast(I18n.t('Retiré des favoris'));
             return false;
         }
         if (!key) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         list.unshift({
@@ -8878,7 +9624,7 @@ var App = App || {};
             at: Date.now()
         });
         App.saveFavoriteList(list);
-        App.toast('Ajouté aux favoris');
+        App.toast(I18n.t('Ajouté aux favoris'));
         return true;
     };
 
@@ -8968,12 +9714,12 @@ var App = App || {};
 
     App.toggleFavoriteSeries = function (item) {
         if (!item || !item.seriesId) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         var key = App.favoriteSeriesKeyFor(item);
         if (!key) {
-            App.toast('Impossible d’ajouter aux favoris');
+            App.toast(I18n.t('Impossible d’ajouter aux favoris'));
             return false;
         }
         var list = App.loadFavoriteSeriesList().slice();
@@ -8990,7 +9736,7 @@ var App = App || {};
         if (idx >= 0) {
             list.splice(idx, 1);
             App.saveFavoriteSeriesList(list);
-            App.toast('Retiré des favoris');
+            App.toast(I18n.t('Retiré des favoris'));
             return false;
         }
         list.unshift({
@@ -9003,7 +9749,7 @@ var App = App || {};
             at: Date.now()
         });
         App.saveFavoriteSeriesList(list);
-        App.toast('Ajouté aux favoris');
+        App.toast(I18n.t('Ajouté aux favoris'));
         return true;
     };
 
@@ -9041,10 +9787,10 @@ var App = App || {};
         var favorite = !!(App.isFavoriteChannel && App.isFavoriteChannel(item));
         App.liveFavoriteFocus = 'confirm';
         App.$liveFavoriteMessage.textContent = favorite
-            ? 'Retirer « ' + item.name + ' » des favoris ?'
-            : 'Ajouter « ' + item.name + ' » aux favoris ?';
+            ? I18n.t('Retirer « {name} » des favoris ?', { name: item.name })
+            : I18n.t('Ajouter « {name} » aux favoris ?', { name: item.name });
         App.$liveFavoriteConfirm.textContent = favorite
-            ? 'Retirer des favoris' : 'Ajouter aux favoris';
+            ? I18n.t('Retirer des favoris') : I18n.t('Ajouter aux favoris');
         App.$liveFavoriteConfirm.setAttribute('data-removing', favorite ? 'true' : 'false');
         App.uiState = 'liveFavorite';
         App.setExclusiveOverlays({ liveFavorite: true });
@@ -9278,10 +10024,10 @@ var App = App || {};
             else if (entry.url) { key = 'url:' + entry.url; }
         }
         if (!key || !App.clearResumeKey(key)) {
-            App.toast('Impossible de supprimer');
+            App.toast(I18n.t('Impossible de supprimer'));
             return false;
         }
-        App.toast('Retiré de Continuer à regarder');
+        App.toast(I18n.t('Retiré de Continuer à regarder'));
         return true;
     }
 
@@ -9469,9 +10215,9 @@ var App = App || {};
         if (left >= 60) {
             var h = Math.floor(left / 60);
             var m = left % 60;
-            return m > 0 ? (h + ' h ' + m + ' min') : (h + ' h');
+            return m > 0 ? I18n.t('{h} h {m} min', { h: h, m: m }) : I18n.t('{h} h', { h: h });
         }
-        return left + ' min';
+        return I18n.t('{m} min', { m: left });
     }
 
     App.seasonEpisodeLabel = function (entry) {
@@ -9495,19 +10241,19 @@ var App = App || {};
         if (opts.seriesStyle) {
             var se = App.seasonEpisodeLabel(entry);
             if (done) {
-                label = se ? (se + ' · Vu') : 'Vu';
+                label = se ? I18n.t('{episode} · Vu', { episode: se }) : I18n.t('Vu');
             } else if (entry.queued && !(entry.pos >= App.RESUME_MIN_SEC)) {
-                label = se ? (se + ' · À suivre') : 'À suivre';
+                label = se ? I18n.t('{episode} · À suivre', { episode: se }) : I18n.t('À suivre');
             } else {
                 var left = App.formatMinutesLeft(entry);
-                label = se ? (se + (left ? ' · ' + left : '')) : (left || 'En cours');
+                label = se ? (se + (left ? ' · ' + left : '')) : (left || I18n.t('En cours'));
             }
         } else if (done) {
-            label = 'Vu';
+            label = I18n.t('Vu');
         } else if (entry.queued && !(entry.pos >= App.RESUME_MIN_SEC)) {
-            label = 'À suivre';
+            label = I18n.t('À suivre');
         } else {
-            label = App.formatMinutesLeft(entry) || 'En cours';
+            label = App.formatMinutesLeft(entry) || I18n.t('En cours');
         }
         return { label: label, pct: done ? 100 : pct, done: done };
     }
@@ -9616,11 +10362,11 @@ var App = App || {};
         var clean = typeof App.displayCatalogTitle === 'function'
             ? App.displayCatalogTitle : function (s) { return String(s || ''); };
         if (entry.kind === 'episode') {
-            var name = clean(entry.seriesTitle || entry.title || 'Épisode');
+            var name = clean(entry.seriesTitle || entry.title || I18n.t('Épisode'));
             var se = App.seasonEpisodeLabel(entry);
             return se ? (name + ' · ' + se) : name;
         }
-        return clean(entry.title || 'Film');
+        return clean(entry.title || I18n.t('Film'));
     }
 
     App.itemFromResumeEntry = function (entry) {
@@ -9644,7 +10390,7 @@ var App = App || {};
                     id: String(entry.id),
                     streamId: String(entry.id),
                     url: Xtream.movieUrl(base, user, pass, entry.id, ext),
-                    name: entry.title || 'Film',
+                    name: entry.title || I18n.t('Film'),
                     extension: ext
                 };
             }
@@ -9653,7 +10399,7 @@ var App = App || {};
                     kind: 'vod',
                     id: entry.id || '',
                     url: entry.url,
-                    name: entry.title || 'Film',
+                    name: entry.title || I18n.t('Film'),
                     extension: ext
                 };
             }
@@ -9666,7 +10412,7 @@ var App = App || {};
                     id: String(entry.id),
                     episodeId: String(entry.id),
                     url: Xtream.seriesEpisodeUrl(base, user, pass, entry.id, ext),
-                    name: entry.title || 'Épisode',
+                    name: entry.title || I18n.t('Épisode'),
                     season: entry.season || '',
                     episodeNum: entry.episode,
                     seriesId: entry.seriesId || '',
@@ -9679,7 +10425,7 @@ var App = App || {};
                     kind: 'episode',
                     id: entry.id || '',
                     url: entry.url,
-                    name: entry.title || 'Épisode',
+                    name: entry.title || I18n.t('Épisode'),
                     season: entry.season || '',
                     episodeNum: entry.episode,
                     seriesId: entry.seriesId || '',
@@ -9931,7 +10677,7 @@ var App = App || {};
         var rec = item && item.kind === 'episode' ? App.seriesRecordForEpisode(item) : item;
         var sid = App.seriesIdFromItem(rec || item);
         if (!sid) {
-            App.toast('Impossible de suivre cette série');
+            App.toast(I18n.t('Impossible de suivre cette série'));
             return false;
         }
         var list = App.loadFollowedSeries().slice();
@@ -9943,7 +10689,7 @@ var App = App || {};
         if (idx >= 0) {
             list.splice(idx, 1);
             App.saveFollowedSeries(list);
-            App.toast('Série retirée du suivi');
+            App.toast(I18n.t('Série retirée du suivi'));
             return false;
         }
         if (list.length >= (App.FOLLOW_MAX || 40)) {
@@ -9957,7 +10703,7 @@ var App = App || {};
             at: Date.now()
         });
         App.saveFollowedSeries(list);
-        App.toast('Série suivie — les nouveaux épisodes iront dans Continuer à regarder');
+        App.toast(I18n.t('Série suivie — les nouveaux épisodes iront dans Continuer à regarder'));
         return true;
     };
 
@@ -10018,9 +10764,9 @@ var App = App || {};
             App._followRefreshBusy = false;
             if (opts.notifyNew && added > 0) {
                 if (added === 1 && firstName) {
-                    App.toast('Nouvel épisode · ' + firstName);
+                    App.toast(I18n.t('Nouvel épisode · {name}', { name: firstName }));
                 } else {
-                    App.toast(added + ' nouveaux épisodes à suivre');
+                    App.toast(I18n.t('{n} nouveaux épisodes à suivre', { n: added }));
                 }
             }
             if (opts.rebuildHome && App.uiState === 'browse' &&
@@ -10065,7 +10811,7 @@ var App = App || {};
                     if (res.queued && res.isNew) {
                         added += 1;
                         if (!firstName) {
-                            firstName = rec.name || fav.name || 'Série';
+                            firstName = rec.name || fav.name || I18n.t('Série');
                             if (typeof App.displayCatalogTitle === 'function') {
                                 firstName = App.displayCatalogTitle(firstName);
                             }
@@ -10194,7 +10940,7 @@ var App = App || {};
         }
         App.$vodActionFollow.classList.remove('hidden');
         var on = typeof App.isFollowedSeries === 'function' && App.isFollowedSeries(ch);
-        App.$vodActionFollow.textContent = on ? 'Suivie' : 'Suivre';
+        App.$vodActionFollow.textContent = on ? I18n.t('Suivie') : I18n.t('Suivre');
         if (on) { App.$vodActionFollow.classList.add('is-on'); }
         else { App.$vodActionFollow.classList.remove('is-on'); }
     };
@@ -10713,7 +11459,7 @@ var App = App || {};
                         App.currentViewer().id !== viewerId || !App.currentViewer().autoplay) { return; }
                     if (remaining === 0) { App.confirmNextEpisode(); return; }
                     if (App.$nextEpisodeSub) {
-                        App.$nextEpisodeSub.textContent = next.item.name + ' · Lecture dans ' + remaining + ' s';
+                        App.$nextEpisodeSub.textContent = I18n.t('{name} · Lecture dans {n} s', { name: next.item.name, n: remaining });
                     }
                     remaining--;
                     App.nextEpisodeTimer = setTimeout(tick, 1000);
@@ -10817,7 +11563,7 @@ var App = App || {};
         }
         if (App.episodeInSeasons(ch, App.seriesSeasons) ||
             (App.activeSeason && App.episodeInSeasons(ch, [App.activeSeason]))) {
-            App.toast('Fin de la série');
+            App.toast(I18n.t('Fin de la série'));
             return true;
         }
         App.ensureSeriesContextForEpisode(ch, function (ok) {
@@ -10830,7 +11576,7 @@ var App = App || {};
                 }
                 App.showNextEpisodePrompt(n, { exclusive: true });
             } else {
-                App.toast('Fin de la série');
+                App.toast(I18n.t('Fin de la série'));
             }
         });
         return true;
@@ -10903,9 +11649,9 @@ var App = App || {};
         var info = Player.getTracks();
         var i;
 
-        App.tracksRows.push({ kind: 'section', label: 'Audio' });
+        App.tracksRows.push({ kind: 'section', label: I18n.t('Audio') });
         if (!info.audio.length) {
-            App.tracksRows.push({ kind: 'empty', label: 'Aucune piste audio' });
+            App.tracksRows.push({ kind: 'empty', label: I18n.t('Aucune piste audio') });
         } else {
             for (i = 0; i < info.audio.length; i++) {
                 var a = info.audio[i];
@@ -10919,16 +11665,16 @@ var App = App || {};
             }
         }
 
-        App.tracksRows.push({ kind: 'section', label: 'Subtitles' });
+        App.tracksRows.push({ kind: 'section', label: I18n.t('Subtitles') });
         App.tracksRows.push({
             kind: 'text',
             index: -1,
             lang: 'off',
-            label: 'Off',
+            label: I18n.t('Off'),
             selected: info.selectedText < 0
         });
         if (!info.text.length) {
-            App.tracksRows.push({ kind: 'empty', label: 'Aucune piste de sous-titres' });
+            App.tracksRows.push({ kind: 'empty', label: I18n.t('Aucune piste de sous-titres') });
         } else {
             for (i = 0; i < info.text.length; i++) {
                 var t = info.text[i];
@@ -11017,13 +11763,13 @@ var App = App || {};
         if (row.kind === 'audio') {
             if (Player.selectAudioTrack(row.index)) {
                 if (row.lang) { App.updateViewer({ audio: row.lang }); }
-                App.toast('Audio : ' + row.label);
+                App.toast(I18n.t('Audio : {track}', { track: row.label }));
                 App.renderTracksPanel();
                 if (typeof App.refreshStreamQualityUi === 'function') {
                     App.refreshStreamQualityUi();
                 }
             } else {
-                App.toast('Impossible de changer de piste audio');
+                App.toast(I18n.t('Impossible de changer de piste audio'));
             }
             return;
         }
@@ -11031,12 +11777,12 @@ var App = App || {};
             if (row.index < 0) {
                 Player.setSubtitlesOff();
                 App.updateViewer({ subtitles: 'off' });
-                App.toast('Sous-titres : désactivés');
+                App.toast(I18n.t('Sous-titres : désactivés'));
             } else if (Player.selectSubtitleTrack(row.index)) {
                 if (row.lang) { App.updateViewer({ subtitles: row.lang }); }
-                App.toast('Sous-titres : ' + row.label);
+                App.toast(I18n.t('Sous-titres : {track}', { track: row.label }));
             } else {
-                App.toast('Impossible de changer de piste de sous-titres');
+                App.toast(I18n.t('Impossible de changer de piste de sous-titres'));
                 return;
             }
             App.renderTracksPanel();
@@ -11050,12 +11796,12 @@ var App = App || {};
             return;
         }
         if (!App.playingItem()) {
-            App.toast('Aucune lecture en cours');
+            App.toast(I18n.t('Aucune lecture en cours'));
             return;
         }
         var info = Player.getTracks();
         if (!info.audio.length && !info.text.length) {
-            App.toast('Aucune piste audio ou de sous-titres');
+            App.toast(I18n.t('Aucune piste audio ou de sous-titres'));
             return;
         }
         App.tracksPrevState = 'watch';
@@ -11107,8 +11853,9 @@ var App = App || {};
 
     App.applyStoredTrackPrefs = function (skipMetadata) {
         var viewer = App.currentViewer ? App.currentViewer() : null;
-        var audioPref = viewer ? viewer.audio : Storage.get(Storage.KEYS.prefAudioLang);
-        var subPref = viewer ? viewer.subtitles : Storage.get(Storage.KEYS.prefSubLang);
+        var resolve = App.resolveTrackLang || function (v) { return v; };
+        var audioPref = resolve(viewer ? viewer.audio : Storage.get(Storage.KEYS.prefAudioLang));
+        var subPref = resolve(viewer ? viewer.subtitles : Storage.get(Storage.KEYS.prefSubLang));
         if (!audioPref && !subPref) { return; }
         var item = App.playingItem();
         var creds = App.xtreamCreds;
@@ -11136,9 +11883,9 @@ var App = App || {};
         try {
             var result = Player.applyPreferredTracks(audioPref, subPref || '', item && item.originalLanguage);
             if (result.originalUnknown) {
-                App.toast('VO non identifiée : piste actuelle conservée. Vérifiez dans Audio / sous-titres.');
+                App.toast(I18n.t('VO non identifiée : piste actuelle conservée. Vérifiez dans Audio / sous-titres.'));
             } else if ((!result.audio && audioPref) || (!result.text && subPref !== 'off')) {
-                App.toast('Langue préférée indisponible sur ce contenu');
+                App.toast(I18n.t('Langue préférée indisponible sur ce contenu'));
             }
         } catch (e) {}
     }
@@ -11194,7 +11941,7 @@ var App = App || {};
 
     App.playItem = function (item, preferredKind, opts) {
         if (!item || !item.url) {
-            App.toast('Flux indisponible');
+            App.toast(I18n.t('Flux indisponible'));
             return;
         }
         opts = opts || {};
@@ -11215,7 +11962,7 @@ var App = App || {};
 
     App.beginPlayback = function (item, preferredKind, startAt, opts) {
         if (!item || !item.url) {
-            App.toast('Flux indisponible');
+            App.toast(I18n.t('Flux indisponible'));
             return;
         }
         opts = opts || {};
@@ -11269,7 +12016,7 @@ var App = App || {};
         }
 
         if (!opts.silent) {
-            App.toast('Chargement de ' + item.name + '…', true);
+            App.toast(I18n.t('Chargement de {name}…', { name: item.name }), true);
         }
         Player.play(item.url, { userAgent: item.userAgent || '' });
 
@@ -11368,6 +12115,7 @@ var App = App || {};
             }
             App.rememberMenu();
             if (App.$list) { App.$list.classList.remove('hidden'); }
+            if (App.reopenSettingsAfterLanguageChange) { App.reopenSettingsAfterLanguageChange(); }
             /* Defer heavy post-paint work so browse is interactive first. */
             setTimeout(function () {
                 if (typeof App.scheduleFollowedSeriesRefresh === 'function') {
@@ -11383,7 +12131,7 @@ var App = App || {};
             return true;
         } catch (err) {
             try {
-                App.toast('Erreur de démarrage : ' + (err && err.message ? err.message : err), true);
+                App.toast(I18n.t('Erreur de démarrage : {error}', { error: err && err.message ? err.message : err }), true);
             } catch (e2) {}
             try { App.showSettings(); } catch (e3) {}
             return false;
@@ -11407,7 +12155,7 @@ var App = App || {};
             liveItems.push({
                 kind: 'live',
                 id: ch.id || '',
-                name: ch.name || 'Chaîne',
+                name: ch.name || I18n.t('Chaîne'),
                 url: ch.url || '',
                 categoryId: ch.categoryId || '',
                 logo: ch.logo || '',
@@ -11439,7 +12187,7 @@ var App = App || {};
         if (state === 'playing') {
             var playbackToken = Player.getPlaybackToken();
             if (!App.livePreviewActive) {
-                App.toast('Lecture en cours');
+                App.toast(I18n.t('Lecture en cours'));
             }
             App.setVodBufferingUi(false);
             if (typeof App.scheduleStreamQualityRefresh === 'function') {
@@ -11473,7 +12221,7 @@ var App = App || {};
             /* Browse / live preview: no watch toast (preview has its own loading UI). */
             if (!App.livePreviewActive &&
                 App.uiState !== 'browse' && App.uiState !== 'search') {
-                App.toast('Chargement…', true);
+                App.toast(I18n.t('Chargement…'), true);
             }
             if (App.isSeekablePlaying()) { App.setVodBufferingUi(true); }
         } else if (state === 'seeking') {
@@ -11496,7 +12244,7 @@ var App = App || {};
                 }
             }
         } else if (state === 'blocked') {
-            App.toast('Lecture automatique bloquée — cliquez ou appuyez sur une touche', true);
+            App.toast(I18n.t('Lecture automatique bloquée — cliquez ou appuyez sur une touche'), true);
         } else if (state === 'ended') {
             if (App.isSeekablePlaying()) {
                 App._endedResumeKey = App.resumeKeyFor(App.playingItem()) || '';
@@ -11510,12 +12258,12 @@ var App = App || {};
             if (typeof App.onEpisodePlaybackEnded === 'function' && App.onEpisodePlaybackEnded()) {
                 /* handled */
             } else if (!App.livePreviewActive) {
-                App.toast('Lecture terminée');
+                App.toast(I18n.t('Lecture terminée'));
             }
         } else if (state === 'error') {
             if (!App.livePreviewActive) {
-                App.toast('Lecture impossible : ' + (detail || 'cause inconnue') +
-                    ' — CH+/- pour changer de chaîne');
+                App.toast(I18n.t('Lecture impossible : {reason} — CH+/- pour changer de chaîne',
+                    { reason: detail || I18n.t('cause inconnue') }));
             }
             App.stopResumeSaveLoop();
         }
@@ -11632,7 +12380,7 @@ var App = App || {};
         App.$featurePanel.textContent = '';
         App.$featurePanel.scrollTop = 0;
         App.$featurePanel.setAttribute('aria-label', title);
-        button('← Retour', function () { App.closeFeature(); });
+        button(I18n.t('← Retour'), function () { App.closeFeature(); });
         node('h1', title, 'feature-title', App.$featurePanel);
         return App.$featurePanel;
     }
@@ -11691,7 +12439,7 @@ var App = App || {};
     };
     App.showProfiles = function () {
         var keepFocus = App.uiState === 'feature' && surfaceType === 'profiles' ? focus : 1;
-        var host = surface('Qui regarde ?', 'profiles');
+        var host = surface(I18n.t('Qui regarde ?'), 'profiles');
         var viewer = App.currentViewer();
         var people = node('div', null, 'feature-actions', host);
         App.loadViewers().list.forEach(function (person) {
@@ -11704,36 +12452,36 @@ var App = App || {};
                 App.switchViewer(person.id);
             }, people);
         });
-        node('h2', 'Préférences de ' + viewer.name, '', host);
-        node('p', 'Audio et sous-titres : ' + App.viewerPresetLabel(), 'feature-muted', host);
+        node('h2', I18n.t('Préférences de {name}', { name: viewer.name }), '', host);
+        node('p', I18n.t('Audio et sous-titres : {preset}', { preset: App.viewerPresetLabel() }), 'feature-muted', host);
         var presets = node('div', null, 'feature-actions', host);
         App.viewerPresets.forEach(function (preset) {
-            button((viewer.audio === preset.audio && viewer.subtitles === preset.subtitles ? '✓ ' : '') + preset.name,
+            button((App.viewerMatchesPreset(viewer, preset) ? '✓ ' : '') + preset.name,
                 function () {
                     App.updateViewer({ audio: preset.audio, subtitles: preset.subtitles });
                     if (App.playingItem()) { App.applyStoredTrackPrefs(); }
                     App.showProfiles();
                 }, presets);
         });
-        node('p', 'La VO utilise la langue originale renseignée ou une piste identifiée « original ». Sinon, la piste actuelle est conservée.', 'feature-muted', host);
-        button('Épisode suivant automatique : ' + (viewer.autoplay ? 'oui' : 'non'), function () {
+        node('p', I18n.t('La VO utilise la langue originale renseignée ou une piste identifiée « original ». Sinon, la piste actuelle est conservée.'), 'feature-muted', host);
+        button(I18n.t('Épisode suivant automatique : {state}', { state: viewer.autoplay ? I18n.t('oui') : I18n.t('non') }), function () {
             App.updateViewer({ autoplay: !viewer.autoplay }); App.showProfiles();
         });
         var form = node('div', null, 'feature-actions', host);
-        var label = node('label', 'Nom du profil', '', form);
+        var label = node('label', I18n.t('Nom du profil'), '', form);
         var input = node('input', null, 'feature-input', label);
         input.type = 'text'; input.maxLength = 24; input.value = viewer.name;
-        input.setAttribute('aria-label', 'Nom du profil');
+        input.setAttribute('aria-label', I18n.t('Nom du profil'));
         control(input);
-        button('Renommer', function () {
+        button(I18n.t('Renommer'), function () {
             var name = input.value.trim().slice(0, 24);
             if (name) { App.updateViewer({ name: name }); App.showProfiles(); }
         }, form);
-        button('Créer un profil avec ce nom', function () {
+        button(I18n.t('Créer un profil avec ce nom'), function () {
             var id = App.addViewer(input.value);
             if (id) { App.closeFeature(false); App.switchViewer(id); }
         }, form);
-        node('p', 'Chaque profil conserve ses reprises, favoris, recherches et séries suivies. Les profils sont enregistrés sur cet appareil.', 'feature-muted', host);
+        node('p', I18n.t('Chaque profil conserve ses reprises, favoris, recherches et séries suivies. Les profils sont enregistrés sur cet appareil.'), 'feature-muted', host);
         focusAt(keepFocus);
     };
 
@@ -11743,18 +12491,18 @@ var App = App || {};
         /* Live TV never pauses on an intermediate menu. */
         if (item && item.kind === 'live') {
             if (item.url) { App.playItem(item, 'live'); }
-            else { App.toast('Flux indisponible'); }
+            else { App.toast(I18n.t('Flux indisponible')); }
             return;
         }
         var title = item && item.name ? App.displayCatalogTitle(item.name) :
-            (opts.entry && App.continueItemLabel ? App.continueItemLabel(opts.entry) : 'Contenu');
+            (opts.entry && App.continueItemLabel ? App.continueItemLabel(opts.entry) : I18n.t('Contenu'));
         var host = surface('Options · ' + title, 'item-actions');
         var actions = node('div', null, 'feature-action-list', host);
         var playable = item && item.url;
         if (playable) {
             var resume = opts.entry || (App.getResumeEntry ? App.getResumeEntry(item) : null);
             var playLabel = resume && App.shouldOfferResume && App.shouldOfferResume(resume)
-                ? 'Reprendre la lecture' : 'Lire';
+                ? I18n.t('Reprendre la lecture') : I18n.t('Lire');
             button(playLabel, function () {
                 App.closeFeature(false);
                 App.playItem(item, item.kind || opts.kind || 'live', {
@@ -11762,21 +12510,21 @@ var App = App || {};
                 });
             }, actions);
             if (resume && App.shouldOfferResume && App.shouldOfferResume(resume)) {
-                button('Recommencer depuis le début', function () {
+                button(I18n.t('Recommencer depuis le début'), function () {
                     App.closeFeature(false);
                     App.playItem(item, item.kind || 'vod', { skipResumePrompt: true, startAt: 0 });
                 }, actions);
             }
         }
         if (opts.entry) {
-            var remove = button('Retirer de Continuer à regarder', function () {
+            var remove = button(I18n.t('Retirer de Continuer à regarder'), function () {
                 if (!App.removeContinueEntry(opts.entry)) { return; }
                 App.closeFeature();
             }, actions);
             remove.classList.add('is-destructive');
         }
         if (!playable) {
-            node('p', 'Ce contenu n’est plus disponible, mais il peut être retiré de la liste.', 'feature-muted', host);
+            node('p', I18n.t('Ce contenu n’est plus disponible, mais il peut être retiré de la liste.'), 'feature-muted', host);
         }
         focusAt(1);
         host.scrollTop = 0;
@@ -11784,11 +12532,11 @@ var App = App || {};
 
     App.showDetails = function (item) {
         if (!item) { return; }
-        var host = surface(App.displayCatalogTitle(item.name || 'Fiche'), 'details');
+        var host = surface(App.displayCatalogTitle(item.name || I18n.t('Fiche')), 'details');
         var token = generation;
         var scope = App.profileScope();
         var actions = node('div', null, 'feature-actions', host);
-        var body = node('div', 'Chargement des informations…', 'detail-body', host);
+        var body = node('div', I18n.t('Chargement des informations…'), 'detail-body', host);
         var isSeries = item.kind === 'series';
         var seasons = null;
         function valid() { return token === generation && App.uiState === 'feature' && scope === App.profileScope(); }
@@ -11803,20 +12551,20 @@ var App = App || {};
         }
         if (!isSeries) {
             var entry = App.getResumeEntry(item);
-            button(App.shouldOfferResume(entry) ? 'Reprendre' : 'Lire', function () { start(item, null, entry); }, actions);
+            button(App.shouldOfferResume(entry) ? I18n.t('Reprendre') : I18n.t('Lire'), function () { start(item, null, entry); }, actions);
         } else {
             var primaryEpisode = null, primarySeason = null, primaryEntry = null;
-            var primaryButton = button('Chargement des épisodes…', function () {
+            var primaryButton = button(I18n.t('Chargement des épisodes…'), function () {
                 if (primaryEpisode) { start(primaryEpisode, primarySeason, primaryEntry); }
             }, actions);
             primaryButton.disabled = true;
             var seriesFavorite = App.isFavoriteSeries && App.isFavoriteSeries(item);
-            var favoriteButton = button(seriesFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris', function () {
+            var favoriteButton = button(seriesFavorite ? I18n.t('Retirer des favoris') : I18n.t('Ajouter aux favoris'), function () {
                 App.toggleFavoriteSeries(item);
                 App.showDetails(item);
             }, actions);
             if (seriesFavorite) { favoriteButton.classList.add('is-destructive'); }
-            button(App.isFollowedSeries(item) ? '✓ Série suivie — retirer' : '+ Suivre cette série', function () {
+            button(App.isFollowedSeries(item) ? I18n.t('✓ Série suivie — retirer') : I18n.t('+ Suivre cette série'), function () {
                 App.toggleFollowSeries(item);
                 if (seasons && App.isFollowedSeries(item)) { App.applyFollowedSeasons(item, seasons); }
                 App.showDetails(item);
@@ -11838,12 +12586,12 @@ var App = App || {};
                     App.loadHomeCardImage(body);
                 } else { img.src = picture; }
             }
-            node('p', [details.year, details.duration, details.genre, details.rating ? 'Note : ' + details.rating : ''].filter(Boolean).join(' · '), 'detail-meta', body);
-            node('p', details.plot || 'Synopsis non fourni par la source.', 'detail-plot', body);
-            if (details.cast) { node('p', 'Avec : ' + details.cast, '', body); }
-            if (details.director) { node('p', 'Réalisation : ' + details.director, '', body); }
-            if (details.originalLanguage) { node('p', 'Langue originale : ' + details.originalLanguage, '', body); }
-            node('p', App.currentViewer().name + ' · ' + App.viewerPresetLabel() + ' · selon les pistes disponibles', 'feature-muted', body);
+            node('p', [details.year, details.duration, details.genre, details.rating ? I18n.t('Note : {rating}', { rating: details.rating }) : ''].filter(Boolean).join(' · '), 'detail-meta', body);
+            node('p', details.plot || I18n.t('Synopsis non fourni par la source.'), 'detail-plot', body);
+            if (details.cast) { node('p', I18n.t('Avec : {cast}', { cast: details.cast }), '', body); }
+            if (details.director) { node('p', I18n.t('Réalisation : {director}', { director: details.director }), '', body); }
+            if (details.originalLanguage) { node('p', I18n.t('Langue originale : {language}', { language: details.originalLanguage }), '', body); }
+            node('p', I18n.t('{viewer} · {preset} · selon les pistes disponibles', { viewer: App.currentViewer().name, preset: App.viewerPresetLabel() }), 'feature-muted', body);
         }
         function renderSeasons(loaded) {
             if (!valid()) { return; }
@@ -11868,7 +12616,7 @@ var App = App || {};
             }
             if (primaryEpisode) {
                 primaryButton.disabled = false;
-                primaryButton.textContent = (App.shouldOfferResume(primaryEntry) ? 'Reprendre' : 'Lire') +
+                primaryButton.textContent = (App.shouldOfferResume(primaryEntry) ? I18n.t('Reprendre') : I18n.t('Lire')) +
                     ' · S' + primarySeason.season + ' E' + (primaryEpisode.episodeNum || 1);
             }
             render(loaded.details);
@@ -11882,31 +12630,31 @@ var App = App || {};
                 page = page || 0;
                 var pageSize = 20;
                 var episodes = season.episodes || [];
-                node('h2', season.name.replace(/^Season\b/, 'Saison'), '', episodeArea);
+                node('h2', season.name.replace(/^Season\b/, I18n.t('Saison')), '', episodeArea);
                 if (episodes.length > pageSize) {
-                    node('p', 'Épisodes ' + (page * pageSize + 1) + ' — ' + Math.min(episodes.length, (page + 1) * pageSize) + ' / ' + episodes.length, 'feature-muted', episodeArea);
+                    node('p', I18n.t('Épisodes {from} — {to} / {total}', { from: page * pageSize + 1, to: Math.min(episodes.length, (page + 1) * pageSize), total: episodes.length }), 'feature-muted', episodeArea);
                 }
-                if (page > 0) { button('← Épisodes précédents', function () { chooseSeason(season, false, page - 1); }, episodeArea); }
+                if (page > 0) { button(I18n.t('← Épisodes précédents'), function () { chooseSeason(season, false, page - 1); }, episodeArea); }
                 if (App.beginResumeSnap) { App.beginResumeSnap(); }
                 episodes.slice(page * pageSize, (page + 1) * pageSize).forEach(function (episode) {
                     var rec = App.getResumeEntry(episode);
-                    button((rec && rec.done ? '✓ Vu · ' : rec && rec.pos > 0 ? 'Reprendre · ' : '') + episode.name,
+                    button((rec && rec.done ? I18n.t('✓ Vu · {name}', { name: episode.name }) : rec && rec.pos > 0 ? I18n.t('Reprendre · {name}', { name: episode.name }) : episode.name),
                         function () { start(episode, season); }, episodeArea);
                 });
                 if (App.endResumeSnap) { App.endResumeSnap(); }
                 if ((page + 1) * pageSize < episodes.length) {
-                    button('Épisodes suivants →', function () { chooseSeason(season, false, page + 1); }, episodeArea);
+                    button(I18n.t('Épisodes suivants →'), function () { chooseSeason(season, false, page + 1); }, episodeArea);
                 }
                 if (!keepCurrentFocus) { focusAt(seasonControlCount + (page > 0 ? 1 : 0)); }
             }
             function seasonPage(from, keepFocus) {
                 area.textContent = '';
                 controls = actionControls.slice();
-                if (from > 0) { button('← Saisons précédentes', function () { seasonPage(Math.max(0, from - 12), false); }, area); }
+                if (from > 0) { button(I18n.t('← Saisons précédentes'), function () { seasonPage(Math.max(0, from - 12), false); }, area); }
                 loaded.slice(from, from + 12).forEach(function (season) {
-                    button(season.name.replace(/^Season\b/, 'Saison'), function () { chooseSeason(season, false); }, area);
+                    button(season.name.replace(/^Season\b/, I18n.t('Saison')), function () { chooseSeason(season, false); }, area);
                 });
-                if (from + 12 < loaded.length) { button('Saisons suivantes →', function () { seasonPage(from + 12, false); }, area); }
+                if (from + 12 < loaded.length) { button(I18n.t('Saisons suivantes →'), function () { seasonPage(from + 12, false); }, area); }
                 seasonControlCount = controls.length;
                 if (loaded[from]) { chooseSeason(loaded[from], keepFocus); }
             }
@@ -11918,8 +12666,8 @@ var App = App || {};
         function fail() {
             if (!valid()) { return; }
             render({});
-            node('p', 'Informations indisponibles. Vous pouvez réessayer.', 'feature-muted', body);
-            button('Réessayer', function () { App.showDetails(item); }, body);
+            node('p', I18n.t('Informations indisponibles. Vous pouvez réessayer.'), 'feature-muted', body);
+            button(I18n.t('Réessayer'), function () { App.showDetails(item); }, body);
         }
         if (isSeries) { cancelDetails = Xtream.getSeriesInfo(c.base, c.username, c.password, item.seriesId, renderSeasons, fail); }
         else { cancelDetails = Xtream.getVodDetails(c.base, c.username, c.password, item.id || item.streamId, render, fail); }
@@ -11936,29 +12684,29 @@ var App = App || {};
     };
     App.showLiveGuide = function (state) {
         state = state || { start: 0, offset: 0, favorites: false, now: false };
-        var host = surface('Guide TV', 'guide');
+        var host = surface(I18n.t('Guide TV'), 'guide');
         guide = state;
         var toolbar = node('div', null, 'feature-actions', host);
-        button('Favoris : ' + (state.favorites ? 'oui' : 'non'), function () {
+        button(I18n.t('Favoris : {state}', { state: state.favorites ? I18n.t('oui') : I18n.t('non') }), function () {
             state.favorites = !state.favorites; state.start = 0; App.showLiveGuide(state);
         }, toolbar);
-        button('Programmes en cours : ' + (state.now ? 'oui' : 'tous'), function () {
+        button(state.now ? I18n.t('Programmes en cours : oui') : I18n.t('Programmes en cours : tous'), function () {
             state.now = !state.now; state.start = 0; state.offset = 0; App.showLiveGuide(state);
         }, toolbar);
-        button('Chaîne précédente', function () {
+        button(I18n.t('Chaîne précédente'), function () {
             var previous = App.previousLive;
-            if (!previous) { App.toast('Aucune chaîne précédente'); return; }
+            if (!previous) { App.toast(I18n.t('Aucune chaîne précédente')); return; }
             App.closeFeature(false); App.playItem(previous, 'live');
         }, toolbar);
-        button('← 2 h', function () { state.offset = Math.max(0, state.offset - 2); App.showLiveGuide(state); }, toolbar);
-        button('Maintenant', function () { state.offset = 0; App.showLiveGuide(state); }, toolbar);
-        button('+ 2 h →', function () { state.offset = Math.min(12, state.offset + 2); App.showLiveGuide(state); }, toolbar);
+        button(I18n.t('← 2 h'), function () { state.offset = Math.max(0, state.offset - 2); App.showLiveGuide(state); }, toolbar);
+        button(I18n.t('Maintenant'), function () { state.offset = 0; App.showLiveGuide(state); }, toolbar);
+        button(I18n.t('+ 2 h →'), function () { state.offset = Math.min(12, state.offset + 2); App.showLiveGuide(state); }, toolbar);
         var channels = App.guideChannels(state.favorites, state.now);
         state.count = channels.length;
         var from = Date.now() + state.offset * 3600000;
         var until = from + 7200000;
-        node('p', EPG.fmtTime(from) + ' — ' + EPG.fmtTime(until) + ' · OK : regarder · ← → : horaires · ↑ ↓ : chaînes', 'feature-muted', host);
-        if (!channels.length) { node('p', 'Aucune chaîne pour ce filtre. Désactivez-le pour afficher toutes les chaînes.', '', host); }
+        node('p', I18n.t('{from} — {to} · OK : regarder · ← → : horaires · ↑ ↓ : chaînes', { from: EPG.fmtTime(from), to: EPG.fmtTime(until) }), 'feature-muted', host);
+        if (!channels.length) { node('p', I18n.t('Aucune chaîne pour ce filtre. Désactivez-le pour afficher toutes les chaînes.'), '', host); }
         channels.slice(state.start, state.start + 8).forEach(function (ch) {
             var row = button('', function () { App.closeFeature(false); App.playItem(ch, 'live'); }, host);
             row.classList.add('guide-row');
@@ -11966,7 +12714,7 @@ var App = App || {};
             node('span', App.displayCatalogTitle(ch.name), 'guide-channel', row);
             var timeline = node('span', null, 'guide-timeline', row);
             var programs = EPG.schedule(ch.id).filter(function (p) { return p.stop > from && p.start < until; });
-            if (!programs.length) { node('span', 'Programme non renseigné', 'guide-empty', timeline); }
+            if (!programs.length) { node('span', I18n.t('Programme non renseigné'), 'guide-empty', timeline); }
             programs.forEach(function (p) {
                 var cell = node('span', EPG.fmtTime(p.start) + ' ' + p.title, 'guide-program', timeline);
                 cell.style.left = (Math.max(0, p.start - from) / 7200000 * 100) + '%';
@@ -11974,8 +12722,8 @@ var App = App || {};
                 cell.title = p.title;
             });
         });
-        if (state.start > 0) { button('↑ Chaînes précédentes', function () { state.start = Math.max(0, state.start - 8); App.showLiveGuide(state); }); }
-        if (state.start + 8 < channels.length) { button('↓ Chaînes suivantes', function () { state.start += 8; App.showLiveGuide(state); }); }
+        if (state.start > 0) { button(I18n.t('↑ Chaînes précédentes'), function () { state.start = Math.max(0, state.start - 8); App.showLiveGuide(state); }); }
+        if (state.start + 8 < channels.length) { button(I18n.t('↓ Chaînes suivantes'), function () { state.start += 8; App.showLiveGuide(state); }); }
         focusAt(channels.length ? 7 : 1);
     };
     App.refreshVisibleGuide = function () {
@@ -12443,6 +13191,7 @@ var App = App || {};
                 if (el === App.$settingSave) { App.saveSettings(); }
                 else if (el === App.$settingRefresh) { App.refreshCatalogFromSettings(); }
                 else if (el === App.$settingCancel) { App.hideSettings(); }
+                else if (el && el === App.$settingLang && App.cycleLanguage) { App.cycleLanguage(); }
                 else if (App.isSettingsInput(el)) {
                     if (App.settingsEditing) {
                         App.blurSettingsInputs();
@@ -12529,7 +13278,7 @@ var App = App || {};
         }
         EPG.load(url, ids, function (count) {
             if (App.refreshVisibleGuide) { App.refreshVisibleGuide(); }
-            App.toast('Guide TV chargé (' + count + ' chaînes)');
+            App.toast(I18n.t('Guide TV chargé ({n} chaînes)', { n: count }));
             /* Avoid full menu rebuild — refresh only visible EPG surfaces. */
             if (App.$infoBar && !App.$infoBar.classList.contains('hidden') &&
                 typeof App.renderInfoBar === 'function') {
@@ -12584,8 +13333,8 @@ var App = App || {};
             if (fingerprint === App.catalogSourceFingerprint()) { App.persistCatalogCache(fingerprint, catalog); }
         }, 100);
         App.toast(partial.length
-            ? 'Catalogue partiel — rubriques indisponibles conservées'
-            : 'Catalogue à jour');
+            ? I18n.t('Catalogue partiel — rubriques indisponibles conservées')
+            : I18n.t('Catalogue à jour'));
         clearTimeout(App.epgLoadTimer);
         App.epgLoadTimer = setTimeout(App.loadEpg, 1500);
         if (typeof App.scheduleFollowedSeriesRefresh === 'function') {
@@ -12609,10 +13358,10 @@ var App = App || {};
     App.onCatalogRefreshError = function (err, opts) {
         opts = opts || {};
         if (App.hasCatalogContent()) {
-            App.toast('Maj catalogue échouée — dernier catalogue conservé');
+            App.toast(I18n.t('Maj catalogue échouée — dernier catalogue conservé'));
             return;
         }
-        App.toast((err || 'Erreur réseau') + ' — vérifiez les réglages', true);
+        App.toast(I18n.t('{error} — vérifiez les réglages', { error: err || I18n.t('Erreur réseau') }), true);
         App.showSettings();
     }
 
@@ -12679,7 +13428,7 @@ var App = App || {};
         }
 
         if (server && user && pass) {
-            if (!fromHome) { App.toast('Mise à jour du catalogue…', true); }
+            if (!fromHome) { App.toast(I18n.t('Mise à jour du catalogue…'), true); }
             trackCancellation(Xtream.load(server, user, pass, loadOptions, xtreamDone, xtreamFail));
             return;
         }
@@ -12691,7 +13440,7 @@ var App = App || {};
             Storage.set(Storage.KEYS.xtreamPass, parsed.password);
             Storage.flush();
             fingerprint = App.catalogSourceFingerprint();
-            if (!fromHome) { App.toast('Mise à jour du catalogue…', true); }
+            if (!fromHome) { App.toast(I18n.t('Mise à jour du catalogue…'), true); }
             trackCancellation(Xtream.load(parsed.base, parsed.username, parsed.password, loadOptions,
                 xtreamDone, xtreamFail));
             return;
@@ -12700,13 +13449,13 @@ var App = App || {};
         if (!url) {
             finishRefreshUi();
             if (!App.hasCatalogContent()) {
-                App.toast('Bienvenue — configurez Xtream ou une URL M3U');
+                App.toast(I18n.t('Bienvenue — configurez Xtream ou une URL M3U'));
                 App.showSettings();
             }
             return;
         }
 
-        if (!fromHome) { App.toast('Mise à jour du catalogue…', true); }
+        if (!fromHome) { App.toast(I18n.t('Mise à jour du catalogue…'), true); }
         trackCancellation(Playlist.load(url, function (list, epgUrl, cats) {
             if (!stillCurrent()) { finishRefreshUi(); return; }
             finishRefreshUi();
@@ -12716,7 +13465,7 @@ var App = App || {};
                 liveItems.push({
                     kind: 'live',
                     id: ch.id || '',
-                    name: ch.name || 'Chaîne',
+                    name: ch.name || I18n.t('Chaîne'),
                     url: ch.url || '',
                     categoryId: ch.categoryId || '',
                     logo: ch.logo || '',
@@ -12742,7 +13491,7 @@ var App = App || {};
     App.refreshCatalogFromHome = function () {
         if (App.catalogRefreshing) { return; }
         if (!App.catalogSourceFingerprint()) {
-            App.toast('Bienvenue — configurez Xtream ou une URL M3U');
+            App.toast(I18n.t('Bienvenue — configurez Xtream ou une URL M3U'));
             App.showSettings();
             return;
         }
@@ -12793,7 +13542,7 @@ var App = App || {};
         var fingerprint = App.catalogSourceFingerprint();
 
         if (!fingerprint) {
-            App.toast('Bienvenue — configurez Xtream ou une URL M3U');
+            App.toast(I18n.t('Bienvenue — configurez Xtream ou une URL M3U'));
             App.showSettings();
             return;
         }
@@ -12858,6 +13607,7 @@ var App = App || {};
     };
 
     App.boot = function () {
+        if (typeof I18n !== 'undefined') { I18n.applyDom(document); }
         try {
             Player.init(App.onPlayerStatus);
             Player.setTimeUpdate(App.onPlayerTimeUpdate);
@@ -12898,13 +13648,13 @@ var App = App || {};
                     /* Boot: cache si possible ; refresh réseau seulement sans cache. */
                     App.loadPlaylist({ fromBoot: true });
                 } catch (err) {
-                    App.toast('Erreur de chargement : ' + (err && err.message ? err.message : err), true);
+                    App.toast(I18n.t('Erreur de chargement : {error}', { error: err && err.message ? err.message : err }), true);
                     App.showSettings();
                 }
             });
         } catch (err) {
             try {
-                App.toast('Démarrage impossible : ' + (err && err.message ? err.message : err), true);
+                App.toast(I18n.t('Démarrage impossible : {error}', { error: err && err.message ? err.message : err }), true);
             } catch (e2) {}
             try { App.showSettings(); } catch (e3) {}
         }

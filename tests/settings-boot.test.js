@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 
 const source = name => fs.readFileSync(path.join(__dirname, '../app/js', name), 'utf8');
 function settings(saved = {}) {
@@ -23,7 +24,7 @@ function settings(saved = {}) {
         set: (key, value) => { values[key] = value; calls.push(['set', key]); },
         flush: () => calls.push(['flush'])
     };
-    const ctx = vm.createContext({ App, Storage });
+    const ctx = vm.createContext({ I18n: frenchI18n(),  App, Storage });
     vm.runInContext(source('xtream.js'), ctx);
     vm.runInContext(source('settings-ui.js'), ctx);
     App.hideSettings = () => calls.push(['hide']);
@@ -91,7 +92,7 @@ function boot() {
         catalogSourceFingerprint: () => fingerprint,
         startFromCatalog: cat => { applied.push(cat); return true; }
     };
-    const ctx = vm.createContext({
+    const ctx = vm.createContext({ I18n: frenchI18n(), 
         App, Storage: { loadCatalogCache: cb => callbacks.push(cb) },
         window: { addEventListener() {} },
         setTimeout: cb => timers.push(cb)
@@ -180,4 +181,29 @@ test('the Samsung WebAPI library loads before AVPlay detection in the bundle', (
     const scripts = [...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)].map(m => m[1]);
     assert.ok(scripts.includes('$WEBAPIS/webapis/webapis.js'));
     assert.ok(scripts.indexOf('$WEBAPIS/webapis/webapis.js') < scripts.indexOf('js/app.bundle.js'));
+});
+
+test('changing language reloads once and reopens settings on the language button', () => {
+    const session = new Map();
+    let reloads = 0, opened = 0;
+    const lang = { textContent: '' };
+    const App = { $settingLang: lang, settingsFocusables: [{}, {}, lang], settingsFocus: 0 };
+    const Storage = { KEYS: { uiLang: 'uiLang' }, get: () => '', set() {}, flush() {} };
+    const window = {
+        sessionStorage: { getItem: k => session.get(k) || null, setItem: (k, v) => session.set(k, v), removeItem: k => session.delete(k) },
+        location: { reload() { reloads++; } }
+    };
+    const ctx = vm.createContext({ App, Storage, window, I18n: frenchI18n() });
+    vm.runInContext(source('settings-ui.js'), ctx);
+    App.showSettings = () => { opened++; };
+    App.setSettingsFocus = i => { App.settingsFocus = i; };
+
+    App.cycleLanguage();
+    assert.equal(reloads, 1);
+
+    assert.equal(App.reopenSettingsAfterLanguageChange(), true);
+    assert.equal(opened, 1);
+    assert.equal(App.settingsFocus, 2);
+    assert.equal(App.reopenSettingsAfterLanguageChange(), false, 'only once per change');
+    assert.equal(opened, 1);
 });

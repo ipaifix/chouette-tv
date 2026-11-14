@@ -161,7 +161,7 @@ var App = App || {};
             }
             rows.push({
                 id: 'continue',
-                title: 'Continuer à regarder',
+                title: I18n.t('Continuer à regarder'),
                 items: cItems
             });
         }
@@ -175,14 +175,14 @@ var App = App || {};
                 fItems.push({
                     kind: 'live',
                     item: ch,
-                    title: App.homeNowPlayingForLive(ch) || 'Programme indisponible',
+                    title: App.homeNowPlayingForLive(ch) || I18n.t('Programme indisponible'),
                     meta: '',
                     logo: ch.logo || ''
                 });
             }
             rows.push({
                 id: 'fav-live',
-                title: 'TV favoris',
+                title: I18n.t('TV favoris'),
                 items: fItems
             });
         }
@@ -196,14 +196,14 @@ var App = App || {};
                 sItems.push({
                     kind: 'series',
                     item: s,
-                    title: App.displayCatalogTitle(s.name || 'Série'),
+                    title: App.displayCatalogTitle(s.name || I18n.t('Série')),
                     meta: App.homeMetaForCatalogItem(s),
                     logo: s.logo || ''
                 });
             }
             rows.push({
                 id: 'recent-series',
-                title: 'Récemment ajouté dans Séries',
+                title: I18n.t('Récemment ajouté dans Séries'),
                 items: sItems
             });
         }
@@ -217,14 +217,14 @@ var App = App || {};
                 vItems.push({
                     kind: 'vod',
                     item: v,
-                    title: App.displayCatalogTitle(v.name || 'Film'),
+                    title: App.displayCatalogTitle(v.name || I18n.t('Film')),
                     meta: App.homeMetaForCatalogItem(v),
                     logo: v.logo || ''
                 });
             }
             rows.push({
                 id: 'recent-vod',
-                title: 'Récemment ajouté dans Films',
+                title: I18n.t('Récemment ajouté dans Films'),
                 items: vItems
             });
         }
@@ -236,16 +236,16 @@ var App = App || {};
                 var item = App.findSeriesByFavorite(record);
                 if (item && followedItems.length < max) {
                     followedItems.push({ kind: 'series', item: item,
-                        title: App.displayCatalogTitle(item.name), logo: item.logo || '', meta: 'Série suivie' });
+                        title: App.displayCatalogTitle(item.name), logo: item.logo || '', meta: I18n.t('Série suivie') });
                 }
             });
             if (followedItems.length) { rows.splice(continues.length ? 1 : 0, 0,
-                { id: 'followed', title: 'Mes séries suivies', items: followedItems }); }
+                { id: 'followed', title: I18n.t('Mes séries suivies'), items: followedItems }); }
         }
         if (App.personalizedAdditions) {
             var picks = App.personalizedAdditions(max);
             if (picks.length) { rows.splice(continues.length ? 1 : 0, 0,
-                { id: 'for-you', title: 'Ajouts dans vos catégories', items: picks }); }
+                { id: 'for-you', title: I18n.t('Ajouts dans vos catégories'), items: picks }); }
         }
         if (App.currentViewer && rows.length) {
             rows[0].title = App.currentViewer().name + ' · ' + rows[0].title;
@@ -469,7 +469,7 @@ var App = App || {};
         art.className = 'home-card-art';
         var placeholder = document.createElement('span');
         placeholder.className = 'home-card-placeholder';
-        placeholder.textContent = item.kind === 'live' ? 'TV' : 'Sans image';
+        placeholder.textContent = item.kind === 'live' ? 'TV' : I18n.t('Sans image');
         art.appendChild(placeholder);
 
         if (item.logo) {
@@ -523,7 +523,7 @@ var App = App || {};
         if (item.kind === 'continue') {
             var options = document.createElement('button');
             options.className = 'continue-options';
-            options.textContent = 'Options'; options.tabIndex = -1;
+            options.textContent = I18n.t('Options'); options.tabIndex = -1;
             options.addEventListener('click', function (e) {
                 if (e && e.stopPropagation) { e.stopPropagation(); }
                 App.showItemActions(App.itemFromResumeEntry(item.entry), { entry: item.entry });
@@ -722,7 +722,7 @@ var App = App || {};
             if (!App.homeRows.length) {
                 var empty = document.createElement('div');
                 empty.className = 'home-empty';
-                empty.textContent = 'Rien à afficher pour l’instant — ouvre En direct, Films ou Séries.';
+                empty.textContent = I18n.t('Rien à afficher pour l’instant — ouvre En direct, Films ou Séries.');
                 App.$homeRows.appendChild(empty);
             } else {
                 for (var i = 0; i < App.homeRows.length; i++) {
@@ -755,7 +755,7 @@ var App = App || {};
             App.loadVisibleHomeImages();
         } catch (err) {
             try {
-                App.toast('Erreur sur l’accueil : ' + (err && err.message ? err.message : err), true);
+                App.toast(I18n.t('Erreur sur l’accueil : {error}', { error: err && err.message ? err.message : err }), true);
             } catch (e2) {}
         }
         App.endResumeSnap();
@@ -1047,7 +1047,7 @@ var App = App || {};
         if (card.kind === 'live') {
             var live = card.item;
             if (!live || !live.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             App.playItem(live, 'live');
@@ -1056,7 +1056,7 @@ var App = App || {};
         if (card.kind === 'vod') {
             var vod = card.item;
             if (!vod || !vod.url) {
-                App.toast('Flux indisponible');
+                App.toast(I18n.t('Flux indisponible'));
                 return;
             }
             App.showDetails(vod);
@@ -1066,13 +1066,13 @@ var App = App || {};
             var seriesItem = card.item;
             if (App.showDetails && seriesItem) { App.showDetails(seriesItem); return; }
             if (!seriesItem) {
-                App.toast('Série introuvable');
+                App.toast(I18n.t('Série introuvable'));
                 return;
             }
             App.setContentType('series');
             App.openedFromFavorites = false;
             App.activeSeries = seriesItem;
-            App.toast('Chargement de ' + seriesItem.name + '…');
+            App.toast(I18n.t('Chargement de {name}…', { name: seriesItem.name }));
             App.seriesLoading = true;
             Xtream.getSeriesInfo(
                 App.xtreamCreds.base, App.xtreamCreds.username, App.xtreamCreds.password,

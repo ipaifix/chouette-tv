@@ -102,7 +102,7 @@ var EPG = (function createGuideRepository() {
                 } else {
                     commit(first === '{' || first === '[' ? jsonGuide(body, selected, window) : domGuide(body, selected, window));
                 }
-            } catch (error) { failure('Guide TV invalide : données illisibles'); }
+            } catch (error) { failure(I18n.t('Guide TV invalide : données illisibles')); }
         }, failure));
     }
 

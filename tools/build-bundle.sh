@@ -17,6 +17,7 @@ FILES=(
     http.js
     data-jobs.js
   storage.js
+  i18n.js
   playlist.js
   xtream.js
   epg-xml.js

@@ -33,9 +33,9 @@ var App = App || {};
         });
         if (!rows.length) {
             var explanation = document.createElement('li');
-            explanation.textContent = !live ? 'Le guide TV concerne les chaînes en direct'
-                : EPG.isLoaded() ? 'Aucun programme disponible pour cette chaîne'
-                : 'Ajoutez un guide TV dans les réglages pour afficher les programmes';
+            explanation.textContent = !live ? I18n.t('Le guide TV concerne les chaînes en direct')
+                : EPG.isLoaded() ? I18n.t('Aucun programme disponible pour cette chaîne')
+                : I18n.t('Ajoutez un guide TV dans les réglages pour afficher les programmes');
             rows.push(explanation);
         }
         rows.forEach(function (row) { app.$epgItems.appendChild(row); });
