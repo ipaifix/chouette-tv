@@ -827,7 +827,7 @@ var Storage = (function () {
 /* ==== i18n.js ==== */
 /* Interface languages. French strings in the code are the lookup keys; English and Dutch come from
  * the tables below, and anything missing falls back to the French source. The language is the saved
- * choice, else the TV language (nl → Dutch, fr → French, anything else → English). */
+ * choice, else the TV language (nl → Dutch, fr → French, anything else → English), else English. */
 var I18n = (function () {
     'use strict';
 
@@ -1440,7 +1440,7 @@ var I18n = (function () {
             var l = fromTag(tag);
             if (l) { return l; }
         }
-        return 'fr';
+        return 'en';
     }
 
     var current = detect();

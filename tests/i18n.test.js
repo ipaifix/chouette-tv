@@ -54,13 +54,14 @@ test('{app} is the product name from Branding, so white-label variants translate
     assert.equal(load({ navigator: { language: 'nl' } }).I18n.t('Quitter {app} ?'), 'Chouette TV afsluiten?');
 });
 
-test('detection: saved choice, then the TV language, then French', () => {
+test('detection: saved choice, then the TV language, then English', () => {
     assert.equal(load({ saved: { 'chouette-tv.uiLang': 'en' }, navigator: { language: 'nl-NL' } }).I18n.lang(), 'en');
     assert.equal(load({ navigator: { language: 'nl-BE' } }).I18n.lang(), 'nl');
     assert.equal(load({ navigator: { language: 'de-DE' } }).I18n.lang(), 'en');
     assert.equal(load({ navigator: { languages: ['nl-NL'] } }).I18n.lang(), 'nl');
-    assert.equal(load({ saved: { 'chouette-tv.uiLang': 'xx' } }).I18n.lang(), 'fr');
-    assert.equal(load({}).I18n.lang(), 'fr');
+    assert.equal(load({ saved: { 'chouette-tv.uiLang': 'xx' } }).I18n.lang(), 'en');
+    assert.equal(load({}).I18n.lang(), 'en');
+    assert.equal(load({ navigator: {} }).I18n.lang(), 'en');
 });
 
 test('setLang saves supported languages only, and cycles fr → en → nl → fr', () => {
