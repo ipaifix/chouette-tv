@@ -9259,10 +9259,25 @@ var App = App || {};
             App.$settingLang.textContent = I18n.t('Langue : {name}', { name: I18n.languageName(I18n.lang()) });
         }
     };
+    /* Session-only marker: after the reload, settings reopen on the language button instead of Home. */
+    var REOPEN_SETTINGS = 'chouette-tv.reopenSettings';
     App.cycleLanguage = function () {
         if (!I18n.setLang(I18n.next(I18n.lang()))) { return; }
         Storage.flush();
-        try { window.location.reload(); } catch (e) { App.showLanguageSetting(); }
+        try { window.sessionStorage.setItem(REOPEN_SETTINGS, '1'); } catch (e) { /* lands on Home, as before */ }
+        try { window.location.reload(); } catch (e2) { App.showLanguageSetting(); }
+    };
+    /* Called once the catalog is on screen after boot; true when settings were reopened. */
+    App.reopenSettingsAfterLanguageChange = function () {
+        try {
+            if (window.sessionStorage.getItem(REOPEN_SETTINGS) !== '1') { return false; }
+            window.sessionStorage.removeItem(REOPEN_SETTINGS);
+        } catch (e) { return false; }
+        App.showSettings();
+        for (var i = 0; i < App.settingsFocusables.length; i++) {
+            if (App.settingsFocusables[i] === App.$settingLang) { App.setSettingsFocus(i); break; }
+        }
+        return true;
     };
     if (App.$settingLang && App.$settingLang.addEventListener) {
         App.$settingLang.addEventListener('click', App.cycleLanguage);
@@ -12100,6 +12115,7 @@ var App = App || {};
             }
             App.rememberMenu();
             if (App.$list) { App.$list.classList.remove('hidden'); }
+            if (App.reopenSettingsAfterLanguageChange) { App.reopenSettingsAfterLanguageChange(); }
             /* Defer heavy post-paint work so browse is interactive first. */
             setTimeout(function () {
                 if (typeof App.scheduleFollowedSeriesRefresh === 'function') {

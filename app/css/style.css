@@ -75,6 +75,7 @@ body {
 .settings-note { line-height: 1.4; margin-top: 16px; color: #6f788c; font-size: 16px; }
 .btn-row { margin-top: 24px; }
 .btn-row button { min-width: 180px; }
+#settings .btn-row button { margin-bottom: 16px; } /* the language button can wrap to a second row */
 button {
     font: 24px Arial, sans-serif;
     border-radius: 8px;

@@ -182,3 +182,28 @@ test('the Samsung WebAPI library loads before AVPlay detection in the bundle', (
     assert.ok(scripts.includes('$WEBAPIS/webapis/webapis.js'));
     assert.ok(scripts.indexOf('$WEBAPIS/webapis/webapis.js') < scripts.indexOf('js/app.bundle.js'));
 });
+
+test('changing language reloads once and reopens settings on the language button', () => {
+    const session = new Map();
+    let reloads = 0, opened = 0;
+    const lang = { textContent: '' };
+    const App = { $settingLang: lang, settingsFocusables: [{}, {}, lang], settingsFocus: 0 };
+    const Storage = { KEYS: { uiLang: 'uiLang' }, get: () => '', set() {}, flush() {} };
+    const window = {
+        sessionStorage: { getItem: k => session.get(k) || null, setItem: (k, v) => session.set(k, v), removeItem: k => session.delete(k) },
+        location: { reload() { reloads++; } }
+    };
+    const ctx = vm.createContext({ App, Storage, window, I18n: frenchI18n() });
+    vm.runInContext(source('settings-ui.js'), ctx);
+    App.showSettings = () => { opened++; };
+    App.setSettingsFocus = i => { App.settingsFocus = i; };
+
+    App.cycleLanguage();
+    assert.equal(reloads, 1);
+
+    assert.equal(App.reopenSettingsAfterLanguageChange(), true);
+    assert.equal(opened, 1);
+    assert.equal(App.settingsFocus, 2);
+    assert.equal(App.reopenSettingsAfterLanguageChange(), false, 'only once per change');
+    assert.equal(opened, 1);
+});

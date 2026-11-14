@@ -220,6 +220,7 @@ var App = App || {};
             }
             App.rememberMenu();
             if (App.$list) { App.$list.classList.remove('hidden'); }
+            if (App.reopenSettingsAfterLanguageChange) { App.reopenSettingsAfterLanguageChange(); }
             /* Defer heavy post-paint work so browse is interactive first. */
             setTimeout(function () {
                 if (typeof App.scheduleFollowedSeriesRefresh === 'function') {
