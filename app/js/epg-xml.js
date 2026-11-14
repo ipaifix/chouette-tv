@@ -104,7 +104,7 @@ var XmltvReader = (function () {
                 if (!root || !closed || stack.length) { throw new Error('incomplete XML'); }
                 var result = out; text = ''; out = null;
                 done(result);
-            } catch (e) { text = ''; out = null; fail('Guide TV invalide : données illisibles'); }
+            } catch (e) { text = ''; out = null; fail(I18n.t('Guide TV invalide : données illisibles')); }
         }
         timer = setTimeout(step, 0);
         return cancel;

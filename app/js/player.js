@@ -242,7 +242,7 @@ var Player = (function createPlaybackController() {
 
     function openBrowser(address) {
         var session = playbackToken;
-        if (!videoEl) { statusCb('error', 'Lecteur vidéo HTML5 introuvable'); return; }
+        if (!videoEl) { statusCb('error', I18n.t('Lecteur vidéo HTML5 introuvable')); return; }
         function current() { return session === playbackToken; }
         videoEl.onplaying = function () {
             if (!current()) { return; }
@@ -252,7 +252,7 @@ var Player = (function createPlaybackController() {
             if (current()) { playbackToken++; clearAutoplayResume(); pausedFlag = false; statusCb('ended'); }
         };
         videoEl.onerror = function () {
-            if (current()) { statusCb('error', 'Ce navigateur ne peut pas lire cette vidéo'); }
+            if (current()) { statusCb('error', I18n.t('Ce navigateur ne peut pas lire cette vidéo')); }
         };
         applyDisplayMode();
         statusCb('buffering');
@@ -264,10 +264,10 @@ var Player = (function createPlaybackController() {
         }
         requestHls(function (Library) {
             if (!current()) { return; }
-            if (!Library || !Library.isSupported()) { statusCb('error', 'Lecture HLS indisponible dans ce navigateur'); return; }
+            if (!Library || !Library.isSupported()) { statusCb('error', I18n.t('Lecture HLS indisponible dans ce navigateur')); return; }
             hlsInstance = new Library();
             hlsInstance.on(Library.Events.ERROR, function (event, error) {
-                if (current() && error.fatal) { statusCb('error', 'Lecture HLS interrompue : ' + error.type); }
+                if (current() && error.fatal) { statusCb('error', I18n.t('Lecture HLS interrompue : {type}', { type: error.type })); }
             });
             hlsInstance.attachMedia(videoEl);
             hlsInstance.loadSource(address);
@@ -287,7 +287,7 @@ var Player = (function createPlaybackController() {
         if (session !== playbackToken || !videoEl) { return; }
         var promise;
         try { promise = videoEl.play(); }
-        catch (error) { statusCb('error', 'Lecture vidéo indisponible'); return; }
+        catch (error) { statusCb('error', I18n.t('Lecture vidéo indisponible')); return; }
         if (!promise || typeof promise.catch !== 'function') { return; }
         promise.catch(function (error) {
             if (session !== playbackToken || !error || error.name !== 'NotAllowedError') { return; }
@@ -656,6 +656,7 @@ var Player = (function createPlaybackController() {
             if (!pref || !lang) { return false; }
             pref = String(pref).toLowerCase();
             lang = String(lang).toLowerCase();
+            if (lang === 'dut') { lang = 'nld'; } /* ISO 639-2/B code for Dutch */
             return lang === pref || lang.indexOf(pref) === 0 || pref.indexOf(lang) === 0;
         }
 
@@ -714,7 +715,7 @@ var Player = (function createPlaybackController() {
         var n = Number(channels);
         if (!isFinite(n) || n <= 0) { return ''; }
         if (n === 1) { return 'Mono'; }
-        if (n === 2) { return 'Stéréo'; }
+        if (n === 2) { return I18n.t('Stéréo'); }
         if (n === 6) { return '5.1'; }
         if (n === 8) { return '7.1'; }
         return n + 'ch';

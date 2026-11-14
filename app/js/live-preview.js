@@ -89,17 +89,17 @@ var App = App || {};
             return;
         }
         App.$livePreviewName.textContent = typeof App.displayCatalogTitle === 'function'
-            ? App.displayCatalogTitle(item.name || 'Chaîne')
-            : (item.name || 'Chaîne');
+            ? App.displayCatalogTitle(item.name || I18n.t('Chaîne'))
+            : (item.name || I18n.t('Chaîne'));
         if (!App.$livePreviewEpg) { return; }
         var nn = (item.id && typeof EPG !== 'undefined') ? EPG.nowNext(item.id) : null;
         if (nn && nn.now) {
             App.$livePreviewEpg.textContent = EPG.fmtTime(nn.now.start) + '–' +
                 EPG.fmtTime(nn.now.stop) + '  ·  ' + (nn.now.title || '');
         } else if (item.id && typeof EPG !== 'undefined' && EPG.isLoaded()) {
-            App.$livePreviewEpg.textContent = 'Pas de programme EPG';
+            App.$livePreviewEpg.textContent = I18n.t('Pas de programme EPG');
         } else if (typeof EPG !== 'undefined' && !EPG.isLoaded()) {
-            App.$livePreviewEpg.textContent = 'EPG non chargé';
+            App.$livePreviewEpg.textContent = I18n.t('EPG non chargé');
         } else {
             App.$livePreviewEpg.textContent = '';
         }
@@ -226,7 +226,7 @@ var App = App || {};
             App.livePreviewPendingUrl = '';
             App.updateLivePreviewMeta(item);
             if (App.$livePreviewPlaceholder) {
-                App.$livePreviewPlaceholder.textContent = 'Aperçu…';
+                App.$livePreviewPlaceholder.textContent = I18n.t('Aperçu…');
             }
             return;
         }
@@ -255,7 +255,7 @@ var App = App || {};
                 App.stopLivePreview({ keepChrome: true, forceStop: true, keepRect: true });
                 App.updateLivePreviewMeta(null);
                 if (App.$livePreviewPlaceholder) {
-                    App.$livePreviewPlaceholder.textContent = 'Sélectionnez une chaîne';
+                    App.$livePreviewPlaceholder.textContent = I18n.t('Sélectionnez une chaîne');
                 }
                 App.setLivePreviewLoadingUi(true);
             }, App.LIVE_PREVIEW_DEBOUNCE_MS);
@@ -263,7 +263,7 @@ var App = App || {};
         }
 
         if (App.$livePreviewPlaceholder) {
-            App.$livePreviewPlaceholder.textContent = 'Aperçu…';
+            App.$livePreviewPlaceholder.textContent = I18n.t('Aperçu…');
         }
         App.updateLivePreviewMeta(item);
 
@@ -287,7 +287,7 @@ var App = App || {};
             App.setLivePreviewPlayingUi(false);
             App.setLivePreviewLoadingUi(true);
             if (App.$livePreviewPlaceholder) {
-                App.$livePreviewPlaceholder.textContent = state === 'error' ? 'Aperçu indisponible' : 'Aperçu';
+                App.$livePreviewPlaceholder.textContent = state === 'error' ? I18n.t('Aperçu indisponible') : I18n.t('Aperçu');
             }
         }
         /* buffering: stay quiet — browse uses placeholder, not the watch toast. */

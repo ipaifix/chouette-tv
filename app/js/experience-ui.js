@@ -98,7 +98,7 @@ var App = App || {};
         App.$featurePanel.textContent = '';
         App.$featurePanel.scrollTop = 0;
         App.$featurePanel.setAttribute('aria-label', title);
-        button('← Retour', function () { App.closeFeature(); });
+        button(I18n.t('← Retour'), function () { App.closeFeature(); });
         node('h1', title, 'feature-title', App.$featurePanel);
         return App.$featurePanel;
     }
@@ -157,7 +157,7 @@ var App = App || {};
     };
     App.showProfiles = function () {
         var keepFocus = App.uiState === 'feature' && surfaceType === 'profiles' ? focus : 1;
-        var host = surface('Qui regarde ?', 'profiles');
+        var host = surface(I18n.t('Qui regarde ?'), 'profiles');
         var viewer = App.currentViewer();
         var people = node('div', null, 'feature-actions', host);
         App.loadViewers().list.forEach(function (person) {
@@ -170,36 +170,36 @@ var App = App || {};
                 App.switchViewer(person.id);
             }, people);
         });
-        node('h2', 'Préférences de ' + viewer.name, '', host);
-        node('p', 'Audio et sous-titres : ' + App.viewerPresetLabel(), 'feature-muted', host);
+        node('h2', I18n.t('Préférences de {name}', { name: viewer.name }), '', host);
+        node('p', I18n.t('Audio et sous-titres : {preset}', { preset: App.viewerPresetLabel() }), 'feature-muted', host);
         var presets = node('div', null, 'feature-actions', host);
         App.viewerPresets.forEach(function (preset) {
-            button((viewer.audio === preset.audio && viewer.subtitles === preset.subtitles ? '✓ ' : '') + preset.name,
+            button((App.viewerMatchesPreset(viewer, preset) ? '✓ ' : '') + preset.name,
                 function () {
                     App.updateViewer({ audio: preset.audio, subtitles: preset.subtitles });
                     if (App.playingItem()) { App.applyStoredTrackPrefs(); }
                     App.showProfiles();
                 }, presets);
         });
-        node('p', 'La VO utilise la langue originale renseignée ou une piste identifiée « original ». Sinon, la piste actuelle est conservée.', 'feature-muted', host);
-        button('Épisode suivant automatique : ' + (viewer.autoplay ? 'oui' : 'non'), function () {
+        node('p', I18n.t('La VO utilise la langue originale renseignée ou une piste identifiée « original ». Sinon, la piste actuelle est conservée.'), 'feature-muted', host);
+        button(I18n.t('Épisode suivant automatique : {state}', { state: viewer.autoplay ? I18n.t('oui') : I18n.t('non') }), function () {
             App.updateViewer({ autoplay: !viewer.autoplay }); App.showProfiles();
         });
         var form = node('div', null, 'feature-actions', host);
-        var label = node('label', 'Nom du profil', '', form);
+        var label = node('label', I18n.t('Nom du profil'), '', form);
         var input = node('input', null, 'feature-input', label);
         input.type = 'text'; input.maxLength = 24; input.value = viewer.name;
-        input.setAttribute('aria-label', 'Nom du profil');
+        input.setAttribute('aria-label', I18n.t('Nom du profil'));
         control(input);
-        button('Renommer', function () {
+        button(I18n.t('Renommer'), function () {
             var name = input.value.trim().slice(0, 24);
             if (name) { App.updateViewer({ name: name }); App.showProfiles(); }
         }, form);
-        button('Créer un profil avec ce nom', function () {
+        button(I18n.t('Créer un profil avec ce nom'), function () {
             var id = App.addViewer(input.value);
             if (id) { App.closeFeature(false); App.switchViewer(id); }
         }, form);
-        node('p', 'Chaque profil conserve ses reprises, favoris, recherches et séries suivies. Les profils sont enregistrés sur cet appareil.', 'feature-muted', host);
+        node('p', I18n.t('Chaque profil conserve ses reprises, favoris, recherches et séries suivies. Les profils sont enregistrés sur cet appareil.'), 'feature-muted', host);
         focusAt(keepFocus);
     };
 
@@ -209,18 +209,18 @@ var App = App || {};
         /* Live TV never pauses on an intermediate menu. */
         if (item && item.kind === 'live') {
             if (item.url) { App.playItem(item, 'live'); }
-            else { App.toast('Flux indisponible'); }
+            else { App.toast(I18n.t('Flux indisponible')); }
             return;
         }
         var title = item && item.name ? App.displayCatalogTitle(item.name) :
-            (opts.entry && App.continueItemLabel ? App.continueItemLabel(opts.entry) : 'Contenu');
+            (opts.entry && App.continueItemLabel ? App.continueItemLabel(opts.entry) : I18n.t('Contenu'));
         var host = surface('Options · ' + title, 'item-actions');
         var actions = node('div', null, 'feature-action-list', host);
         var playable = item && item.url;
         if (playable) {
             var resume = opts.entry || (App.getResumeEntry ? App.getResumeEntry(item) : null);
             var playLabel = resume && App.shouldOfferResume && App.shouldOfferResume(resume)
-                ? 'Reprendre la lecture' : 'Lire';
+                ? I18n.t('Reprendre la lecture') : I18n.t('Lire');
             button(playLabel, function () {
                 App.closeFeature(false);
                 App.playItem(item, item.kind || opts.kind || 'live', {
@@ -228,21 +228,21 @@ var App = App || {};
                 });
             }, actions);
             if (resume && App.shouldOfferResume && App.shouldOfferResume(resume)) {
-                button('Recommencer depuis le début', function () {
+                button(I18n.t('Recommencer depuis le début'), function () {
                     App.closeFeature(false);
                     App.playItem(item, item.kind || 'vod', { skipResumePrompt: true, startAt: 0 });
                 }, actions);
             }
         }
         if (opts.entry) {
-            var remove = button('Retirer de Continuer à regarder', function () {
+            var remove = button(I18n.t('Retirer de Continuer à regarder'), function () {
                 if (!App.removeContinueEntry(opts.entry)) { return; }
                 App.closeFeature();
             }, actions);
             remove.classList.add('is-destructive');
         }
         if (!playable) {
-            node('p', 'Ce contenu n’est plus disponible, mais il peut être retiré de la liste.', 'feature-muted', host);
+            node('p', I18n.t('Ce contenu n’est plus disponible, mais il peut être retiré de la liste.'), 'feature-muted', host);
         }
         focusAt(1);
         host.scrollTop = 0;
@@ -250,11 +250,11 @@ var App = App || {};
 
     App.showDetails = function (item) {
         if (!item) { return; }
-        var host = surface(App.displayCatalogTitle(item.name || 'Fiche'), 'details');
+        var host = surface(App.displayCatalogTitle(item.name || I18n.t('Fiche')), 'details');
         var token = generation;
         var scope = App.profileScope();
         var actions = node('div', null, 'feature-actions', host);
-        var body = node('div', 'Chargement des informations…', 'detail-body', host);
+        var body = node('div', I18n.t('Chargement des informations…'), 'detail-body', host);
         var isSeries = item.kind === 'series';
         var seasons = null;
         function valid() { return token === generation && App.uiState === 'feature' && scope === App.profileScope(); }
@@ -269,20 +269,20 @@ var App = App || {};
         }
         if (!isSeries) {
             var entry = App.getResumeEntry(item);
-            button(App.shouldOfferResume(entry) ? 'Reprendre' : 'Lire', function () { start(item, null, entry); }, actions);
+            button(App.shouldOfferResume(entry) ? I18n.t('Reprendre') : I18n.t('Lire'), function () { start(item, null, entry); }, actions);
         } else {
             var primaryEpisode = null, primarySeason = null, primaryEntry = null;
-            var primaryButton = button('Chargement des épisodes…', function () {
+            var primaryButton = button(I18n.t('Chargement des épisodes…'), function () {
                 if (primaryEpisode) { start(primaryEpisode, primarySeason, primaryEntry); }
             }, actions);
             primaryButton.disabled = true;
             var seriesFavorite = App.isFavoriteSeries && App.isFavoriteSeries(item);
-            var favoriteButton = button(seriesFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris', function () {
+            var favoriteButton = button(seriesFavorite ? I18n.t('Retirer des favoris') : I18n.t('Ajouter aux favoris'), function () {
                 App.toggleFavoriteSeries(item);
                 App.showDetails(item);
             }, actions);
             if (seriesFavorite) { favoriteButton.classList.add('is-destructive'); }
-            button(App.isFollowedSeries(item) ? '✓ Série suivie — retirer' : '+ Suivre cette série', function () {
+            button(App.isFollowedSeries(item) ? I18n.t('✓ Série suivie — retirer') : I18n.t('+ Suivre cette série'), function () {
                 App.toggleFollowSeries(item);
                 if (seasons && App.isFollowedSeries(item)) { App.applyFollowedSeasons(item, seasons); }
                 App.showDetails(item);
@@ -304,12 +304,12 @@ var App = App || {};
                     App.loadHomeCardImage(body);
                 } else { img.src = picture; }
             }
-            node('p', [details.year, details.duration, details.genre, details.rating ? 'Note : ' + details.rating : ''].filter(Boolean).join(' · '), 'detail-meta', body);
-            node('p', details.plot || 'Synopsis non fourni par la source.', 'detail-plot', body);
-            if (details.cast) { node('p', 'Avec : ' + details.cast, '', body); }
-            if (details.director) { node('p', 'Réalisation : ' + details.director, '', body); }
-            if (details.originalLanguage) { node('p', 'Langue originale : ' + details.originalLanguage, '', body); }
-            node('p', App.currentViewer().name + ' · ' + App.viewerPresetLabel() + ' · selon les pistes disponibles', 'feature-muted', body);
+            node('p', [details.year, details.duration, details.genre, details.rating ? I18n.t('Note : {rating}', { rating: details.rating }) : ''].filter(Boolean).join(' · '), 'detail-meta', body);
+            node('p', details.plot || I18n.t('Synopsis non fourni par la source.'), 'detail-plot', body);
+            if (details.cast) { node('p', I18n.t('Avec : {cast}', { cast: details.cast }), '', body); }
+            if (details.director) { node('p', I18n.t('Réalisation : {director}', { director: details.director }), '', body); }
+            if (details.originalLanguage) { node('p', I18n.t('Langue originale : {language}', { language: details.originalLanguage }), '', body); }
+            node('p', I18n.t('{viewer} · {preset} · selon les pistes disponibles', { viewer: App.currentViewer().name, preset: App.viewerPresetLabel() }), 'feature-muted', body);
         }
         function renderSeasons(loaded) {
             if (!valid()) { return; }
@@ -334,7 +334,7 @@ var App = App || {};
             }
             if (primaryEpisode) {
                 primaryButton.disabled = false;
-                primaryButton.textContent = (App.shouldOfferResume(primaryEntry) ? 'Reprendre' : 'Lire') +
+                primaryButton.textContent = (App.shouldOfferResume(primaryEntry) ? I18n.t('Reprendre') : I18n.t('Lire')) +
                     ' · S' + primarySeason.season + ' E' + (primaryEpisode.episodeNum || 1);
             }
             render(loaded.details);
@@ -348,31 +348,31 @@ var App = App || {};
                 page = page || 0;
                 var pageSize = 20;
                 var episodes = season.episodes || [];
-                node('h2', season.name.replace(/^Season\b/, 'Saison'), '', episodeArea);
+                node('h2', season.name.replace(/^Season\b/, I18n.t('Saison')), '', episodeArea);
                 if (episodes.length > pageSize) {
-                    node('p', 'Épisodes ' + (page * pageSize + 1) + ' — ' + Math.min(episodes.length, (page + 1) * pageSize) + ' / ' + episodes.length, 'feature-muted', episodeArea);
+                    node('p', I18n.t('Épisodes {from} — {to} / {total}', { from: page * pageSize + 1, to: Math.min(episodes.length, (page + 1) * pageSize), total: episodes.length }), 'feature-muted', episodeArea);
                 }
-                if (page > 0) { button('← Épisodes précédents', function () { chooseSeason(season, false, page - 1); }, episodeArea); }
+                if (page > 0) { button(I18n.t('← Épisodes précédents'), function () { chooseSeason(season, false, page - 1); }, episodeArea); }
                 if (App.beginResumeSnap) { App.beginResumeSnap(); }
                 episodes.slice(page * pageSize, (page + 1) * pageSize).forEach(function (episode) {
                     var rec = App.getResumeEntry(episode);
-                    button((rec && rec.done ? '✓ Vu · ' : rec && rec.pos > 0 ? 'Reprendre · ' : '') + episode.name,
+                    button((rec && rec.done ? I18n.t('✓ Vu · {name}', { name: episode.name }) : rec && rec.pos > 0 ? I18n.t('Reprendre · {name}', { name: episode.name }) : episode.name),
                         function () { start(episode, season); }, episodeArea);
                 });
                 if (App.endResumeSnap) { App.endResumeSnap(); }
                 if ((page + 1) * pageSize < episodes.length) {
-                    button('Épisodes suivants →', function () { chooseSeason(season, false, page + 1); }, episodeArea);
+                    button(I18n.t('Épisodes suivants →'), function () { chooseSeason(season, false, page + 1); }, episodeArea);
                 }
                 if (!keepCurrentFocus) { focusAt(seasonControlCount + (page > 0 ? 1 : 0)); }
             }
             function seasonPage(from, keepFocus) {
                 area.textContent = '';
                 controls = actionControls.slice();
-                if (from > 0) { button('← Saisons précédentes', function () { seasonPage(Math.max(0, from - 12), false); }, area); }
+                if (from > 0) { button(I18n.t('← Saisons précédentes'), function () { seasonPage(Math.max(0, from - 12), false); }, area); }
                 loaded.slice(from, from + 12).forEach(function (season) {
-                    button(season.name.replace(/^Season\b/, 'Saison'), function () { chooseSeason(season, false); }, area);
+                    button(season.name.replace(/^Season\b/, I18n.t('Saison')), function () { chooseSeason(season, false); }, area);
                 });
-                if (from + 12 < loaded.length) { button('Saisons suivantes →', function () { seasonPage(from + 12, false); }, area); }
+                if (from + 12 < loaded.length) { button(I18n.t('Saisons suivantes →'), function () { seasonPage(from + 12, false); }, area); }
                 seasonControlCount = controls.length;
                 if (loaded[from]) { chooseSeason(loaded[from], keepFocus); }
             }
@@ -384,8 +384,8 @@ var App = App || {};
         function fail() {
             if (!valid()) { return; }
             render({});
-            node('p', 'Informations indisponibles. Vous pouvez réessayer.', 'feature-muted', body);
-            button('Réessayer', function () { App.showDetails(item); }, body);
+            node('p', I18n.t('Informations indisponibles. Vous pouvez réessayer.'), 'feature-muted', body);
+            button(I18n.t('Réessayer'), function () { App.showDetails(item); }, body);
         }
         if (isSeries) { cancelDetails = Xtream.getSeriesInfo(c.base, c.username, c.password, item.seriesId, renderSeasons, fail); }
         else { cancelDetails = Xtream.getVodDetails(c.base, c.username, c.password, item.id || item.streamId, render, fail); }
@@ -402,29 +402,29 @@ var App = App || {};
     };
     App.showLiveGuide = function (state) {
         state = state || { start: 0, offset: 0, favorites: false, now: false };
-        var host = surface('Guide TV', 'guide');
+        var host = surface(I18n.t('Guide TV'), 'guide');
         guide = state;
         var toolbar = node('div', null, 'feature-actions', host);
-        button('Favoris : ' + (state.favorites ? 'oui' : 'non'), function () {
+        button(I18n.t('Favoris : {state}', { state: state.favorites ? I18n.t('oui') : I18n.t('non') }), function () {
             state.favorites = !state.favorites; state.start = 0; App.showLiveGuide(state);
         }, toolbar);
-        button('Programmes en cours : ' + (state.now ? 'oui' : 'tous'), function () {
+        button(state.now ? I18n.t('Programmes en cours : oui') : I18n.t('Programmes en cours : tous'), function () {
             state.now = !state.now; state.start = 0; state.offset = 0; App.showLiveGuide(state);
         }, toolbar);
-        button('Chaîne précédente', function () {
+        button(I18n.t('Chaîne précédente'), function () {
             var previous = App.previousLive;
-            if (!previous) { App.toast('Aucune chaîne précédente'); return; }
+            if (!previous) { App.toast(I18n.t('Aucune chaîne précédente')); return; }
             App.closeFeature(false); App.playItem(previous, 'live');
         }, toolbar);
-        button('← 2 h', function () { state.offset = Math.max(0, state.offset - 2); App.showLiveGuide(state); }, toolbar);
-        button('Maintenant', function () { state.offset = 0; App.showLiveGuide(state); }, toolbar);
-        button('+ 2 h →', function () { state.offset = Math.min(12, state.offset + 2); App.showLiveGuide(state); }, toolbar);
+        button(I18n.t('← 2 h'), function () { state.offset = Math.max(0, state.offset - 2); App.showLiveGuide(state); }, toolbar);
+        button(I18n.t('Maintenant'), function () { state.offset = 0; App.showLiveGuide(state); }, toolbar);
+        button(I18n.t('+ 2 h →'), function () { state.offset = Math.min(12, state.offset + 2); App.showLiveGuide(state); }, toolbar);
         var channels = App.guideChannels(state.favorites, state.now);
         state.count = channels.length;
         var from = Date.now() + state.offset * 3600000;
         var until = from + 7200000;
-        node('p', EPG.fmtTime(from) + ' — ' + EPG.fmtTime(until) + ' · OK : regarder · ← → : horaires · ↑ ↓ : chaînes', 'feature-muted', host);
-        if (!channels.length) { node('p', 'Aucune chaîne pour ce filtre. Désactivez-le pour afficher toutes les chaînes.', '', host); }
+        node('p', I18n.t('{from} — {to} · OK : regarder · ← → : horaires · ↑ ↓ : chaînes', { from: EPG.fmtTime(from), to: EPG.fmtTime(until) }), 'feature-muted', host);
+        if (!channels.length) { node('p', I18n.t('Aucune chaîne pour ce filtre. Désactivez-le pour afficher toutes les chaînes.'), '', host); }
         channels.slice(state.start, state.start + 8).forEach(function (ch) {
             var row = button('', function () { App.closeFeature(false); App.playItem(ch, 'live'); }, host);
             row.classList.add('guide-row');
@@ -432,7 +432,7 @@ var App = App || {};
             node('span', App.displayCatalogTitle(ch.name), 'guide-channel', row);
             var timeline = node('span', null, 'guide-timeline', row);
             var programs = EPG.schedule(ch.id).filter(function (p) { return p.stop > from && p.start < until; });
-            if (!programs.length) { node('span', 'Programme non renseigné', 'guide-empty', timeline); }
+            if (!programs.length) { node('span', I18n.t('Programme non renseigné'), 'guide-empty', timeline); }
             programs.forEach(function (p) {
                 var cell = node('span', EPG.fmtTime(p.start) + ' ' + p.title, 'guide-program', timeline);
                 cell.style.left = (Math.max(0, p.start - from) / 7200000 * 100) + '%';
@@ -440,8 +440,8 @@ var App = App || {};
                 cell.title = p.title;
             });
         });
-        if (state.start > 0) { button('↑ Chaînes précédentes', function () { state.start = Math.max(0, state.start - 8); App.showLiveGuide(state); }); }
-        if (state.start + 8 < channels.length) { button('↓ Chaînes suivantes', function () { state.start += 8; App.showLiveGuide(state); }); }
+        if (state.start > 0) { button(I18n.t('↑ Chaînes précédentes'), function () { state.start = Math.max(0, state.start - 8); App.showLiveGuide(state); }); }
+        if (state.start + 8 < channels.length) { button(I18n.t('↓ Chaînes suivantes'), function () { state.start += 8; App.showLiveGuide(state); }); }
         focusAt(channels.length ? 7 : 1);
     };
     App.refreshVisibleGuide = function () {

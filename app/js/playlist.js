@@ -58,7 +58,7 @@ var Playlist = (function createPlaylistReader() {
                         output.categories.push({ name: group, id: category });
                     }
                 }
-                record = { name: metadata.label || 'Unknown', logo: fields['tvg-logo'] || '',
+                record = { name: metadata.label || I18n.t('Unknown'), logo: fields['tvg-logo'] || '',
                     id: fields['tvg-id'] || '', kind: 'live', categoryId: category,
                     referrer: '', userAgent: '' };
                 return;
@@ -85,7 +85,7 @@ var Playlist = (function createPlaylistReader() {
             var fresh = address + (address.indexOf('?') < 0 ? '?' : '&') + '_=' + Date.now();
             return Http.get(fresh, { label: 'Playlist', timeoutMs: 60000 }, function (body) {
                 var catalog = parse(body);
-                if (!catalog.channels.length) { rejected('La playlist est vide ou invalide'); return; }
+                if (!catalog.channels.length) { rejected(I18n.t('La playlist est vide ou invalide')); return; }
                 ready(catalog.channels, catalog.epgUrl, catalog.categories);
             }, rejected);
         }

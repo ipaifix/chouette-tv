@@ -173,15 +173,15 @@ var App = App || {};
 
     App.categoryName = function (catId) {
         if (!catId) {
-            if (App.contentType === 'vod') { return 'Tous les films'; }
-            if (App.contentType === 'series') { return 'Toutes les séries'; }
-            return 'Toutes les chaînes';
+            if (App.contentType === 'vod') { return I18n.t('Tous les films'); }
+            if (App.contentType === 'series') { return I18n.t('Toutes les séries'); }
+            return I18n.t('Toutes les chaînes');
         }
-        if (catId === App.RECENT_CAT_ID) { return 'Derniers ajouts'; }
+        if (catId === App.RECENT_CAT_ID) { return I18n.t('Derniers ajouts'); }
         for (var i = 0; i < App.categories.length; i++) {
             if (App.categories[i].id === catId) { return App.categories[i].name; }
         }
-        return 'Catégorie';
+        return I18n.t('Catégorie');
     }
 
     App.isRecentCategory = function (catId) {
@@ -429,7 +429,7 @@ var App = App || {};
             catalog: cached
         }, function (ok) {
             if (ok === false && typeof App.toast === 'function') {
-                App.toast('Catalogue chargé · copie hors ligne non enregistrée (stockage indisponible ou plein)');
+                App.toast(I18n.t('Catalogue chargé · copie hors ligne non enregistrée (stockage indisponible ou plein)'));
             }
         });
     }

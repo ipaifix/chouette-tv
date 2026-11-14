@@ -3,10 +3,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 const { performance } = require('node:perf_hooks');
 
 const App = { TYPE_ROWS: [], SEARCH_MAX_RESULTS: 80, HOME_ROW_MAX: 14 };
-const context = vm.createContext({ App, Storage: { get() { return ''; } },
+const context = vm.createContext({ I18n: frenchI18n(),  App, Storage: { get() { return ''; } },
     Xtream: { parseM3uCredentials() { return null; }, normalizeBase(v) { return v; } },
     setTimeout, clearTimeout });
 for (const file of ['catalog.js', 'search-ui.js']) {

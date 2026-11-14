@@ -75,14 +75,14 @@ var App = App || {};
     App.homeRows = [];
     App.HOME_ROW_MAX = 14;
     App.HOME_RAIL = [
-        { id: 'home', label: 'Accueil', action: 'home' },
-        { id: 'live', label: 'En direct', action: 'type', type: 'live' },
-        { id: 'guide', label: 'Guide TV', action: 'guide' },
-        { id: 'vod', label: 'Films', action: 'type', type: 'vod' },
-        { id: 'series', label: 'Séries', action: 'type', type: 'series' },
-        { id: 'search', label: 'Recherche', action: 'search' },
-        { id: 'profiles', label: 'Profil', action: 'profiles', section: 'secondary' },
-        { id: 'settings', label: 'Réglages', action: 'settings' }
+        { id: 'home', label: I18n.t('Accueil'), action: 'home' },
+        { id: 'live', label: I18n.t('En direct'), action: 'type', type: 'live' },
+        { id: 'guide', label: I18n.t('Guide TV'), action: 'guide' },
+        { id: 'vod', label: I18n.t('Films'), action: 'type', type: 'vod' },
+        { id: 'series', label: I18n.t('Séries'), action: 'type', type: 'series' },
+        { id: 'search', label: I18n.t('Recherche'), action: 'search' },
+        { id: 'profiles', label: I18n.t('Profil'), action: 'profiles', section: 'secondary' },
+        { id: 'settings', label: I18n.t('Réglages'), action: 'settings' }
     ];
     App.catalogRefreshing = false;
     App.epgFocusIndex = 0;
@@ -111,8 +111,8 @@ var App = App || {};
 
     App.TYPE_ROWS = [
         { type: 'live', label: 'TV' },
-        { type: 'vod', label: 'Films' },
-        { type: 'series', label: 'Séries' }
+        { type: 'vod', label: I18n.t('Films') },
+        { type: 'series', label: I18n.t('Séries') }
     ];
 
     var surfaceIds = {
@@ -165,6 +165,7 @@ var App = App || {};
         '$settingSave': 'setting-save',
         '$settingRefresh': 'setting-refresh',
         '$settingCancel': 'setting-cancel',
+        '$settingLang': 'setting-lang',
         '$exit': 'exit-confirm',
         '$exitYes': 'exit-yes',
         '$exitNo': 'exit-no',
@@ -226,7 +227,7 @@ var App = App || {};
         var raw = [
             App.$settingXtreamServer, App.$settingXtreamUser, App.$settingXtreamPass,
             App.$settingUrl, App.$settingEpg,
-            App.$settingSave, App.$settingRefresh, App.$settingCancel
+            App.$settingSave, App.$settingRefresh, App.$settingCancel, App.$settingLang
         ];
         for (var i = 0; i < raw.length; i++) {
             if (raw[i]) { App.settingsFocusables.push(raw[i]); }

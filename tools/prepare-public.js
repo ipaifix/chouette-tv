@@ -18,7 +18,7 @@ const FILES = [
     'tools/audit-netflix-light.js', 'tools/epg-workflow.yml', 'tools/guide-format.js',
     'tests/data.test.js', 'tests/build.test.js', 'tests/catalog-benchmark.js', 'tests/audit-fixes.test.js',
     'tests/browser-smoke.js', 'tests/playback.test.js', 'tests/settings-boot.test.js', 'tests/ui.test.js',
-    'tests/experience.test.js', 'tests/preview.js', 'tests/publication.test.js'
+    'tests/experience.test.js', 'tests/preview.js', 'tests/publication.test.js', 'tests/i18n.test.js', 'tests/i18n-fixture.js'
 ];
 function prepare(out, release = false) {
     if (release && !fs.existsSync(path.join(ROOT, 'LICENSE'))) throw Error('Release requires LICENSE.');

@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 
 const source = name => fs.readFileSync(path.join(__dirname, '../app/js', name), 'utf8');
 function settings(saved = {}) {
@@ -23,7 +24,7 @@ function settings(saved = {}) {
         set: (key, value) => { values[key] = value; calls.push(['set', key]); },
         flush: () => calls.push(['flush'])
     };
-    const ctx = vm.createContext({ App, Storage });
+    const ctx = vm.createContext({ I18n: frenchI18n(),  App, Storage });
     vm.runInContext(source('xtream.js'), ctx);
     vm.runInContext(source('settings-ui.js'), ctx);
     App.hideSettings = () => calls.push(['hide']);
@@ -91,7 +92,7 @@ function boot() {
         catalogSourceFingerprint: () => fingerprint,
         startFromCatalog: cat => { applied.push(cat); return true; }
     };
-    const ctx = vm.createContext({
+    const ctx = vm.createContext({ I18n: frenchI18n(), 
         App, Storage: { loadCatalogCache: cb => callbacks.push(cb) },
         window: { addEventListener() {} },
         setTimeout: cb => timers.push(cb)

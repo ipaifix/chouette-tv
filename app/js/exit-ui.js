@@ -54,7 +54,7 @@ var App = App || {};
             tizen.application.getCurrentApplication().exit();
         } else {
             Player.stop();
-            App.toast('Application fermée — fermez l’onglet du navigateur', true);
+            App.toast(I18n.t('Application fermée — fermez l’onglet du navigateur'), true);
         }
     }
     if (App.$exitNo && App.$exitNo.addEventListener) {

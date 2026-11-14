@@ -19,7 +19,7 @@ var App = App || {};
         }
         EPG.load(url, ids, function (count) {
             if (App.refreshVisibleGuide) { App.refreshVisibleGuide(); }
-            App.toast('Guide TV chargé (' + count + ' chaînes)');
+            App.toast(I18n.t('Guide TV chargé ({n} chaînes)', { n: count }));
             /* Avoid full menu rebuild — refresh only visible EPG surfaces. */
             if (App.$infoBar && !App.$infoBar.classList.contains('hidden') &&
                 typeof App.renderInfoBar === 'function') {
@@ -74,8 +74,8 @@ var App = App || {};
             if (fingerprint === App.catalogSourceFingerprint()) { App.persistCatalogCache(fingerprint, catalog); }
         }, 100);
         App.toast(partial.length
-            ? 'Catalogue partiel — rubriques indisponibles conservées'
-            : 'Catalogue à jour');
+            ? I18n.t('Catalogue partiel — rubriques indisponibles conservées')
+            : I18n.t('Catalogue à jour'));
         clearTimeout(App.epgLoadTimer);
         App.epgLoadTimer = setTimeout(App.loadEpg, 1500);
         if (typeof App.scheduleFollowedSeriesRefresh === 'function') {
@@ -99,10 +99,10 @@ var App = App || {};
     App.onCatalogRefreshError = function (err, opts) {
         opts = opts || {};
         if (App.hasCatalogContent()) {
-            App.toast('Maj catalogue échouée — dernier catalogue conservé');
+            App.toast(I18n.t('Maj catalogue échouée — dernier catalogue conservé'));
             return;
         }
-        App.toast((err || 'Erreur réseau') + ' — vérifiez les réglages', true);
+        App.toast(I18n.t('{error} — vérifiez les réglages', { error: err || I18n.t('Erreur réseau') }), true);
         App.showSettings();
     }
 
@@ -169,7 +169,7 @@ var App = App || {};
         }
 
         if (server && user && pass) {
-            if (!fromHome) { App.toast('Mise à jour du catalogue…', true); }
+            if (!fromHome) { App.toast(I18n.t('Mise à jour du catalogue…'), true); }
             trackCancellation(Xtream.load(server, user, pass, loadOptions, xtreamDone, xtreamFail));
             return;
         }
@@ -181,7 +181,7 @@ var App = App || {};
             Storage.set(Storage.KEYS.xtreamPass, parsed.password);
             Storage.flush();
             fingerprint = App.catalogSourceFingerprint();
-            if (!fromHome) { App.toast('Mise à jour du catalogue…', true); }
+            if (!fromHome) { App.toast(I18n.t('Mise à jour du catalogue…'), true); }
             trackCancellation(Xtream.load(parsed.base, parsed.username, parsed.password, loadOptions,
                 xtreamDone, xtreamFail));
             return;
@@ -190,13 +190,13 @@ var App = App || {};
         if (!url) {
             finishRefreshUi();
             if (!App.hasCatalogContent()) {
-                App.toast('Bienvenue — configurez Xtream ou une URL M3U');
+                App.toast(I18n.t('Bienvenue — configurez Xtream ou une URL M3U'));
                 App.showSettings();
             }
             return;
         }
 
-        if (!fromHome) { App.toast('Mise à jour du catalogue…', true); }
+        if (!fromHome) { App.toast(I18n.t('Mise à jour du catalogue…'), true); }
         trackCancellation(Playlist.load(url, function (list, epgUrl, cats) {
             if (!stillCurrent()) { finishRefreshUi(); return; }
             finishRefreshUi();
@@ -206,7 +206,7 @@ var App = App || {};
                 liveItems.push({
                     kind: 'live',
                     id: ch.id || '',
-                    name: ch.name || 'Chaîne',
+                    name: ch.name || I18n.t('Chaîne'),
                     url: ch.url || '',
                     categoryId: ch.categoryId || '',
                     logo: ch.logo || '',
@@ -232,7 +232,7 @@ var App = App || {};
     App.refreshCatalogFromHome = function () {
         if (App.catalogRefreshing) { return; }
         if (!App.catalogSourceFingerprint()) {
-            App.toast('Bienvenue — configurez Xtream ou une URL M3U');
+            App.toast(I18n.t('Bienvenue — configurez Xtream ou une URL M3U'));
             App.showSettings();
             return;
         }
@@ -283,7 +283,7 @@ var App = App || {};
         var fingerprint = App.catalogSourceFingerprint();
 
         if (!fingerprint) {
-            App.toast('Bienvenue — configurez Xtream ou une URL M3U');
+            App.toast(I18n.t('Bienvenue — configurez Xtream ou une URL M3U'));
             App.showSettings();
             return;
         }
@@ -348,6 +348,7 @@ var App = App || {};
     };
 
     App.boot = function () {
+        if (typeof I18n !== 'undefined') { I18n.applyDom(document); }
         try {
             Player.init(App.onPlayerStatus);
             Player.setTimeUpdate(App.onPlayerTimeUpdate);
@@ -388,13 +389,13 @@ var App = App || {};
                     /* Boot: cache si possible ; refresh réseau seulement sans cache. */
                     App.loadPlaylist({ fromBoot: true });
                 } catch (err) {
-                    App.toast('Erreur de chargement : ' + (err && err.message ? err.message : err), true);
+                    App.toast(I18n.t('Erreur de chargement : {error}', { error: err && err.message ? err.message : err }), true);
                     App.showSettings();
                 }
             });
         } catch (err) {
             try {
-                App.toast('Démarrage impossible : ' + (err && err.message ? err.message : err), true);
+                App.toast(I18n.t('Démarrage impossible : {error}', { error: err && err.message ? err.message : err }), true);
             } catch (e2) {}
             try { App.showSettings(); } catch (e3) {}
         }

@@ -3,23 +3,33 @@ var App = App || {};
 (function (App) {
     'use strict';
     var viewerRaw = null, viewerCache = null;
+    /* 'ui' = the interface language, resolved at playback, so a preset keeps meaning
+     * "my language" after the interface language changes. */
     App.viewerPresets = [
-        { name: 'VF · sans sous-titres', audio: 'fr', subtitles: 'off' },
-        { name: 'VOSTFR', audio: 'original', subtitles: 'fr' },
-        { name: 'VF · sous-titres français', audio: 'fr', subtitles: 'fr' },
-        { name: 'VO · sans sous-titres', audio: 'original', subtitles: 'off' }
+        { name: I18n.t('VF · sans sous-titres'), audio: 'ui', subtitles: 'off' },
+        { name: I18n.t('VOSTFR'), audio: 'original', subtitles: 'ui' },
+        { name: I18n.t('VF · sous-titres français'), audio: 'ui', subtitles: 'ui' },
+        { name: I18n.t('VO · sans sous-titres'), audio: 'original', subtitles: 'off' }
     ];
+    App.resolveTrackLang = function (pref) {
+        return pref === 'ui' ? I18n.contentLang() : pref;
+    };
+    /* Profiles saved before 'ui' existed hold a language code: it matches while it is the interface language. */
+    App.viewerMatchesPreset = function (viewer, preset) {
+        return App.resolveTrackLang(viewer.audio) === App.resolveTrackLang(preset.audio) &&
+            App.resolveTrackLang(viewer.subtitles) === App.resolveTrackLang(preset.subtitles);
+    };
     App.loadViewers = function () {
         var data;
         var raw = Storage.get(Storage.KEYS.viewers) || '';
-        var defaults = (Storage.get(Storage.KEYS.prefAudioLang) || 'fr') + '|' +
+        var defaults = (Storage.get(Storage.KEYS.prefAudioLang) || 'ui') + '|' +
             (Storage.get(Storage.KEYS.prefSubLang) || 'off');
         var cacheKey = raw || defaults;
         if (cacheKey === viewerRaw && viewerCache) { return viewerCache; }
         try { data = JSON.parse(raw || 'null'); } catch (e) {}
         if (!data || !Array.isArray(data.list) || !data.list.length) {
-            data = { active: 'default', list: [{ id: 'default', name: 'Maison',
-                audio: Storage.get(Storage.KEYS.prefAudioLang) || 'fr',
+            data = { active: 'default', list: [{ id: 'default', name: I18n.t('Maison'),
+                audio: Storage.get(Storage.KEYS.prefAudioLang) || 'ui',
                 subtitles: Storage.get(Storage.KEYS.prefSubLang) || 'off', autoplay: false }] };
         }
         viewerRaw = cacheKey; viewerCache = data;
@@ -47,9 +57,9 @@ var App = App || {};
         name = String(name || '').trim().slice(0, 24);
         if (!name) { return null; }
         var data = App.loadViewers();
-        if (data.list.length >= 8) { App.toast('8 profils maximum'); return null; }
+        if (data.list.length >= 8) { App.toast(I18n.t('8 profils maximum')); return null; }
         var id = 'user-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
-        data.list.push({ id: id, name: name, audio: 'fr', subtitles: 'off', autoplay: false });
+        data.list.push({ id: id, name: name, audio: I18n.contentLang(), subtitles: 'off', autoplay: false });
         Storage.set(Storage.KEYS.viewers, JSON.stringify(data));
         return id;
     };
@@ -98,9 +108,10 @@ var App = App || {};
         var p = App.currentViewer();
         for (var i = 0; i < App.viewerPresets.length; i++) {
             var preset = App.viewerPresets[i];
-            if (p.audio === preset.audio && p.subtitles === preset.subtitles) { return preset.name; }
+            if (App.viewerMatchesPreset(p, preset)) { return preset.name; }
         }
-        return 'Personnalisé · ' + p.audio + ' / ' + p.subtitles;
+        return I18n.t('Personnalisé · {audio} / {subtitles}',
+            { audio: App.resolveTrackLang(p.audio), subtitles: App.resolveTrackLang(p.subtitles) });
     };
     App.personalizedAdditions = function (max) {
         var categories = Object.create(null);
@@ -126,7 +137,7 @@ var App = App || {};
                 if (out.length >= max || !categories[type + ':' + item.categoryId] ||
                     watched[type + ':' + (item.seriesId || item.id)]) { return; }
                 out.push({ kind: type, item: item, title: App.displayCatalogTitle(item.name),
-                    logo: item.logo || '', meta: 'Selon vos contenus regardés et suivis' });
+                    logo: item.logo || '', meta: I18n.t('Selon vos contenus regardés et suivis') });
             });
         });
         return out;

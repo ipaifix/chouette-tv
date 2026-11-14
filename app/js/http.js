@@ -36,7 +36,7 @@ var Http = (function () {
                     fail(label + ' HTTP ' + xhr.status);
                 }
             };
-            xhr.onerror = function () { fail(label + ' : erreur réseau'); };
+            xhr.onerror = function () { fail(I18n.t('{label} : erreur réseau', { label: label })); };
             xhr.ontimeout = function () { fail(label + ' request timed out'); };
             xhr.onabort = function () { fail(label + ' request aborted'); };
             xhr.send();

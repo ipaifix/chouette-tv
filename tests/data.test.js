@@ -5,11 +5,12 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 const os = require('node:os');
 const { spawnSync } = require('node:child_process');
 
 function load(name, globals = {}) {
-    const context = vm.createContext({ setTimeout, clearTimeout, ...globals });
+    const context = vm.createContext({ I18n: frenchI18n(),  setTimeout, clearTimeout, ...globals });
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../app/js/', name + '.js'), 'utf8'), context);
     return context;
 }

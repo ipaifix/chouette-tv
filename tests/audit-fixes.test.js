@@ -4,8 +4,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { frenchI18n } = require('./i18n-fixture');
 function load(files, extra = {}) {
-    const ctx = vm.createContext({ App: {}, setTimeout, clearTimeout, setInterval, clearInterval,
+    const ctx = vm.createContext({ I18n: frenchI18n(),  App: {}, setTimeout, clearTimeout, setInterval, clearInterval,
         window: { addEventListener() {} }, ...extra });
     for (const file of files) vm.runInContext(fs.readFileSync(path.join(__dirname, '../app/js', file + '.js'), 'utf8'), ctx, { filename: file });
     return ctx;
