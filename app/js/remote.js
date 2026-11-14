@@ -453,6 +453,7 @@ var App = App || {};
                 if (el === App.$settingSave) { App.saveSettings(); }
                 else if (el === App.$settingRefresh) { App.refreshCatalogFromSettings(); }
                 else if (el === App.$settingCancel) { App.hideSettings(); }
+                else if (el && el === App.$settingLang && App.cycleLanguage) { App.cycleLanguage(); }
                 else if (App.isSettingsInput(el)) {
                     if (App.settingsEditing) {
                         App.blurSettingsInputs();

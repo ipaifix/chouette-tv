@@ -99,6 +99,20 @@ test('editing settings leaves LEFT and RIGHT to the native caret', () => {
     assert.equal(App.settingsEditing, true);
 });
 
+test('OK on the language button in settings switches the language', () => {
+    const { App } = load(['remote']);
+    const lang = {};
+    let cycled = 0;
+    App.KEY = { ENTER: 13 };
+    App.$settingLang = lang;
+    App.settingsFocusables = [{}, lang];
+    App.settingsFocus = 1;
+    App.isSettingsInput = () => false;
+    App.cycleLanguage = () => { cycled++; };
+    App.onSettingsKeys({ keyCode: 13, preventDefault() {} });
+    assert.equal(cycled, 1);
+});
+
 test('home row scrolling uses real layout rather than a 320-pixel estimate', () => {
     const { App } = load(['home-ui']);
     App.$homeRows = { scrollTop: 100, getBoundingClientRect: () => ({ top: 20 }) };
